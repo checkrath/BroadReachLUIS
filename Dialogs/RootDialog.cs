@@ -107,35 +107,41 @@ namespace Microsoft.Bot.Sample.LuisBot
             this.lastDistrict= GetEntityValue("District", this.lastDistrict, result);
 
             //Build up a string describing performance:
-            string fullOutput = "Your [term] [indicator] performance for [district/prog] is [performance]. [note]";
+            string fullOutput = "The [term] [indicator]performance for [district/prog] is [performance]. [note]";
 
             //dummy output
             Random rnd = new Random();
             int target=rnd.Next(20,120);
             int actual = rnd.Next(20, 120); 
-            int percentTarget = (actual/target)*100;
+            int percentTarget = (int)(Math.Round( ((double)actual/(double)target)*100));
 
             //After [Mx_Past] months you should have spent $[LatestMonth_YTDTarget] [Indicator] but you have spent $[LatestMonth_YTDValue] which is [LatestMonth_AnnualTarget_perc]% of the annual target of $[LatestMonth_AnnualTarget]
             //if (this.lastProgramme == "All Programmes")
-            //{
-            //    await context.PostAsync($"Your {lastdate} performance is 78% of your target R20.3M");
-            //}
-            //else
-            //{
-            //    await context.PostAsync($"Your {lastdate} performance is 78% of your target R20.3M for {lastProgramme}");
-            //}
 
             //get the term
             fullOutput= fullOutput.Replace("[term]", lastTerm);
 
             //get the indicator
+            if (lastIndicator== "All indicators")
+                fullOutput = fullOutput.Replace("[indicator]", "");
+            else
+                fullOutput = fullOutput.Replace("[indicator]", lastIndicator + " ");
 
             //get the district/program
+            if (lastDistrict=="")
+            {
+                //No district so program
+                fullOutput = fullOutput.Replace("[district/prog]", lastProgramme);
+            }
+            else
+                fullOutput = fullOutput.Replace("[district/prog]", lastDistrict);
 
             //generate the performance reposnse
+            string performance = $"{actual} against a target of {target} which is {percentTarget}% of target";
+            fullOutput = fullOutput.Replace("[performance]", performance);
 
             //Add a note if required
-            if (percentTarget>1)
+            if (percentTarget>100)
                 fullOutput = fullOutput.Replace("[note]", "Great work!");
             else
                 fullOutput = fullOutput.Replace("[note]", "");
