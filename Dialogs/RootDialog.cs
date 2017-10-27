@@ -15,37 +15,211 @@ namespace Microsoft.Bot.Sample.LuisBot
     [Serializable]
     public class RootDialog : IDialog<object>
     {
+
+        DateTime lastHello;
+        public string outText;
+        public bool isHandled;
+        public string lastdate = "2017";
+        public string lastProgramme = "All Programmes";
+        public string lastCountry = "Worldwide";
+        public string lastDistrict = "";
+        public string lastIndicator = "All indicators";
+        public string lastIntent = "";
+
         public async Task StartAsync(IDialogContext context)
         {
             //initial prompt for what's missing
-            await context.PostAsync($"Hello there. This bot does XYZ");
+            //await context.PostAsync($"Hello there. This bot does XYZ");
             context.Wait(MessageReceivedAsync); // State transition: wait for user to start conversation
 
         }
 
         public async Task MessageReceivedAsync(IDialogContext context, IAwaitable<IMessageActivity> argument)
         {
+            //Get the user input
             string textIn = (await argument).Text;
-            await context.PostAsync($"You said:{textIn}");
+            //await context.PostAsync($"You said:{textIn}");
+            //call LUIS for a reponse
             string output = await GetJsonFromLUIS(textIn);
-            LuisResultFromJson luisOutput = new LuisResultFromJson(output);
+            LuisFullResult luisOutput = new LuisFullResult(output);
+
+            //call intent method based on LUIS intent
+            await CallCorrectMethodFromLuisResponse(luisOutput, context, argument);
+
             context.Wait(MessageReceivedAsync);
-            //int result;
+            
+        }
 
-            ////if its a number, assign and return. Otherwise ask again
-            //if (int.TryParse(textIn, out result))
+
+        /// <summary>
+        /// Will call the appropriate method based on the LUIS intent. This is the primary flow of the solution
+        /// </summary>
+        /// <param name="luisOutput"></param>
+        /// <returns></returns>
+        private async Task CallCorrectMethodFromLuisResponse(LuisFullResult luisOutput, IDialogContext context, IAwaitable<IMessageActivity> argument)
+        {
+            switch (luisOutput.TopIntent.Name)
+            {
+                case "ChangeParameter":
+                    await ChangeParameter_Intent(context, luisOutput);
+                    break;
+                case "PerformancePersonal":
+                    await PerformancePersonal_Intent(context, luisOutput);
+                    break;
+                case "Greeting_Hello":
+                    await Greeting_Hello_Intent(context, luisOutput);
+                    break;
+                case "Greeting_bye":
+                    await Greeting_bye_Intent(context, luisOutput);
+                    break;
+                case "Human":
+                    Human_Intent(context, luisOutput);
+                    break;
+                case "Help":
+                    Help_Intent(context, luisOutput);
+                    break;
+                case "None":
+                    await NoneIntent(context,argument, luisOutput);
+                    break;
+                default:
+                    throw new Exception($"Unconfigured intent of: {luisOutput.TopIntent.Name}");
+
+            }
+
+        }
+
+        #region functionalIntents
+        private async Task ChangeParameter_Intent(IDialogContext context, LuisFullResult result)
+        {
+            if (lastIntent == "PerformancePersonal")
+                await PerformancePersonal_Intent(context, result);
+            
+        }
+
+        private async Task PerformancePersonal_Intent(IDialogContext context, LuisFullResult result)
+        {
+            //check if they passed params through
+            this.lastdate = GetEntityValue("builtin.datetimeV2.daterange", this.lastdate, result);
+            this.lastProgramme = GetEntityValue("Programme", this.lastProgramme, result);
+            this.lastIntent = "PerformancePersonal";
+
+            if (this.lastProgramme == "All Programmes")
+            {
+                await context.PostAsync($"Your {lastdate} personal performance is 78% of your target R20.3M");
+            }
+            else
+            {
+                await context.PostAsync($"Your {lastdate} personal performance is 78% of your target R20.3M for {lastProgramme}");
+            }           
+
+        }
+
+#endregion
+
+        #region NoneIntent
+
+        private async Task NoneIntent(IDialogContext context, IAwaitable<IMessageActivity> message, LuisFullResult result)
+        {
+            //Todo: try send it off to QnA maker at this point and only respond if I don't understand
+            //await context.PostAsync($"Sorry, I don't understand: {result.Query}"); //
+            //await context.PostAsync("Please try rephrase your question or type help");
+            //outText = "hello outtext";
+            //isHandled = false;
+
+            var qnadialog = new BasicQnAMakerDialog();
+            var messageToForward = await message;
+            await context.Forward(qnadialog, AfterQnADialog, messageToForward, CancellationToken.None);
+        }
+
+        private async Task AfterQnADialog(IDialogContext context, IAwaitable<bool> result)
+        {
+            var answerFound = await result;
+
+            // we might want to send a message or take some action if no answer was found (false returned)
+            if (!answerFound)
+            {
+                await context.PostAsync("I’m not sure what you want.");
+                //await context.PostAsync($"Sorry, I don't understand: {result.Query}"); //
+                await context.PostAsync("Please try rephrase your question or type help");
+            }
+
+            //context.Wait(MessageReceived);
+        }
+
+        #endregion
+
+        #region Generic intents
+
+        private async Task Greeting_Hello_Intent(IDialogContext context, LuisFullResult result)
+        {
+            //Say hello back - joke if user said hello too recently
+            if ((lastHello == null) || DateTime.Now.Subtract(lastHello).Minutes < 2)
+                await context.PostAsync($"Hi again :)");
+            else
+                await context.PostAsync($"Hi. If you need some help, just ask for it.");
+
+            lastHello = DateTime.Now;
+        }
+
+        private async Task Greeting_bye_Intent(IDialogContext context, LuisFullResult result)
+        {
+            await context.PostAsync($"Great chatting to you.. Let me know how I did on a scale from 1 to 10");
+        }
+
+        private async Task Human_Intent(IDialogContext context, LuisFullResult result)
+        {
+            //string department;
+            LuisEntity entity;
+            bool departmentSet = result.TryFindEntity("Department", out entity);
+            if (departmentSet)
+            {
+                //string depName = entity.Value;
+                await context.PostAsync($"Will pass your details onto someone in {entity.Value}");
+            }
+            else
+            {
+                await context.PostAsync($"No problem. Will pass your details onto a human");
+            }
+
+        }
+
+        private async Task Help_Intent(IDialogContext context, LuisFullResult result)
+        {
+            await context.PostAsync($"Can certainly help...");
+            await context.PostAsync($"I can answer questions on your performance or business indicators.");
+            await context.PostAsync($"I can also answer general questions about Broadreach and our offerings.");
+            await context.PostAsync($"Try: \"What is my performance for 2017?\"");
+
+        }
+
+        #endregion
+
+        string GetEntityValue(string entityName, string defaultVal, LuisFullResult result)
+        {
+            //todo: fix
+            //EntityRecommendation entity;
+            ////get params
+            //bool foundIt = result.TryFindEntity(entityName, out entity);
+            //if (foundIt)
             //{
-            //    this.DateRange = textIn;
-
-            //    //await context.PostAsync($"Thanks for your date range of {DateRange}");
-            //    //context.Wait(MessageReceivedRegistrationNumber); // State transition: wait for user to provide registration number
-            //    context.Done<string>(this.DateRange);
+            //    //get entity type and original value
+            //    //if (entity.Type == "builtin.datetimeV2.daterange")
+            //    //{
+            //    //    foreach (var vals in entity.Resolution.Values)
+            //    //    {
+            //    //        System.Collections.Generic.List<Object> valsAsString = (List<Object>)vals;
+            //    //        if (((Newtonsoft.Json.Linq.JArray)vals).First.SelectToken("type").ToString() == "daterange")
+            //    //        {
+            //    //            var start = (DateTime)((Newtonsoft.Json.Linq.JArray)vals).First.SelectToken("start");
+            //    //            var end = (DateTime)((Newtonsoft.Json.Linq.JArray)vals).First.SelectToken("end");
+            //    //        }
+            //    //    }
+            //    //}
+            //    return entity.Entity;
             //}
             //else
-            //{
-            //    await context.PostAsync($"{textIn} is not a valid year. PLease entre a valid year.");
-            //    context.Wait(MessageReceivedStartConversation);
-            //}
+            //    return defaultVal;
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -55,6 +229,8 @@ namespace Microsoft.Bot.Sample.LuisBot
         /// <returns></returns>
         private async Task<string> GetJsonFromLUIS(string userQuery)
         {
+            //todo: put this into a separate class that used the app object to initialize
+
             string query = Uri.EscapeDataString(userQuery);
 
             using (HttpClient client = new HttpClient())

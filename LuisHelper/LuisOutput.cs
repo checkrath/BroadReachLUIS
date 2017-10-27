@@ -9,13 +9,15 @@ namespace LuisBot.LuisHelper
     /// <summary>
     /// Represents the json result from a LUIS call
     /// </summary>
-    public class LuisResultFromJson
+    public class LuisFullResult
     {
         public LuisIntent TopIntent;
         public LuisIntent[] Intents;
         public LuisEntity[] Entities;
 
-        public LuisResultFromJson(string json)
+        //todo: create constructor that takes an app details and loads and populates trhis object
+
+        public LuisFullResult(string json)
         {
             Newtonsoft.Json.Linq.JObject luisOutput = (Newtonsoft.Json.Linq.JObject)JsonConvert.DeserializeObject(json);
 
@@ -38,10 +40,15 @@ namespace LuisBot.LuisHelper
             {
                 LuisEntity luisEntity = LuisEntity.CreateLuisEntityFromJson(luisOutput, i);
                 Entities[i] = luisEntity;
-            }
+            }       
 
-           
 
+        }
+
+        public bool TryFindEntity(string entityName, out LuisEntity luisEntity)
+        {
+            throw new NotImplementedException();
+            //if (this.Entities.Select)
         }
 
     }
