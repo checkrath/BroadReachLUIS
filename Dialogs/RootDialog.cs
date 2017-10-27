@@ -25,6 +25,7 @@ namespace Microsoft.Bot.Sample.LuisBot
         public string lastDistrict = "";
         public string lastIndicator = "All indicators";
         public string lastIntent = "";
+        public string lastTerm = "annual";
 
         public async Task StartAsync(IDialogContext context)
         {
@@ -63,8 +64,8 @@ namespace Microsoft.Bot.Sample.LuisBot
                 case "ChangeParameter":
                     await ChangeParameter_Intent(context, luisOutput);
                     break;
-                case "PerformancePersonal":
-                    await PerformancePersonal_Intent(context, luisOutput);
+                case "PerformanceAgainstTarget":
+                    await PerformanceAgainstTarget_Intent(context, luisOutput);
                     break;
                 case "Greeting_Hello":
                     await Greeting_Hello_Intent(context, luisOutput);
@@ -92,26 +93,55 @@ namespace Microsoft.Bot.Sample.LuisBot
         private async Task ChangeParameter_Intent(IDialogContext context, LuisFullResult result)
         {
             if (lastIntent == "PerformancePersonal")
-                await PerformancePersonal_Intent(context, result);
+                await PerformanceAgainstTarget_Intent(context, result);
             
         }
 
-        private async Task PerformancePersonal_Intent(IDialogContext context, LuisFullResult result)
+        private async Task PerformanceAgainstTarget_Intent(IDialogContext context, LuisFullResult result)
         {
             //check if they passed params through
-            this.lastdate = GetEntityValue("builtin.datetimeV2.daterange", this.lastdate, result);
+            //this.lastdate = GetEntityValue("builtin.datetimeV2.daterange", this.lastdate, result);
+            this.lastTerm= GetEntityValue("Term", this.lastTerm, result);
             this.lastProgramme = GetEntityValue("Programme", this.lastProgramme, result);
-            this.lastIntent = "PerformancePersonal";
+            this.lastIntent = "PerformanceAgainstTarget";
             this.lastDistrict= GetEntityValue("District", this.lastDistrict, result);
 
-            if (this.lastProgramme == "All Programmes")
-            {
-                await context.PostAsync($"Your {lastdate} performance is 78% of your target R20.3M");
-            }
+            //Build up a string describing performance:
+            string fullOutput = "Your [term] [indicator] performance for [district/prog] is [performance]. [note]";
+
+            //dummy output
+            Random rnd = new Random();
+            int target=rnd.Next(20,120);
+            int actual = rnd.Next(20, 120); 
+            int percentTarget = (actual/target)*100;
+
+            //After [Mx_Past] months you should have spent $[LatestMonth_YTDTarget] [Indicator] but you have spent $[LatestMonth_YTDValue] which is [LatestMonth_AnnualTarget_perc]% of the annual target of $[LatestMonth_AnnualTarget]
+            //if (this.lastProgramme == "All Programmes")
+            //{
+            //    await context.PostAsync($"Your {lastdate} performance is 78% of your target R20.3M");
+            //}
+            //else
+            //{
+            //    await context.PostAsync($"Your {lastdate} performance is 78% of your target R20.3M for {lastProgramme}");
+            //}
+
+            //get the term
+            fullOutput= fullOutput.Replace("[term]", lastTerm);
+
+            //get the indicator
+
+            //get the district/program
+
+            //generate the performance reposnse
+
+            //Add a note if required
+            if (percentTarget>1)
+                fullOutput = fullOutput.Replace("[note]", "Great work!");
             else
-            {
-                await context.PostAsync($"Your {lastdate} performance is 78% of your target R20.3M for {lastProgramme}");
-            }           
+                fullOutput = fullOutput.Replace("[note]", "");
+
+            //output the reponse
+            await context.PostAsync(fullOutput);
 
         }
 
