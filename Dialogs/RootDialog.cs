@@ -92,7 +92,7 @@ namespace Microsoft.Bot.Sample.LuisBot
         #region functionalIntents
         private async Task ChangeParameter_Intent(IDialogContext context, LuisFullResult result)
         {
-            if (lastIntent == "PerformancePersonal")
+            if (lastIntent == "PerformanceAgainstTarget")
                 await PerformanceAgainstTarget_Intent(context, result);
             
         }
