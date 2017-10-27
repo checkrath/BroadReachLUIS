@@ -73,10 +73,10 @@ namespace Microsoft.Bot.Sample.LuisBot
                     await Greeting_bye_Intent(context, luisOutput);
                     break;
                 case "Human":
-                    Human_Intent(context, luisOutput);
+                    await Human_Intent(context, luisOutput);
                     break;
                 case "Help":
-                    Help_Intent(context, luisOutput);
+                    await Help_Intent(context, luisOutput);
                     break;
                 case "None":
                     await NoneIntent(context,argument, luisOutput);
@@ -102,14 +102,15 @@ namespace Microsoft.Bot.Sample.LuisBot
             this.lastdate = GetEntityValue("builtin.datetimeV2.daterange", this.lastdate, result);
             this.lastProgramme = GetEntityValue("Programme", this.lastProgramme, result);
             this.lastIntent = "PerformancePersonal";
+            this.lastDistrict= GetEntityValue("District", this.lastDistrict, result);
 
             if (this.lastProgramme == "All Programmes")
             {
-                await context.PostAsync($"Your {lastdate} personal performance is 78% of your target R20.3M");
+                await context.PostAsync($"Your {lastdate} performance is 78% of your target R20.3M");
             }
             else
             {
-                await context.PostAsync($"Your {lastdate} personal performance is 78% of your target R20.3M for {lastProgramme}");
+                await context.PostAsync($"Your {lastdate} performance is 78% of your target R20.3M for {lastProgramme}");
             }           
 
         }
@@ -171,10 +172,11 @@ namespace Microsoft.Bot.Sample.LuisBot
             //string department;
             LuisEntity entity;
             bool departmentSet = result.TryFindEntity("Department", out entity);
+            LuisStandardEntity departmentEntity = (LuisStandardEntity)entity;
             if (departmentSet)
             {
                 //string depName = entity.Value;
-                await context.PostAsync($"Will pass your details onto someone in {entity.Value}");
+                await context.PostAsync($"Will pass your details onto someone in {departmentEntity.TrueValue}");
             }
             else
             {
@@ -196,30 +198,35 @@ namespace Microsoft.Bot.Sample.LuisBot
 
         string GetEntityValue(string entityName, string defaultVal, LuisFullResult result)
         {
-            //todo: fix
-            //EntityRecommendation entity;
-            ////get params
-            //bool foundIt = result.TryFindEntity(entityName, out entity);
-            //if (foundIt)
-            //{
-            //    //get entity type and original value
-            //    //if (entity.Type == "builtin.datetimeV2.daterange")
-            //    //{
-            //    //    foreach (var vals in entity.Resolution.Values)
-            //    //    {
-            //    //        System.Collections.Generic.List<Object> valsAsString = (List<Object>)vals;
-            //    //        if (((Newtonsoft.Json.Linq.JArray)vals).First.SelectToken("type").ToString() == "daterange")
-            //    //        {
-            //    //            var start = (DateTime)((Newtonsoft.Json.Linq.JArray)vals).First.SelectToken("start");
-            //    //            var end = (DateTime)((Newtonsoft.Json.Linq.JArray)vals).First.SelectToken("end");
-            //    //        }
-            //    //    }
-            //    //}
-            //    return entity.Entity;
-            //}
-            //else
-            //    return defaultVal;
-            throw new NotImplementedException();
+            LuisEntity entity;
+            //get params
+            bool foundIt = result.TryFindEntity(entityName, out entity);
+            if (foundIt)
+            {
+                //get entity type and original value
+                //if (entity.Type == "builtin.datetimeV2.daterange")
+                //{
+                //    foreach (var vals in entity.Resolution.Values)
+                //    {
+                //        System.Collections.Generic.List<Object> valsAsString = (List<Object>)vals;
+                //        if (((Newtonsoft.Json.Linq.JArray)vals).First.SelectToken("type").ToString() == "daterange")
+                //        {
+                //            var start = (DateTime)((Newtonsoft.Json.Linq.JArray)vals).First.SelectToken("start");
+                //            var end = (DateTime)((Newtonsoft.Json.Linq.JArray)vals).First.SelectToken("end");
+                //        }
+                //    }
+                //}
+                
+                //check on the type and return appropriate value
+                if (entity is LuisStandardEntity)
+                {
+                    return ((LuisStandardEntity)entity).TrueValue;
+                }
+                else
+                    return entity.Value;
+            }
+            else
+                return defaultVal;
         }
 
         /// <summary>

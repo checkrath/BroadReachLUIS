@@ -45,10 +45,27 @@ namespace LuisBot.LuisHelper
 
         }
 
+        /// <summary>
+        /// Try find an entity of a specific type
+        /// </summary>
+        /// <param name="entityName"></param>
+        /// <param name="luisEntity"></param>
+        /// <returns></returns>
         public bool TryFindEntity(string entityName, out LuisEntity luisEntity)
         {
-            throw new NotImplementedException();
-            //if (this.Entities.Select)
+            bool found = false;
+            //loop though all entities till you find it
+            foreach (LuisEntity entity in this.Entities)
+            {
+                if (entity.Name==entityName)
+                {
+                    luisEntity = entity;
+                    return true;
+                }
+            }
+            //If here, nothing was found
+            luisEntity = null;
+            return false;
         }
 
     }
