@@ -1,0 +1,800 @@
+{
+  "luis_schema_version": "2.1.0",
+  "versionId": "0.1",
+  "name": "BroadreachChatDemo",
+  "desc": "",
+  "culture": "en-us",
+  "intents": [
+    {
+      "name": "ChangeParameter"
+    },
+    {
+      "name": "Greeting_bye"
+    },
+    {
+      "name": "Greeting_Hello"
+    },
+    {
+      "name": "Help"
+    },
+    {
+      "name": "Human"
+    },
+    {
+      "name": "None"
+    },
+    {
+      "name": "PerformanceIndicators"
+    },
+    {
+      "name": "PerformancePersonal"
+    }
+  ],
+  "entities": [],
+  "composites": [],
+  "closedLists": [
+    {
+      "name": "Country",
+      "subLists": [
+        {
+          "canonicalForm": "South Africa",
+          "list": [
+            "sa"
+          ]
+        },
+        {
+          "canonicalForm": "This country",
+          "list": [
+            "my country"
+          ]
+        },
+        {
+          "canonicalForm": "United States",
+          "list": [
+            "usa"
+          ]
+        },
+        {
+          "canonicalForm": "Nigeria",
+          "list": []
+        },
+        {
+          "canonicalForm": "Botswana",
+          "list": []
+        }
+      ]
+    },
+    {
+      "name": "Department",
+      "subLists": [
+        {
+          "canonicalForm": "HR",
+          "list": [
+            "human resources"
+          ]
+        },
+        {
+          "canonicalForm": "Marketing",
+          "list": [
+            "marketting"
+          ]
+        },
+        {
+          "canonicalForm": "sales",
+          "list": []
+        },
+        {
+          "canonicalForm": "finance",
+          "list": [
+            "accounts"
+          ]
+        },
+        {
+          "canonicalForm": "legal",
+          "list": []
+        },
+        {
+          "canonicalForm": "IT",
+          "list": [
+            "tech support"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "District",
+      "subLists": [
+        {
+          "canonicalForm": "Ubu",
+          "list": [
+            "ubu district"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Facility",
+      "subLists": [
+        {
+          "canonicalForm": "Waterfall",
+          "list": [
+            "waterfall clinic"
+          ]
+        },
+        {
+          "canonicalForm": "Edenvale ",
+          "list": [
+            "edenvale hospital"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Indicator",
+      "subLists": [
+        {
+          "canonicalForm": "Financial",
+          "list": []
+        },
+        {
+          "canonicalForm": "All indicators",
+          "list": []
+        },
+        {
+          "canonicalForm": "HR",
+          "list": []
+        }
+      ]
+    },
+    {
+      "name": "Programme",
+      "subLists": [
+        {
+          "canonicalForm": "Programme A",
+          "list": [
+            "program a",
+            "programme a"
+          ]
+        },
+        {
+          "canonicalForm": "Programme B",
+          "list": [
+            "program b",
+            "programme b"
+          ]
+        },
+        {
+          "canonicalForm": "All Programmes",
+          "list": [
+            "all programmes",
+            "all programs"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Term",
+      "subLists": [
+        {
+          "canonicalForm": "Annual",
+          "list": [
+            "yearly"
+          ]
+        },
+        {
+          "canonicalForm": "YTD",
+          "list": [
+            "year to date"
+          ]
+        },
+        {
+          "canonicalForm": "2016",
+          "list": [
+            "last year"
+          ]
+        }
+      ]
+    }
+  ],
+  "bing_entities": [
+    "datetimeV2"
+  ],
+  "actions": [],
+  "model_features": [
+    {
+      "name": "Department",
+      "mode": false,
+      "words": "HR,Human Resources,Marketting,finance,sales,accounting,legal,IT,marketing",
+      "activated": true
+    },
+    {
+      "name": "LastYear",
+      "mode": true,
+      "words": "Last year,2016,the past year,the previous year,the preceding year,last year ' s",
+      "activated": true
+    }
+  ],
+  "regex_features": [],
+  "utterances": [
+    {
+      "text": "hello",
+      "intent": "Greeting_Hello",
+      "entities": []
+    },
+    {
+      "text": "hi",
+      "intent": "Greeting_Hello",
+      "entities": []
+    },
+    {
+      "text": "please help me",
+      "intent": "Help",
+      "entities": []
+    },
+    {
+      "text": "help",
+      "intent": "Help",
+      "entities": []
+    },
+    {
+      "text": "good morning",
+      "intent": "Greeting_Hello",
+      "entities": []
+    },
+    {
+      "text": "good afternoon",
+      "intent": "Greeting_Hello",
+      "entities": []
+    },
+    {
+      "text": "good evening",
+      "intent": "Greeting_Hello",
+      "entities": []
+    },
+    {
+      "text": "can you help me?",
+      "intent": "Help",
+      "entities": []
+    },
+    {
+      "text": "what",
+      "intent": "None",
+      "entities": []
+    },
+    {
+      "text": "bye",
+      "intent": "Greeting_bye",
+      "entities": []
+    },
+    {
+      "text": "what can you do?",
+      "intent": "Help",
+      "entities": []
+    },
+    {
+      "text": "blah",
+      "intent": "None",
+      "entities": []
+    },
+    {
+      "text": "tell me about yourself",
+      "intent": "Help",
+      "entities": []
+    },
+    {
+      "text": "hiya",
+      "intent": "Greeting_Hello",
+      "entities": []
+    },
+    {
+      "text": "hello?",
+      "intent": "Greeting_Hello",
+      "entities": []
+    },
+    {
+      "text": "whatsup",
+      "intent": "Greeting_Hello",
+      "entities": []
+    },
+    {
+      "text": "what do they do?",
+      "intent": "None",
+      "entities": []
+    },
+    {
+      "text": "how am i doing?",
+      "intent": "PerformancePersonal",
+      "entities": []
+    },
+    {
+      "text": "i need help!",
+      "intent": "Help",
+      "entities": []
+    },
+    {
+      "text": "yo bot",
+      "intent": "Greeting_Hello",
+      "entities": []
+    },
+    {
+      "text": "done for now",
+      "intent": "Greeting_bye",
+      "entities": []
+    },
+    {
+      "text": "what are your features?",
+      "intent": "Help",
+      "entities": []
+    },
+    {
+      "text": "what are you able to do?",
+      "intent": "Help",
+      "entities": []
+    },
+    {
+      "text": "who are we?",
+      "intent": "None",
+      "entities": []
+    },
+    {
+      "text": "what functionality do you have?",
+      "intent": "Help",
+      "entities": []
+    },
+    {
+      "text": "chat later",
+      "intent": "Greeting_bye",
+      "entities": []
+    },
+    {
+      "text": "what do we do?",
+      "intent": "None",
+      "entities": []
+    },
+    {
+      "text": "what about usa?",
+      "intent": "ChangeParameter",
+      "entities": []
+    },
+    {
+      "text": "vantage",
+      "intent": "None",
+      "entities": []
+    },
+    {
+      "text": "book me a seat on a bus leaving nyc to boston .",
+      "intent": "None",
+      "entities": []
+    },
+    {
+      "text": "fatima luas stop dublin please",
+      "intent": "None",
+      "entities": []
+    },
+    {
+      "text": "I will not visit the Musee du Louvre",
+      "intent": "None",
+      "entities": []
+    },
+    {
+      "text": "bayonne yellow cab please",
+      "intent": "None",
+      "entities": []
+    },
+    {
+      "text": "book me on an amtrak from here to dc",
+      "intent": "None",
+      "entities": []
+    },
+    {
+      "text": "Reserve on pace bus transportation",
+      "intent": "None",
+      "entities": []
+    },
+    {
+      "text": "septa bus please",
+      "intent": "None",
+      "entities": []
+    },
+    {
+      "text": "I want to catch bus route twelve tamu",
+      "intent": "None",
+      "entities": []
+    },
+    {
+      "text": "book 5 tickets for the city transit .",
+      "intent": "None",
+      "entities": []
+    },
+    {
+      "text": "I want to take bus 240",
+      "intent": "None",
+      "entities": []
+    },
+    {
+      "text": "I want to catch bus number 4 route",
+      "intent": "None",
+      "entities": []
+    },
+    {
+      "text": "how far from manchester airport",
+      "intent": "None",
+      "entities": []
+    },
+    {
+      "text": "Get a translink for me",
+      "intent": "None",
+      "entities": []
+    },
+    {
+      "text": "Please reserve for me a single sea view room at hilton paris",
+      "intent": "None",
+      "entities": []
+    },
+    {
+      "text": "I want to get a gatorade coupon",
+      "intent": "None",
+      "entities": []
+    },
+    {
+      "text": "I want to get pepcid coupons",
+      "intent": "None",
+      "entities": []
+    },
+    {
+      "text": "I want to catch bus route 221",
+      "intent": "None",
+      "entities": []
+    },
+    {
+      "text": "cancel i ' m hungry",
+      "intent": "None",
+      "entities": []
+    },
+    {
+      "text": "cancel cancel i ' m hungry",
+      "intent": "None",
+      "entities": []
+    },
+    {
+      "text": "how am i performing?",
+      "intent": "PerformancePersonal",
+      "entities": []
+    },
+    {
+      "text": "what was my performance in 2016?",
+      "intent": "PerformancePersonal",
+      "entities": []
+    },
+    {
+      "text": "what is our performance against annual target?",
+      "intent": "PerformancePersonal",
+      "entities": []
+    },
+    {
+      "text": "what is our workplan deliverables risk scores?",
+      "intent": "None",
+      "entities": []
+    },
+    {
+      "text": "what is my performance?",
+      "intent": "PerformancePersonal",
+      "entities": []
+    },
+    {
+      "text": "what is our performance against ytd target?",
+      "intent": "PerformancePersonal",
+      "entities": []
+    },
+    {
+      "text": "how are we doing on ytd targets?",
+      "intent": "PerformancePersonal",
+      "entities": []
+    },
+    {
+      "text": "what is our performance against ytd targets?",
+      "intent": "PerformancePersonal",
+      "entities": []
+    },
+    {
+      "text": "which deliverables are placing the programme at risk?",
+      "intent": "None",
+      "entities": []
+    },
+    {
+      "text": "is the impact of a geo-location increasing, decreasing or staying the same (trend)",
+      "intent": "None",
+      "entities": []
+    },
+    {
+      "text": "my boat is full of eels",
+      "intent": "None",
+      "entities": []
+    },
+    {
+      "text": "please move me to a human?",
+      "intent": "Human",
+      "entities": []
+    },
+    {
+      "text": "can i rather talk to a person?",
+      "intent": "Human",
+      "entities": []
+    },
+    {
+      "text": "who are broadreach?",
+      "intent": "None",
+      "entities": []
+    },
+    {
+      "text": "what countries does broadreach operate in?",
+      "intent": "None",
+      "entities": []
+    },
+    {
+      "text": "what solutions does broachreach offer?",
+      "intent": "None",
+      "entities": []
+    },
+    {
+      "text": "what does this chatbot do?",
+      "intent": "None",
+      "entities": []
+    },
+    {
+      "text": "what does this chatbot do?",
+      "intent": "None",
+      "entities": []
+    },
+    {
+      "text": "please redirect me to a person instead",
+      "intent": "Human",
+      "entities": []
+    },
+    {
+      "text": "please redirect me to hr instead",
+      "intent": "Human",
+      "entities": []
+    },
+    {
+      "text": "please direct me to marketing instead",
+      "intent": "Human",
+      "entities": []
+    },
+    {
+      "text": "how are we doing ?",
+      "intent": "PerformancePersonal",
+      "entities": []
+    },
+    {
+      "text": "please move me to a human in marketing",
+      "intent": "Human",
+      "entities": []
+    },
+    {
+      "text": "please can i talk to someone in hr",
+      "intent": "Human",
+      "entities": []
+    },
+    {
+      "text": "can i speak to someone from sales?",
+      "intent": "Human",
+      "entities": []
+    },
+    {
+      "text": "can i speak to hr?",
+      "intent": "Human",
+      "entities": []
+    },
+    {
+      "text": "how are we doing against our annual target?",
+      "intent": "PerformancePersonal",
+      "entities": []
+    },
+    {
+      "text": "how are we doing against our yearly target for programmea?",
+      "intent": "PerformancePersonal",
+      "entities": []
+    },
+    {
+      "text": "which indicators are hitting/missing targets?",
+      "intent": "PerformanceIndicators",
+      "entities": []
+    },
+    {
+      "text": "how are my indicators for programmea in south africa?",
+      "intent": "PerformanceIndicators",
+      "entities": []
+    },
+    {
+      "text": "i'm not sure what i need to do",
+      "intent": "Help",
+      "entities": []
+    },
+    {
+      "text": "what's my performance for all programmes?",
+      "intent": "PerformancePersonal",
+      "entities": []
+    },
+    {
+      "text": "what is my performance for programme b in 2017?",
+      "intent": "PerformancePersonal",
+      "entities": []
+    },
+    {
+      "text": "how's my performance for programme b?",
+      "intent": "PerformancePersonal",
+      "entities": []
+    },
+    {
+      "text": "how are we doing this year?",
+      "intent": "PerformancePersonal",
+      "entities": []
+    },
+    {
+      "text": "what about programme a?",
+      "intent": "ChangeParameter",
+      "entities": []
+    },
+    {
+      "text": "and 2015?",
+      "intent": "ChangeParameter",
+      "entities": []
+    },
+    {
+      "text": "and for programme b",
+      "intent": "ChangeParameter",
+      "entities": []
+    },
+    {
+      "text": "and for 2017?",
+      "intent": "ChangeParameter",
+      "entities": []
+    },
+    {
+      "text": "re-query with programme b?",
+      "intent": "ChangeParameter",
+      "entities": []
+    },
+    {
+      "text": "and programme a?",
+      "intent": "ChangeParameter",
+      "entities": []
+    },
+    {
+      "text": "how about 2017?",
+      "intent": "ChangeParameter",
+      "entities": []
+    },
+    {
+      "text": "but programme a instead?",
+      "intent": "ChangeParameter",
+      "entities": []
+    },
+    {
+      "text": "but 2016 instead?",
+      "intent": "ChangeParameter",
+      "entities": []
+    },
+    {
+      "text": "and for usa?",
+      "intent": "ChangeParameter",
+      "entities": []
+    },
+    {
+      "text": "what about program b in south africa?",
+      "intent": "ChangeParameter",
+      "entities": []
+    },
+    {
+      "text": "what is the current status of the kpis?",
+      "intent": "PerformanceIndicators",
+      "entities": []
+    },
+    {
+      "text": "how are the indicators for program b in nigeria?",
+      "intent": "PerformanceIndicators",
+      "entities": []
+    },
+    {
+      "text": "how are the kpis in 2017?",
+      "intent": "PerformanceIndicators",
+      "entities": []
+    },
+    {
+      "text": "what's my performance in 2015 for all programme?",
+      "intent": "PerformancePersonal",
+      "entities": []
+    },
+    {
+      "text": "how am i performing",
+      "intent": "PerformancePersonal",
+      "entities": []
+    },
+    {
+      "text": "how am i doing in programme b?",
+      "intent": "PerformancePersonal",
+      "entities": []
+    },
+    {
+      "text": "what is my performance on programme a?",
+      "intent": "PerformancePersonal",
+      "entities": []
+    },
+    {
+      "text": "what is my performance for programme b",
+      "intent": "PerformancePersonal",
+      "entities": []
+    },
+    {
+      "text": "how are the kpis doing?",
+      "intent": "PerformanceIndicators",
+      "entities": []
+    },
+    {
+      "text": "what are our offerings?",
+      "intent": "None",
+      "entities": []
+    },
+    {
+      "text": "what does broadreach do?",
+      "intent": "None",
+      "entities": []
+    },
+    {
+      "text": "who is braodreach?",
+      "intent": "None",
+      "entities": []
+    },
+    {
+      "text": "what is broadreach?",
+      "intent": "None",
+      "entities": []
+    },
+    {
+      "text": "and how am i doing?",
+      "intent": "PerformancePersonal",
+      "entities": []
+    },
+    {
+      "text": "and for south africa?",
+      "intent": "ChangeParameter",
+      "entities": []
+    },
+    {
+      "text": "and for south africa in 2016?",
+      "intent": "ChangeParameter",
+      "entities": []
+    },
+    {
+      "text": "what are broadreach's products?",
+      "intent": "None",
+      "entities": []
+    },
+    {
+      "text": "what are our products?",
+      "intent": "None",
+      "entities": []
+    },
+    {
+      "text": "how is my perfromance?",
+      "intent": "PerformancePersonal",
+      "entities": []
+    },
+    {
+      "text": "how's my perfromance for programme b?",
+      "intent": "PerformancePersonal",
+      "entities": []
+    },
+    {
+      "text": "beter",
+      "intent": "None",
+      "entities": []
+    },
+    {
+      "text": "what must i do?",
+      "intent": "Help",
+      "entities": []
+    }
+  ]
+}
