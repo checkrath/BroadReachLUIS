@@ -101,6 +101,15 @@ namespace Microsoft.Bot.Sample.LuisBot
                 case "PerformanceAgainstTarget":
                     await PerformanceAgainstTarget_Intent(context, luisOutput);
                     break;
+                case "ListDistricts":
+                    await ListDistricts_Intent(context, luisOutput);
+                    break;
+                case "ListIndicators":
+                    await ListIndicators_Intent(context, luisOutput);
+                    break;
+                case "ListPrograms":
+                    await ListPrograms_Intent(context, luisOutput);
+                    break;
                 case "Greeting_Hello":
                     await Greeting_Hello_Intent(context);
                     break;

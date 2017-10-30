@@ -52,12 +52,13 @@ namespace Microsoft.Bot.Sample.LuisBot
                 if ( message.MembersAdded[0].Id== message.Recipient.Id)
                 {
                     ConnectorClient connector = new ConnectorClient(new Uri(message.ServiceUrl));
-                    Activity reply = message.CreateReply("I am your service provider virtual assistant, How can I help you today? ");
-                    //    await context.PostAsync("Welcome to the BroadReach bot.");
-                    //    await context.PostAsync($"I can answer questions on your performance or business indicators for specific programmes or districts. Ensure your questions relate to districts, programs and indicators in our database.");
-                    //    await context.PostAsync($"I can also answer general questions about Broadreach and our offerings.");
-                    //    await context.PostAsync($"Try: \"What is the Ugu district performance for 2017?\"");
+                    string replyText = "Welcome to the BroadReach bot. \r\n" +
+                        "I can answer questions on your performance or business indicators for specific programmes or districts. Ensure your questions relate to districts, programs and indicators in our database.\r\n" +
+                        "I can also answer general questions about Broadreach and our offerings.\r\n" +
+                        "Try: \"What is the Ugu district performance for 2017?\"";
 
+                    Activity reply = message.CreateReply(replyText);
+                  
                     connector.Conversations.ReplyToActivityAsync(reply);
                 }
             }
