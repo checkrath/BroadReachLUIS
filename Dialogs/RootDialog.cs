@@ -26,17 +26,44 @@ namespace Microsoft.Bot.Sample.LuisBot
         public string lastIndicator = "All indicators";
         public string lastIntent = "";
         public string lastTerm = "annual";
+        public string username;
+        public string userId;
 
         public async Task StartAsync(IDialogContext context)
         {
             //initial prompt for what's missing
-            //await context.PostAsync($"Hello there. This bot does XYZ");
+            //await Greeting_Hello_Intent(context);
             context.Wait(MessageReceivedAsync); // State transition: wait for user to start conversation
+            
+                
 
         }
 
+        //public async Task FirstReceivedAsync(IDialogContext context, IAwaitable<IMessageActivity> argument)
+        //{
+        //    await context.PostAsync("Welcome to the BroadReach bot.");
+        //    await context.PostAsync($"I can answer questions on your performance or business indicators for specific programmes or districts. Ensure your questions relate to districts, programs and indicators in our database.");
+        //    await context.PostAsync($"I can also answer general questions about Broadreach and our offerings.");
+        //    await context.PostAsync($"Try: \"What is the Ugu district performance for 2017?\"");
+
+        //}
+
         public async Task MessageReceivedAsync(IDialogContext context, IAwaitable<IMessageActivity> argument)
         {
+            //exit if no input
+            //if (context.Activity.GetActivityType() != ActivityTypes.Message) return;
+
+            //Get the username
+            if (context.Activity.From.Id != null)
+            {
+                userId = context.Activity.From.Id;
+                username= context.Activity.From.Name;
+            }
+            else
+            {
+                userId = "Anonymous";
+                username = "Unknown User";
+            }
             //Get the user input
             string textIn = (await argument).Text;
             //await context.PostAsync($"You said:{textIn}");
@@ -75,7 +102,7 @@ namespace Microsoft.Bot.Sample.LuisBot
                     await PerformanceAgainstTarget_Intent(context, luisOutput);
                     break;
                 case "Greeting_Hello":
-                    await Greeting_Hello_Intent(context, luisOutput);
+                    await Greeting_Hello_Intent(context);
                     break;
                 case "Greeting_bye":
                     await Greeting_bye_Intent(context, luisOutput);
@@ -110,6 +137,7 @@ namespace Microsoft.Bot.Sample.LuisBot
             //this.lastdate = GetEntityValue("builtin.datetimeV2.daterange", this.lastdate, result);
             this.lastTerm = GetEntityValue("Term", this.lastTerm, result);
             this.lastIntent = "PerformanceAgainstTarget";
+            this.lastIndicator= GetEntityValue("Indicator", this.lastIndicator, result);
 
             //Build up a string describing performance:
             const string TOKEN_DISTRICT = "[district/prog]";
@@ -150,6 +178,22 @@ namespace Microsoft.Bot.Sample.LuisBot
             await context.PostAsync(fullOutput);
 
         }
+
+        private async Task ListIndicators_Intent(IDialogContext context, LuisFullResult result)
+        {
+            await context.PostAsync($"I can give you the status of the HTS_TST, HTS_TST +, TX_CURR, TX_NEW, Testing Yield % or finance indicator performance. Alternatively, you can request the performance of all indicators.");
+        }
+
+        private async Task ListDistricts_Intent(IDialogContext context, LuisFullResult result)
+        {
+            await context.PostAsync($"I can give you the performance of the Gert Sibande, Ugu, Sedibeng, Alfred Nzo, Harry Gwala and King Cetshwayo districts. Alternatively, you can request the performance of all districts or a specific programme.");
+        }
+
+        private async Task ListPrograms_Intent(IDialogContext context, LuisFullResult result)
+        {
+            await context.PostAsync($"I can give you the status of the Comprehensive, RAD or IDeAS programmes. Alternatively, you can request the performance of all programmes.");
+        }
+        
 
         /// <summary>
         /// Get either the district or the program based on what the user passed through
@@ -211,6 +255,8 @@ namespace Microsoft.Bot.Sample.LuisBot
                 await context.PostAsync("I’m not sure what you want.");
                 //await context.PostAsync($"Sorry, I don't understand: {result.Query}"); //
                 await context.PostAsync("Please try rephrase your question or type help");
+                await context.PostAsync($"I can answer questions on your performance or business indicators for specific programmes or districts. Ensure your questions relate to districts, programs and indicators in our database.");
+                await context.PostAsync($"For example: \"What is the Ugu district performance for 2017?\"");
             }
 
             
@@ -220,13 +266,13 @@ namespace Microsoft.Bot.Sample.LuisBot
 
         #region Generic intents
 
-        private async Task Greeting_Hello_Intent(IDialogContext context, LuisFullResult result)
+        private async Task Greeting_Hello_Intent(IDialogContext context)
         {
             //Say hello back - joke if user said hello too recently
             if ((lastHello == null) || DateTime.Now.Subtract(lastHello).Minutes < 2)
                 await context.PostAsync($"Hi again :)");
             else
-                await context.PostAsync($"Hi. If you need some help, just ask for it.");
+                await context.PostAsync($"Hi {username}. If you need some help, just ask for it.");
 
             lastHello = DateTime.Now;
         }
@@ -257,9 +303,9 @@ namespace Microsoft.Bot.Sample.LuisBot
         private async Task Help_Intent(IDialogContext context, LuisFullResult result)
         {
             await context.PostAsync($"Can certainly help...");
-            await context.PostAsync($"I can answer questions on your performance or business indicators.");
+            await context.PostAsync($"I can answer questions on your performance or business indicators for specific programmes or districts. Ensure your questions relate to districts, programs and indicators in our database.");
             await context.PostAsync($"I can also answer general questions about Broadreach and our offerings.");
-            await context.PostAsync($"Try: \"What is my performance for 2017?\"");
+            await context.PostAsync($"Try: \"What is the Ugu district performance for 2017?\"");
 
         }
 

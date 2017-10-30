@@ -49,9 +49,17 @@ namespace Microsoft.Bot.Sample.LuisBot
             }
             else if (message.Type == ActivityTypes.ConversationUpdate)
             {
-                // Handle conversation state changes, like members being added and removed
-                // Use Activity.MembersAdded and Activity.MembersRemoved and Activity.Action for info
-                // Not available in all channels
+                if ( message.MembersAdded[0].Id== message.Recipient.Id)
+                {
+                    ConnectorClient connector = new ConnectorClient(new Uri(message.ServiceUrl));
+                    Activity reply = message.CreateReply("I am your service provider virtual assistant, How can I help you today? ");
+                    //    await context.PostAsync("Welcome to the BroadReach bot.");
+                    //    await context.PostAsync($"I can answer questions on your performance or business indicators for specific programmes or districts. Ensure your questions relate to districts, programs and indicators in our database.");
+                    //    await context.PostAsync($"I can also answer general questions about Broadreach and our offerings.");
+                    //    await context.PostAsync($"Try: \"What is the Ugu district performance for 2017?\"");
+
+                    connector.Conversations.ReplyToActivityAsync(reply);
+                }
             }
             else if (message.Type == ActivityTypes.ContactRelationUpdate)
             {
