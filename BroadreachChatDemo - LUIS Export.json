@@ -24,10 +24,7 @@
       "name": "None"
     },
     {
-      "name": "PerformanceIndicators"
-    },
-    {
-      "name": "PerformancePersonal"
+      "name": "PerformanceAgainstTarget"
     }
   ],
   "entities": [],
@@ -108,6 +105,12 @@
           "canonicalForm": "Ubu",
           "list": [
             "ubu district"
+          ]
+        },
+        {
+          "canonicalForm": "District A",
+          "list": [
+            "a district"
           ]
         }
       ]
@@ -303,7 +306,7 @@
     },
     {
       "text": "how am i doing?",
-      "intent": "PerformancePersonal",
+      "intent": "PerformanceAgainstTarget",
       "entities": []
     },
     {
@@ -458,17 +461,17 @@
     },
     {
       "text": "how am i performing?",
-      "intent": "PerformancePersonal",
+      "intent": "PerformanceAgainstTarget",
       "entities": []
     },
     {
       "text": "what was my performance in 2016?",
-      "intent": "PerformancePersonal",
+      "intent": "PerformanceAgainstTarget",
       "entities": []
     },
     {
       "text": "what is our performance against annual target?",
-      "intent": "PerformancePersonal",
+      "intent": "PerformanceAgainstTarget",
       "entities": []
     },
     {
@@ -478,22 +481,22 @@
     },
     {
       "text": "what is my performance?",
-      "intent": "PerformancePersonal",
+      "intent": "PerformanceAgainstTarget",
       "entities": []
     },
     {
       "text": "what is our performance against ytd target?",
-      "intent": "PerformancePersonal",
+      "intent": "PerformanceAgainstTarget",
       "entities": []
     },
     {
       "text": "how are we doing on ytd targets?",
-      "intent": "PerformancePersonal",
+      "intent": "PerformanceAgainstTarget",
       "entities": []
     },
     {
       "text": "what is our performance against ytd targets?",
-      "intent": "PerformancePersonal",
+      "intent": "PerformanceAgainstTarget",
       "entities": []
     },
     {
@@ -563,7 +566,7 @@
     },
     {
       "text": "how are we doing ?",
-      "intent": "PerformancePersonal",
+      "intent": "PerformanceAgainstTarget",
       "entities": []
     },
     {
@@ -588,22 +591,12 @@
     },
     {
       "text": "how are we doing against our annual target?",
-      "intent": "PerformancePersonal",
+      "intent": "PerformanceAgainstTarget",
       "entities": []
     },
     {
       "text": "how are we doing against our yearly target for programmea?",
-      "intent": "PerformancePersonal",
-      "entities": []
-    },
-    {
-      "text": "which indicators are hitting/missing targets?",
-      "intent": "PerformanceIndicators",
-      "entities": []
-    },
-    {
-      "text": "how are my indicators for programmea in south africa?",
-      "intent": "PerformanceIndicators",
+      "intent": "PerformanceAgainstTarget",
       "entities": []
     },
     {
@@ -613,22 +606,22 @@
     },
     {
       "text": "what's my performance for all programmes?",
-      "intent": "PerformancePersonal",
+      "intent": "PerformanceAgainstTarget",
       "entities": []
     },
     {
       "text": "what is my performance for programme b in 2017?",
-      "intent": "PerformancePersonal",
+      "intent": "PerformanceAgainstTarget",
       "entities": []
     },
     {
       "text": "how's my performance for programme b?",
-      "intent": "PerformancePersonal",
+      "intent": "PerformanceAgainstTarget",
       "entities": []
     },
     {
       "text": "how are we doing this year?",
-      "intent": "PerformancePersonal",
+      "intent": "PerformanceAgainstTarget",
       "entities": []
     },
     {
@@ -687,48 +680,28 @@
       "entities": []
     },
     {
-      "text": "what is the current status of the kpis?",
-      "intent": "PerformanceIndicators",
-      "entities": []
-    },
-    {
-      "text": "how are the indicators for program b in nigeria?",
-      "intent": "PerformanceIndicators",
-      "entities": []
-    },
-    {
-      "text": "how are the kpis in 2017?",
-      "intent": "PerformanceIndicators",
-      "entities": []
-    },
-    {
       "text": "what's my performance in 2015 for all programme?",
-      "intent": "PerformancePersonal",
+      "intent": "PerformanceAgainstTarget",
       "entities": []
     },
     {
       "text": "how am i performing",
-      "intent": "PerformancePersonal",
+      "intent": "PerformanceAgainstTarget",
       "entities": []
     },
     {
       "text": "how am i doing in programme b?",
-      "intent": "PerformancePersonal",
+      "intent": "PerformanceAgainstTarget",
       "entities": []
     },
     {
       "text": "what is my performance on programme a?",
-      "intent": "PerformancePersonal",
+      "intent": "PerformanceAgainstTarget",
       "entities": []
     },
     {
       "text": "what is my performance for programme b",
-      "intent": "PerformancePersonal",
-      "entities": []
-    },
-    {
-      "text": "how are the kpis doing?",
-      "intent": "PerformanceIndicators",
+      "intent": "PerformanceAgainstTarget",
       "entities": []
     },
     {
@@ -753,7 +726,7 @@
     },
     {
       "text": "and how am i doing?",
-      "intent": "PerformancePersonal",
+      "intent": "PerformanceAgainstTarget",
       "entities": []
     },
     {
@@ -778,12 +751,12 @@
     },
     {
       "text": "how is my perfromance?",
-      "intent": "PerformancePersonal",
+      "intent": "PerformanceAgainstTarget",
       "entities": []
     },
     {
       "text": "how's my perfromance for programme b?",
-      "intent": "PerformancePersonal",
+      "intent": "PerformanceAgainstTarget",
       "entities": []
     },
     {
@@ -794,6 +767,11 @@
     {
       "text": "what must i do?",
       "intent": "Help",
+      "entities": []
+    },
+    {
+      "text": "how is ubu district doing?",
+      "intent": "PerformanceAgainstTarget",
       "entities": []
     }
   ]

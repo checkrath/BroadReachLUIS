@@ -53,7 +53,6 @@ namespace LuisBot.LuisHelper
         /// <returns></returns>
         public bool TryFindEntity(string entityName, out LuisEntity luisEntity)
         {
-            bool found = false;
             //loop though all entities till you find it
             foreach (LuisEntity entity in this.Entities)
             {

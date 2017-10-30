@@ -47,7 +47,14 @@ namespace Microsoft.Bot.Sample.LuisBot
             //call intent method based on LUIS intent
             await CallCorrectMethodFromLuisResponse(luisOutput, context, argument);
 
-            context.Wait(MessageReceivedAsync);
+            try
+            {
+                context.Wait(MessageReceivedAsync);
+            }
+            catch (Exception ex)
+            {
+                //TODo: need to handle the above better! Maybe there's a way I can check onth status of the context
+            }
             
         }
 
@@ -101,47 +108,40 @@ namespace Microsoft.Bot.Sample.LuisBot
         {
             //check if they passed params through
             //this.lastdate = GetEntityValue("builtin.datetimeV2.daterange", this.lastdate, result);
-            this.lastTerm= GetEntityValue("Term", this.lastTerm, result);
-            this.lastProgramme = GetEntityValue("Programme", this.lastProgramme, result);
+            this.lastTerm = GetEntityValue("Term", this.lastTerm, result);
             this.lastIntent = "PerformanceAgainstTarget";
-            this.lastDistrict= GetEntityValue("District", this.lastDistrict, result);
 
             //Build up a string describing performance:
+            const string TOKEN_DISTRICT = "[district/prog]";
             string fullOutput = "The [term] [indicator]performance for [district/prog] is [performance]. [note]";
 
             //dummy output
             Random rnd = new Random();
-            int target=rnd.Next(20,120);
-            int actual = rnd.Next(20, 120); 
-            int percentTarget = (int)(Math.Round( ((double)actual/(double)target)*100));
+            int target = rnd.Next(20, 120);
+            int actual = rnd.Next(20, 120);
+            int percentTarget = (int)(Math.Round(((double)actual / (double)target) * 100));
 
             //After [Mx_Past] months you should have spent $[LatestMonth_YTDTarget] [Indicator] but you have spent $[LatestMonth_YTDValue] which is [LatestMonth_AnnualTarget_perc]% of the annual target of $[LatestMonth_AnnualTarget]
             //if (this.lastProgramme == "All Programmes")
 
             //get the term
-            fullOutput= fullOutput.Replace("[term]", lastTerm);
+            fullOutput = fullOutput.Replace("[term]", lastTerm);
 
             //get the indicator
-            if (lastIndicator== "All indicators")
+            if (lastIndicator == "All indicators")
                 fullOutput = fullOutput.Replace("[indicator]", "");
             else
                 fullOutput = fullOutput.Replace("[indicator]", lastIndicator + " ");
 
-            //get the district/program
-            if (lastDistrict=="")
-            {
-                //No district so program
-                fullOutput = fullOutput.Replace("[district/prog]", lastProgramme);
-            }
-            else
-                fullOutput = fullOutput.Replace("[district/prog]", lastDistrict);
+            //Get the district or program
+            fullOutput = fullOutput.Replace(TOKEN_DISTRICT, GetDistrictProgramme(result));
 
             //generate the performance reposnse
             string performance = $"{actual} against a target of {target} which is {percentTarget}% of target";
             fullOutput = fullOutput.Replace("[performance]", performance);
 
             //Add a note if required
-            if (percentTarget>100)
+            if (percentTarget > 100)
                 fullOutput = fullOutput.Replace("[note]", "Great work!");
             else
                 fullOutput = fullOutput.Replace("[note]", "");
@@ -151,21 +151,54 @@ namespace Microsoft.Bot.Sample.LuisBot
 
         }
 
-#endregion
+        /// <summary>
+        /// Get either the district or the program based on what the user passed through
+        /// </summary>
+        /// <param name="result"></param>
+        /// <returns></returns>
+        private string GetDistrictProgramme(LuisFullResult result)
+        {
+            //get the district/program
+            //Rules: if program is explicitly set, reset district. 
+            //if district is explicitly set, set program to specific parent program.
+            //if both are set, ignore program for now. Later: tell user if inconsistent
+            //Otherwise, use last district or last program if no last district 
+            LuisEntity programEntity;
+            bool foundProgram = result.TryFindEntity("Programme", out programEntity);
+            LuisEntity districtEntity;
+            bool foundDistrict = result.TryFindEntity("District", out districtEntity);
+
+            if (foundDistrict)
+            {
+                lastDistrict = ((LuisStandardEntity)districtEntity).TrueValue;
+                return lastDistrict;
+            }
+            else if (foundProgram)
+            {
+                lastProgramme = ((LuisStandardEntity)programEntity).TrueValue;
+                lastDistrict = "";
+                return lastProgramme;
+            }
+            else if (lastDistrict == "")
+            {
+                //No district so program
+                return lastProgramme;
+            }
+            else
+                return lastDistrict;
+            
+        }
+
+        #endregion
 
         #region NoneIntent
 
         private async Task NoneIntent(IDialogContext context, IAwaitable<IMessageActivity> message, LuisFullResult result)
         {
-            //Todo: try send it off to QnA maker at this point and only respond if I don't understand
-            //await context.PostAsync($"Sorry, I don't understand: {result.Query}"); //
-            //await context.PostAsync("Please try rephrase your question or type help");
-            //outText = "hello outtext";
-            //isHandled = false;
-
             var qnadialog = new BasicQnAMakerDialog();
             var messageToForward = await message;
             await context.Forward(qnadialog, AfterQnADialog, messageToForward, CancellationToken.None);
+            //context.Wait(MessageReceivedAsync);
         }
 
         private async Task AfterQnADialog(IDialogContext context, IAwaitable<bool> result)
@@ -180,7 +213,7 @@ namespace Microsoft.Bot.Sample.LuisBot
                 await context.PostAsync("Please try rephrase your question or type help");
             }
 
-            //context.Wait(MessageReceived);
+            
         }
 
         #endregion
@@ -278,6 +311,7 @@ namespace Microsoft.Bot.Sample.LuisBot
 
             using (HttpClient client = new HttpClient())
             {
+                //https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/05d130e4-3419-47de-8a50-f9ee960f02f3?subscription-key=664a0179dac5472b895eacc3f08ff58c&timezoneOffset=0&verbose=true&q=
                 string RequestURI = "https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/05d130e4-3419-47de-8a50-f9ee960f02f3?subscription-key=664a0179dac5472b895eacc3f08ff58c&timezoneOffset=0&verbose=true&q=" + query;
                 HttpResponseMessage msg = await client.GetAsync(RequestURI);
                 if (msg.IsSuccessStatusCode)
