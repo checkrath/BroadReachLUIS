@@ -28,14 +28,15 @@ namespace Microsoft.Bot.Sample.LuisBot
         public string lastTerm = "annual";
         public string username;
         public string userId;
+        public HappinessTracker happinessTracker;
 
         public async Task StartAsync(IDialogContext context)
         {
             //initial prompt for what's missing
             //await Greeting_Hello_Intent(context);
             context.Wait(MessageReceivedAsync); // State transition: wait for user to start conversation
-            
-                
+
+            happinessTracker = new HappinessTracker();    
 
         }
 
@@ -74,6 +75,14 @@ namespace Microsoft.Bot.Sample.LuisBot
             //call intent method based on LUIS intent
             await CallCorrectMethodFromLuisResponse(luisOutput, context, argument);
 
+            //If the user is unhappy and they haven't already asked for help, check on them
+            if (luisOutput.TopIntent.Name != "Help" && this.happinessTracker.RatingsCount > 3 && this.happinessTracker.AverageRating < 0)
+            {
+                await context.PostAsync("Seriously, feel free to ask for help");
+                this.happinessTracker.ResetRatings();
+            }
+
+
             try
             {
                 context.Wait(MessageReceivedAsync);
@@ -97,33 +106,43 @@ namespace Microsoft.Bot.Sample.LuisBot
             {
                 case "ChangeParameter":
                     await ChangeParameter_Intent(context, luisOutput);
+                    this.happinessTracker.AddRating(5);
                     break;
                 case "PerformanceAgainstTarget":
                     await PerformanceAgainstTarget_Intent(context, luisOutput);
+                    this.happinessTracker.AddRating(5);
                     break;
                 case "ListDistricts":
                     await ListDistricts_Intent(context, luisOutput);
+                    this.happinessTracker.AddRating(0);
                     break;
                 case "ListIndicators":
                     await ListIndicators_Intent(context, luisOutput);
+                    this.happinessTracker.AddRating(0);
                     break;
                 case "ListPrograms":
                     await ListPrograms_Intent(context, luisOutput);
+                    this.happinessTracker.AddRating(0);
                     break;
                 case "Greeting_Hello":
                     await Greeting_Hello_Intent(context);
+                    this.happinessTracker.AddRating(0);
                     break;
                 case "Greeting_bye":
                     await Greeting_bye_Intent(context, luisOutput);
+                    this.happinessTracker.AddRating(-1);
                     break;
                 case "Human":
                     await Human_Intent(context, luisOutput);
+                    this.happinessTracker.AddRating(-3);
                     break;
                 case "Help":
                     await Help_Intent(context, luisOutput);
+                    this.happinessTracker.AddRating(-3);
                     break;
                 case "None":
                     await NoneIntent(context,argument, luisOutput);
+                    //happiness tracking in method
                     break;
                 default:
                     throw new Exception($"Unconfigured intent of: {luisOutput.TopIntent.Name}");
@@ -261,14 +280,15 @@ namespace Microsoft.Bot.Sample.LuisBot
             // we might want to send a message or take some action if no answer was found (false returned)
             if (!answerFound)
             {
-                await context.PostAsync("I’m not sure what you want.");
-                //await context.PostAsync($"Sorry, I don't understand: {result.Query}"); //
-                await context.PostAsync("Please try rephrase your question or type help");
+                await context.PostAsync("I’m not sure what you want. Please try rephrase your question or type help");
                 await context.PostAsync($"I can answer questions on your performance or business indicators for specific programmes or districts. Ensure your questions relate to districts, programs and indicators in our database.");
                 await context.PostAsync($"For example: \"What is the Ugu district performance for 2017?\"");
-            }
 
-            
+                this.happinessTracker.AddRating(-5);
+            }
+            else this.happinessTracker.AddRating(0);
+
+
         }
 
         #endregion

@@ -4,6 +4,8 @@ VisualStudioVersion = 15.0.26730.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BroadReach.Chatbot.BotService", "BroadReach.Chatbot.BotService.csproj", "{9C7E3A46-B60F-4052-9A21-DC8D1A942216}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BroadreachLuisTests", "BroadreachLuisTests\BroadreachLuisTests.csproj", "{C8B99DA5-5306-4165-BB38-EFC2035E113E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -14,6 +16,10 @@ Global
 		{9C7E3A46-B60F-4052-9A21-DC8D1A942216}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9C7E3A46-B60F-4052-9A21-DC8D1A942216}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9C7E3A46-B60F-4052-9A21-DC8D1A942216}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C8B99DA5-5306-4165-BB38-EFC2035E113E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C8B99DA5-5306-4165-BB38-EFC2035E113E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C8B99DA5-5306-4165-BB38-EFC2035E113E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C8B99DA5-5306-4165-BB38-EFC2035E113E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
