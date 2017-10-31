@@ -35,8 +35,8 @@ namespace LuisBot.Dialogs
             }
             else
             {
-                //context.Done<int>(-1);
-                return;
+                context.Done<int>(-1);
+                //return;
             }
         }
 

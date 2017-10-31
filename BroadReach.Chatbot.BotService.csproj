@@ -145,6 +145,7 @@
     <Compile Include="Controllers\MessagesController.cs" />
     <Compile Include="Dialogs\QnADialog.cs" />
     <Compile Include="Dialogs\RatingDialog.cs" />
+    <Compile Include="Dialogs\RatingSimple.cs" />
     <Compile Include="Dialogs\RootDialog.cs" />
     <Compile Include="Dialogs\SubFormTestDialog.cs" />
     <Compile Include="Global.asax.cs">

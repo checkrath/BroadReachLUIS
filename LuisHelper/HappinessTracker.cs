@@ -65,6 +65,14 @@ namespace LuisBot.LuisHelper
             }
         }
 
+        public int LastRating
+        {
+            get
+            {
+                return LastRatings[0];
+            }
+        }
+
 
     }
 }

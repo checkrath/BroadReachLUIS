@@ -74,13 +74,14 @@ namespace LuisBot.Dialogs
             LuisFullResult luisOutput = new LuisFullResult(output);
 
             //call get rating if expecting a rating
-            if (getRating) await GetRating(context, argument);
+            //if (getRating) await GetRating(context, argument);
 
             //call intent method based on LUIS intent
             await CallCorrectMethodFromLuisResponse(luisOutput, context, argument);
 
             //If the user is unhappy and they haven't already asked for help, check on them
-            if (luisOutput.TopIntent.Name != "Help" && this.happinessTracker.RatingsCount > 3 && this.happinessTracker.AverageRating < 0)
+            if (luisOutput.TopIntent.Name != "Help" && this.happinessTracker.RatingsCount > 3 
+                && this.happinessTracker.AverageRating < 0 && this.happinessTracker.LastRating<0)
             {
                 await context.PostAsync("Seriously, feel free to ask for help");
                 this.happinessTracker.ResetRatings();
@@ -308,7 +309,7 @@ namespace LuisBot.Dialogs
             var messageToForward = await message;
             await context.Forward(ratingdialog, RatingDialogResumeAfter,messageToForward,CancellationToken.None);
             //await context.Forward(qnadialog, AfterQnADialog, messageToForward, CancellationToken.None);
-
+            await context.PostAsync("Here!");
         }
 
         private async Task RatingDialogResumeAfter(IDialogContext context, IAwaitable<int> result)
@@ -321,7 +322,12 @@ namespace LuisBot.Dialogs
 
             //context.Wait(MessageReceived);
             int rating = await result;
-            if (rating >= 0) await context.PostAsync($"Thank for your rating of {rating.ToString()}");
+            if (rating >= 0)
+            {
+                await context.PostAsync($"Thank for your rating of {rating.ToString()}");
+                //context.Wait(MessageReceivedAsync);
+ 
+            }
 
         }
 
@@ -345,10 +351,29 @@ namespace LuisBot.Dialogs
             await context.PostAsync($"Great chatting to you.. Let me know how I did on a scale from 1 to 10");
             //Get the bot ready for a rating
             getRating = true;
+
+            //PromptDialog.Number(context, AfterNumberDialog, "How did I do on a scale from 1 to 10?", attempts: 3);
             
         }
 
-       
+
+        //private async Task AfterNumberDialog(IDialogContext context, IAwaitable<double> result)
+        //{
+        //    try
+        //    {
+        //        double rating = await result;
+        //        await context.PostAsync($"Thanks. Will report back your rating of {rating}");
+
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        await context.PostAsync("Will ignore that rating");
+        //    }
+        //}
+
+
+
+
 
         private async Task Human_Intent(IDialogContext context, LuisFullResult result)
         {
