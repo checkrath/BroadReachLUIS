@@ -10,7 +10,7 @@ using Microsoft.Cognitive.LUIS;
 using System.Net.Http;
 using LuisBot.LuisHelper;
 
-namespace Microsoft.Bot.Sample.LuisBot
+namespace LuisBot.Dialogs
 {
     [Serializable]
     public class RootDialog : IDialog<object>
@@ -29,6 +29,7 @@ namespace Microsoft.Bot.Sample.LuisBot
         public string username;
         public string userId;
         public HappinessTracker happinessTracker;
+        public bool getRating=false;
 
         public async Task StartAsync(IDialogContext context)
         {
@@ -71,6 +72,9 @@ namespace Microsoft.Bot.Sample.LuisBot
             //call LUIS for a reponse
             string output = await GetJsonFromLUIS(textIn);
             LuisFullResult luisOutput = new LuisFullResult(output);
+
+            //call get rating if expecting a rating
+            if (getRating) await GetRating(context, argument);
 
             //call intent method based on LUIS intent
             await CallCorrectMethodFromLuisResponse(luisOutput, context, argument);
@@ -293,6 +297,36 @@ namespace Microsoft.Bot.Sample.LuisBot
 
         #endregion
 
+        #region Get rating
+        private async Task GetRating(IDialogContext context, IAwaitable<IMessageActivity> message)
+        {
+            //set the get rating flag back to false
+            this.getRating = false;
+
+            //Forward the context to the rating dialog
+            var ratingdialog = new RatingDialog();
+            var messageToForward = await message;
+            await context.Forward(ratingdialog, RatingDialogResumeAfter,messageToForward,CancellationToken.None);
+            //await context.Forward(qnadialog, AfterQnADialog, messageToForward, CancellationToken.None);
+
+        }
+
+        private async Task RatingDialogResumeAfter(IDialogContext context, IAwaitable<int> result)
+        {
+            //var messageHandled = await result;
+            //if (!messageHandled)
+            //{
+            //    await context.PostAsync("Sorry, I wasn't sure what you wanted.");
+            //}
+
+            //context.Wait(MessageReceived);
+            int rating = await result;
+            if (rating >= 0) await context.PostAsync($"Thank for your rating of {rating.ToString()}");
+
+        }
+
+        #endregion
+
         #region Generic intents
 
         private async Task Greeting_Hello_Intent(IDialogContext context)
@@ -309,7 +343,12 @@ namespace Microsoft.Bot.Sample.LuisBot
         private async Task Greeting_bye_Intent(IDialogContext context, LuisFullResult result)
         {
             await context.PostAsync($"Great chatting to you.. Let me know how I did on a scale from 1 to 10");
+            //Get the bot ready for a rating
+            getRating = true;
+            
         }
+
+       
 
         private async Task Human_Intent(IDialogContext context, LuisFullResult result)
         {

@@ -9,7 +9,7 @@ using Microsoft.Bot.Connector;
 using System.Threading;
 using System.Collections.Generic;
 
-namespace Microsoft.Bot.Sample.LuisBot
+namespace LuisBot.Dialogs
 {
     // For more information about this template visit http://aka.ms/azurebots-csharp-luis
     [Serializable]

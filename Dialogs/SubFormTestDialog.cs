@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.Bot.Connector;
 
 
-namespace Microsoft.Bot.Sample.LuisBot
+namespace LuisBot.Dialogs
 {
     [Serializable]
     public class SubFormTestDialog : IDialog<string>

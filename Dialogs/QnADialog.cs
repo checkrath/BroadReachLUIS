@@ -9,7 +9,7 @@ using Microsoft.Bot.Connector;
 using QnAMakerDialog;
 //using Microsoft.Bot.Builder.CognitiveServices.QnAMaker.Resource;
 
-namespace Microsoft.Bot.Sample.LuisBot
+namespace LuisBot.Dialogs
 {
     [Serializable]
     [QnAMakerService("19223c62460043aa895263dbe0a820d5", "099a4406-09bd-429c-9322-47077a46ad2d")]
