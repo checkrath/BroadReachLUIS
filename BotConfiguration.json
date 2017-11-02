@@ -1,0 +1,66 @@
+﻿{
+  "LUISApplications": [
+    {
+      "name": "BroadReachChat",
+      "requestURI": "https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/{AppId}?subscription-key={AppKey}&timezoneOffset=0&verbose=true&q={Query}",
+      "AppId": "05d130e4-3419-47de-8a50-f9ee960f02f3",
+      "AppKey": "664a0179dac5472b895eacc3f08ff58c",
+      "intents": [
+        "ChangeParameter",
+        "Greeting_Hello",
+        "Greeting_bye",
+        "Help",
+        "Human",
+        "ListDistricts",
+        "Listindicators",
+        "ListPrograms",
+        "None",
+        "PerformanceAgainstTarget"
+      ]
+    },
+    {
+      "name": "BroadReachPerformanceQuery",
+      "requestURI": "https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/{AppId}?subscription-key={AppKey}&timezoneOffset=0&verbose=true&q={Query}",
+      "AppId": "44f211aa-530a-481f-a641-2342d07e700d",
+      "AppKey": "e9fb84acf75d4053a9cc1a716c94ca7e",
+      "intents": [
+        "Performance",
+        "PerformanceIncrease",
+        "SwitchIntent"
+      ]
+    }
+  ],
+  "conversation": {
+    "mainTopic": {
+      "greeting": "Welcome to the chat",
+      "subConvElements": [
+        {
+          "convName": "firstPerformance",
+          "intent": "PerformanceAgainstTarget",
+          "text": "Here are the lowest {x} indicators",
+          "familiarText": "Performance",
+          "ShortDescription": "tell you performance against target",
+          "boost": 1.02,
+          "subConvElements": [
+            {
+              "convName": "secondPerformance",
+              "intent": "PerformanceAgainstTarget",
+              "text": "Here are the highest {x} indicators",
+              "familiarText": "High Performance",
+              "ShortDescription": "tell you performance against target",
+              "boost": 1.02
+            }
+          ]
+        },
+        {
+          "convName": "firstListDistricts",
+          "intent": "ListDistricts",
+          "text": "Here are the Districts that I can provide information on",
+          "familiarText": "Performance",
+          "ShortDescription": "list the districts",
+          "boost": 1.01
+        }
+      ]
+    }
+  }
+}

@@ -31,14 +31,19 @@ namespace LuisBot.Dialogs
         public HappinessTracker happinessTracker;
         public bool getRating=false;
 
+        // Bot Manager
+        public BotManager _botManager;
+
         public async Task StartAsync(IDialogContext context)
         {
             //initial prompt for what's missing
             //await Greeting_Hello_Intent(context);
             context.Wait(MessageReceivedAsync); // State transition: wait for user to start conversation
 
-            happinessTracker = new HappinessTracker();    
+            happinessTracker = new HappinessTracker();
 
+            // Start the Bot Manager
+            _botManager = new BotManager("BotConfiguration.json");
         }
 
         //public async Task FirstReceivedAsync(IDialogContext context, IAwaitable<IMessageActivity> argument)
@@ -66,8 +71,14 @@ namespace LuisBot.Dialogs
                 userId = "Anonymous";
                 username = "Unknown User";
             }
+
+
+
             //Get the user input
             string textIn = (await argument).Text;
+
+            List<LuisFullResult> results = await _botManager.ExecuteQuery(textIn);
+
             //await context.PostAsync($"You said:{textIn}");
             //call LUIS for a reponse
             string output = await GetJsonFromLUIS(textIn);
