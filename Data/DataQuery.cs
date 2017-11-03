@@ -11,6 +11,24 @@ namespace LuisBot.Data
     {
         private const string DB_CONN= "Server=tcp:broadreachpoc.database.windows.net,1433;Initial Catalog=Checkrath_BroadreachPOC" +
             ";Integrated Security=False;User Id=checkrath;Password=brIIM@gic.17;Encrypt=True;";
+        
+        public string GetListOfDistrictsAsString(string programName)
+        {
+            List<string> districts = GetListOfDistricts(programName);
+            //build string
+            string districtsAsString = "";
+            for (int i = 0; i < districts.Count; i++)
+            {
+                if (i == 0)
+                    districtsAsString += districts[0];
+                else if (i == districts.Count- 1)
+                    districtsAsString += " and " + districts[i];
+                else districtsAsString += ", " + districts[i];
+            }
+
+            return districtsAsString;
+        }
+
         /// <summary>
         /// Return a list of districts from the DB
         /// </summary>

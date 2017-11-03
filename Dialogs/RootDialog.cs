@@ -9,6 +9,7 @@ using Microsoft.Bot.Connector;
 using Microsoft.Cognitive.LUIS;
 using System.Net.Http;
 using LuisBot.LuisHelper;
+using LuisBot.Data;
 
 namespace LuisBot.Dialogs
 {
@@ -219,7 +220,10 @@ namespace LuisBot.Dialogs
 
         private async Task ListDistricts_Intent(IDialogContext context, LuisFullResult result)
         {
-            await context.PostAsync($"I can give you the performance of the Gert Sibande, Ugu, Sedibeng, Alfred Nzo, Harry Gwala and King Cetshwayo districts. Alternatively, you can request the performance of all districts or a specific programme.");
+            //get a list of districts 
+            DataQuery query = new DataQuery();
+            string districts = query.GetListOfDistrictsAsString(lastProgramme);
+            await context.PostAsync($"I can give you the performance of the {districts} districts. Alternatively, you can request the performance of all districts or a specific programme.");
         }
 
         private async Task ListPrograms_Intent(IDialogContext context, LuisFullResult result)
