@@ -48,9 +48,19 @@ namespace BroadreachLuisTests
         {
             //Get the perf from the DB
             PerformanceDBQuery query = new PerformanceDBQuery();
-            string list = query.GetProgramPerformanceAsString("");
+            string indicatorList = query.GetProgramPerformanceAsString("",true, true);
             //check that it has a couple of items
-            Assert.IsTrue(list.Length > 5);
+            Assert.IsTrue(indicatorList.Length > 5);
+
+            //test it with the verbose flag off
+            indicatorList = query.GetProgramPerformanceAsString("", true, false);
+            //check that it has a couple of items
+            Assert.IsTrue(indicatorList.Length > 5);
+
+            //test it with the YTD flag
+            indicatorList = query.GetProgramPerformanceAsString("", false, true);
+            //check that it has a couple of items
+            Assert.IsTrue(indicatorList.Length > 5);
         }
     }
 }

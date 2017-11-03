@@ -144,7 +144,6 @@
     <Compile Include="Data\DataObjects.cs" />
     <Compile Include="Data\EntitiesDBQuery.cs" />
     <Compile Include="Data\PerformanceDBQuery.cs" />
-    <Compile Include="Dialogs\BasicLuisDialog.cs" />
     <Compile Include="Controllers\MessagesController.cs" />
     <Compile Include="Dialogs\QnADialog.cs" />
     <Compile Include="Dialogs\RatingDialog.cs" />

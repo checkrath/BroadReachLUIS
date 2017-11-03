@@ -11,14 +11,42 @@ namespace LuisBot.Data
         private const string DB_CONN = "Server=tcp:broadreachpoc.database.windows.net,1433;Initial Catalog=Checkrath_BroadreachPOC" +
     ";Integrated Security=False;User Id=checkrath;Password=brIIM@gic.17;Encrypt=True;";
 
-        public string GetProgramPerformanceAsString(string programName, bool verbose=false)
+        public string GetProgramPerformanceAsString(string programName, bool annual, bool verbose=false)
         {
-            throw new NotImplementedException();
             List<IndicatorPerformance> indicatorList = GetProgramPerformance(programName);
+            string indicatorOutput = "";
             if (verbose)
             {
-
+                //loop through all indicators
+                for (int i = 0; i < indicatorList.Count; i++)
+                {
+                    IndicatorPerformance indicator= indicatorList[i];
+                    //check if it's annual or YTD
+                    string percentTarget;
+                    if (annual)
+                        percentTarget = $"{indicator.TargetPercentage:0.0}% of annual target";
+                    else
+                        percentTarget = $"{indicator.YTDPercentage:0.0}% of YTD target";
+                    //Create string
+                    if (i == 0)
+                        indicatorOutput += $"{indicator.Indicatorname}: {indicator.IndicatorValue} ({percentTarget})";
+                    else if (i == indicatorList.Count - 1)
+                        indicatorOutput += " and " + $"{indicator.Indicatorname}: {indicator.IndicatorValue} ({percentTarget})";
+                    else indicatorOutput += ", " + $"{indicator.Indicatorname}: {indicator.IndicatorValue} ({percentTarget})";
+                }
             }
+            else
+            {
+                //todo: loop though and make an average
+                float averagePercent = 55.2F;
+                //check if annual or YTD
+                if (annual)
+                    indicatorOutput = $"{averagePercent:0.0}% of annual target";
+                else
+                    indicatorOutput = $"{averagePercent:0.0}% of YTD target";
+            }
+
+            return indicatorOutput;
         }
 
         public List<IndicatorPerformance> GetProgramPerformance(string programName)

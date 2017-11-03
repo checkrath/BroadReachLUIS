@@ -199,8 +199,23 @@ namespace LuisBot.Dialogs
             fullOutput = fullOutput.Replace(TOKEN_DISTRICT, GetDistrictProgramme(result));
 
             //generate the performance reposnse
-            string performance = $"{actual} against a target of {target} which is {percentTarget}% of target";
+            string performance;
+            PerformanceDBQuery query = new PerformanceDBQuery();
+            if (lastDistrict == "")
+            {
+                //get performance for the program
+                performance = query.GetProgramPerformanceAsString(lastProgramme, (lastTerm == "Annual"), true);
+
+            }
+            else
+            {
+                //get performance for the district
+                performance = $"{actual} against a target of {target} which is {percentTarget}% of target";
+                
+            }
             fullOutput = fullOutput.Replace("[performance]", performance);
+
+
 
             //Add a note if required
             if (percentTarget > 100)
