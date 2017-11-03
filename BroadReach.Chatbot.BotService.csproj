@@ -141,7 +141,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\WebApiConfig.cs" />
-    <Compile Include="Data\DataQuery.cs" />
+    <Compile Include="Data\DataObjects.cs" />
+    <Compile Include="Data\EntitiesDBQuery.cs" />
+    <Compile Include="Data\PerformanceDBQuery.cs" />
     <Compile Include="Dialogs\BasicLuisDialog.cs" />
     <Compile Include="Controllers\MessagesController.cs" />
     <Compile Include="Dialogs\QnADialog.cs" />

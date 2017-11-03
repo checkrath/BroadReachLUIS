@@ -221,7 +221,7 @@ namespace LuisBot.Dialogs
         private async Task ListDistricts_Intent(IDialogContext context, LuisFullResult result)
         {
             //get a list of districts 
-            DataQuery query = new DataQuery();
+            EntitiesDBQuery query = new EntitiesDBQuery();
             string districts = query.GetListOfDistrictsAsString(lastProgramme);
             await context.PostAsync($"I can give you the performance of the {districts} districts. Alternatively, you can request the performance of all districts or a specific programme.");
         }
