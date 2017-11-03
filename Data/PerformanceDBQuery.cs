@@ -11,6 +11,16 @@ namespace LuisBot.Data
         private const string DB_CONN = "Server=tcp:broadreachpoc.database.windows.net,1433;Initial Catalog=Checkrath_BroadreachPOC" +
     ";Integrated Security=False;User Id=checkrath;Password=brIIM@gic.17;Encrypt=True;";
 
+        public string GetProgramPerformanceAsString(string programName, bool verbose=false)
+        {
+            throw new NotImplementedException();
+            List<IndicatorPerformance> indicatorList = GetProgramPerformance(programName);
+            if (verbose)
+            {
+
+            }
+        }
+
         public List<IndicatorPerformance> GetProgramPerformance(string programName)
         {
             List<IndicatorPerformance> indicatorList = new List<IndicatorPerformance>();
