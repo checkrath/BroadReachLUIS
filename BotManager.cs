@@ -1,4 +1,7 @@
-﻿using System;
+﻿using LuisBot.LuisHelper;
+using Microsoft.Bot.Builder.Dialogs;
+using Microsoft.Bot.Connector;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -17,8 +20,18 @@ namespace LuisBot
         {
             _convElementName = name;
         }
+        public string Value { get { return _convElementName; } }
     }
-        
+    [Serializable]
+    public class IntentAttribute : Attribute
+    {
+        string _intentAttrName;
+        public IntentAttribute(string name)
+        {
+            _intentAttrName = name;
+        }
+        public string Value { get { return _intentAttrName; } }
+    }
     [Serializable]
     public class BotManager
     {
@@ -66,9 +79,10 @@ namespace LuisBot
         /// </summary>
         private BotDescription _bot;
         private Subconvelement _currentConvElement;
+        private object _callingObject;
 
 
-        public BotManager(string BotConfigFile)
+        public BotManager(string BotConfigFile, object callingObject)
         {
             // Todo: Not sure what will happen here once this is in Azure?
             string fileLocation = System.Web.HttpContext.Current.Server.MapPath("/") + BotConfigFile;
@@ -78,15 +92,19 @@ namespace LuisBot
             // Load the JSON Object up
             _bot = new JavaScriptSerializer().Deserialize<BotDescription>(json);
 
+            // Set the calling type
+            _callingObject = callingObject;
+
             // Set that we are currently in the main conversation element
             _currentConvElement = null;
         }
 
-        public async Task<List<LuisBot.LuisHelper.LuisFullResult>> ExecuteQuery(string query)
+        public async Task<List<LuisBot.LuisHelper.LuisFullResult>> ExecuteQuery(string query, IDialogContext context, IAwaitable<IMessageActivity> argument)
         {
             double topIntentScore = 0;
             LuisHelper.LuisIntent topIntent = null;
             Subconvelement topConvElement = null;
+            LuisFullResult topLuisResult = null;
 
             List<LuisBot.LuisHelper.LuisFullResult> returnedLuisResponses = new List<LuisHelper.LuisFullResult>();
             // Run through each LUIS entity, and execute the query
@@ -107,6 +125,7 @@ namespace LuisBot
                     {
                         topIntentScore = intent.Score;
                         topIntent = intent;
+                        topLuisResult = result;
                     }
 
                     // For each returned intent, we need to check if it is one of the current returned intents
@@ -126,6 +145,7 @@ namespace LuisBot
                                     topIntentScore = thisIntentScore;
                                     topIntent = intent;
                                     topConvElement = convElement;
+                                    topLuisResult = result;
                                 }
                             }
                         }
@@ -146,11 +166,11 @@ namespace LuisBot
                                     topIntentScore = thisIntentScore;
                                     topIntent = intent;
                                     topConvElement = convElement;
+                                    topLuisResult = result;
                                 }
                             }
                         }
                     }
-
                 }
             }
 
@@ -159,13 +179,32 @@ namespace LuisBot
             {
                 // Pick out the name and look for a method with this name
                 string attributeName = topConvElement.convName;
-                // Use reflection to find the methods with this attribute?
+                string result = await TryExecuteMethodWithAttributeName(typeof(ConvElement), attributeName, _callingObject, topLuisResult, topConvElement, topIntent);
+                // Is it correct?
+                if (result != null)
+                {
+                    await context.PostAsync(result);
+                    return returnedLuisResponses;
+                }
 
             }
-            else
+            // Fall through; either no conv element (generic intent) or the method doesn't work
+            if (topIntent != null)
             {
-
+                // Here, we search for the generic Intent method and do the same thing
+                // Pick out the name and look for a method with this name
+                string intentName = topIntent.Name;
+                string result = await TryExecuteMethodWithAttributeName(typeof(IntentAttribute), intentName, _callingObject, topLuisResult, null, topIntent);
+                // Is it correct?
+                if (result != null)
+                {
+                    await context.PostAsync(result);
+                    return returnedLuisResponses;
+                }
             }
+
+            // At this point, call the "None" response
+
 
             return returnedLuisResponses;
         }
@@ -198,6 +237,53 @@ namespace LuisBot
                 }
             }
         }
-    
+
+        /// <summary>
+        /// Returns the greeting for the bot
+        /// </summary>
+        /// <returns></returns>
+        public string GetGreetingMessage()
+        {
+            return _bot.conversation.mainTopic.greeting;
+        }
+
+        private async Task<string> TryExecuteMethodWithAttributeName(Type type, string attributeName, object callingObject,LuisFullResult luisResult, Subconvelement convElement, LuisHelper.LuisIntent intent)
+        {
+            // Use reflection to find the methods with this attribute?
+            var methods = callingObject.GetType().GetMethods();
+            foreach (var method in methods)
+            {
+                string methodName = method.Name;
+                var attrList = method.GetCustomAttributes(type, false);
+                if (attrList.Length != 0)
+                {
+                    // More hardcoding for now
+                    string attrValue;
+                    if (type == typeof(ConvElement))
+                        attrValue = ((ConvElement)attrList[0]).Value;
+                    else
+                        attrValue = ((IntentAttribute)attrList[0]).Value;
+
+                    if (attrValue == attributeName)
+                    {
+                        // Invoke Method
+                        // Hardcode for now. Todo - change later
+                        object[] paramList = null;
+
+                        if (type == typeof(ConvElement))
+                            paramList = new object[] { luisResult, convElement, intent };
+                        else
+                            paramList = new object[] { luisResult, intent };
+                        Task<string> tReturn = (Task<string>)method.Invoke(_callingObject, paramList);
+
+                        tReturn.Wait();
+                        return tReturn.Result;
+                    }
+                }
+            }
+
+            return null;
+        }
+
     }
 }

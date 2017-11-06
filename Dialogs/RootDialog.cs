@@ -45,7 +45,7 @@ namespace LuisBot.Dialogs
             happinessTracker = new HappinessTracker();
 
             // Start the Bot Manager
-            _botManager = new BotManager("BotConfiguration.json");
+            _botManager = new BotManager("BotConfiguration.json",this);
         }
 
         //public async Task FirstReceivedAsync(IDialogContext context, IAwaitable<IMessageActivity> argument)
@@ -79,7 +79,7 @@ namespace LuisBot.Dialogs
             //Get the user input
             string textIn = (await argument).Text;
 
-            List<LuisFullResult> results = await _botManager.ExecuteQuery(textIn);
+            List<LuisFullResult> results = await _botManager.ExecuteQuery(textIn, context, argument);
 
             //await context.PostAsync($"You said:{textIn}");
             //call LUIS for a reponse
@@ -435,10 +435,18 @@ namespace LuisBot.Dialogs
 
         #endregion
 
-        // Test method
-        [ConvElement("firstPerformance")]
-        private void DoSomething()
+        //// Test method
+        //[ConvElement("firstHello")]
+        //public async Task<string> DoSomething(BotManager.Subconvelement convElement, LuisIntent intent)
+        //{
+        //    return convElement.text;
+        //}
+
+        // Test method for intent
+        [IntentAttribute("SwitchIntent")]
+        public async Task<string> DoSomething(LuisFullResult result, LuisIntent intent)
         {
+            return "Hello there!";
         }
 
         string GetEntityValue(string entityName, string defaultVal, LuisFullResult result)

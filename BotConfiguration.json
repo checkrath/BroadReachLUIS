@@ -53,11 +53,11 @@
           ]
         },
         {
-          "convName": "firstListDistricts",
-          "intent": "ListDistricts",
-          "text": "Here are the Districts that I can provide information on",
-          "familiarText": "Performance",
-          "ShortDescription": "list the districts",
+          "convName": "firstHello",
+          "intent": "Greeting_Hello",
+          "text": "Hi User. How can I help?",
+          "familiarText": "Greeting",
+          "ShortDescription": "say hello",
           "boost": 1.01
         }
       ]
