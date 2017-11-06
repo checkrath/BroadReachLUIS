@@ -66,7 +66,21 @@ namespace BroadreachLuisTests
         [TestMethod]
         public void DB_Get_ListOf_Programs()
         {
+            EntitiesDBQuery query = new EntitiesDBQuery();
 
+            List<string> programs = query.GetListOfPrograms();
+
+            Assert.IsTrue(programs.Count > 1);
+        }
+
+        [TestMethod]
+        public void DB_Get_List_Programs_String()
+        {
+            EntitiesDBQuery query = new EntitiesDBQuery();
+
+            string programs = query.GetListOfProgramsAsString();
+
+            Assert.IsTrue(programs.Length> 5);
         }
     }
 }

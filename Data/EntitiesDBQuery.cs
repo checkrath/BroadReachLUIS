@@ -60,6 +60,45 @@ namespace LuisBot.Data
             return districtList;           
         }
 
+        public List<string> GetListOfPrograms()
+        {
+            List<string> programList = new List<string>();
+            using (SqlConnection connection = new SqlConnection(DB_CONN))
+            using (SqlCommand cmd = new SqlCommand("select * from [dbo].[Contracts]", connection))
+            {
+                //cmd.Parameters.AddWithValue("FirstName", firstName);
+                connection.Open();
+                using (var reader = cmd.ExecuteReader())
+                {
+                    if (reader.HasRows)
+                        while (reader.Read())
+                        {
+                            programList.Add(reader.GetString(2));
+                        }
+                }
+            }
+
+            //Return a list of districts
+            return programList;
+
+        }
+
+        public string GetListOfProgramsAsString()
+        {
+            List<string> programs = GetListOfPrograms();
+            //build string
+            string programsAsString = "";
+            for (int i = 0; i < programs.Count; i++)
+            {
+                if (i == 0)
+                    programsAsString += programs[0];
+                else if (i == programs.Count - 1)
+                    programsAsString += " and " + programs[i];
+                else programsAsString += ", " + programs[i];
+            }
+
+            return programsAsString;
+        }
 
 
 
