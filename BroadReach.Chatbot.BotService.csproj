@@ -162,6 +162,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
+    <Content Include="BotConfiguration.json" />
     <None Include="Properties\PublishProfiles\CheckrathBRChatbot - FTP.pubxml" />
     <None Include="Properties\PublishProfiles\CheckrathBRChatbot - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\CheckrathBRChatbot-Web-Deploy.pubxml" />
