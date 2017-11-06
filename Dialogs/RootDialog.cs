@@ -10,6 +10,7 @@ using Microsoft.Cognitive.LUIS;
 using System.Net.Http;
 using LuisBot.LuisHelper;
 using LuisBot.Data;
+using LuisBot;
 
 namespace LuisBot.Dialogs
 {
