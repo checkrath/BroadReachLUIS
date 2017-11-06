@@ -82,5 +82,26 @@ namespace BroadreachLuisTests
 
             Assert.IsTrue(programs.Length> 5);
         }
+
+
+        [TestMethod]
+        public void DB_Get_ListOf_Facilities()
+        {
+            EntitiesDBQuery query = new EntitiesDBQuery();
+
+            List<string> districts = query.GetListOfFacilities("Ugu");
+
+            Assert.IsTrue(districts.Count > 1);
+        }
+
+        [TestMethod]
+        public void DB_Get_List_Facilities_String()
+        {
+            EntitiesDBQuery query = new EntitiesDBQuery();
+
+            string facilities = query.GetListOfFacilitiesAsString("Ugu");
+
+            Assert.IsTrue(facilities.Length > 5);
+        }
     }
 }
