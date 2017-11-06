@@ -27,7 +27,7 @@ namespace LuisBot.Dialogs
         public string lastDistrict = "";
         public string lastIndicator = "All indicators";
         public string lastIntent = "";
-        public string lastTerm = "annual";
+        public string lastTerm = "Annual";
         public string username;
         public string userId;
         public HappinessTracker happinessTracker;
@@ -216,14 +216,21 @@ namespace LuisBot.Dialogs
             if (lastDistrict == "")
             {
                 //get performance for the program
-                performance = query.GetProgramPerformanceAsString(lastProgramme, (lastTerm == "Annual"), true);
-
+                if (lastIndicator == "All indicators")
+                    performance = query.GetProgramPerformanceAsString(lastProgramme, (lastTerm == "Annual"), true);
+                else
+                    performance = query.GetProgramPerformanceAsString(lastProgramme, (lastTerm == "Annual"), true,lastIndicator);
+                
             }
             else
             {
                 //get performance for the district
-                performance = $"{actual} against a target of {target} which is {percentTarget}% of target";
-                
+                if (lastIndicator == "All indicators")
+                    performance = query.GetDistrictPerformanceAsString(lastDistrict, (lastTerm == "Annual"), true);
+                else
+                    performance = query.GetDistrictPerformanceAsString(lastDistrict, (lastTerm == "Annual"), true, lastIndicator);
+                //performance = $"{actual} against a target of {target} which is {percentTarget}% of target";
+
             }
             fullOutput = fullOutput.Replace("[performance]", performance);
 
@@ -446,7 +453,7 @@ namespace LuisBot.Dialogs
         [IntentAttribute("SwitchIntent")]
         public async Task<string> DoSomething(LuisFullResult result, LuisIntent intent)
         {
-            return "Hello there!";
+            return "...";
         }
 
         string GetEntityValue(string entityName, string defaultVal, LuisFullResult result)

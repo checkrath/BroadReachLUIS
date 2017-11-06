@@ -32,7 +32,7 @@ namespace LuisBot.Data
                         if (indicatorName=="") //No indicators specified
                             indicatorOutput += $"{indicator.Indicatorname}: {indicator.IndicatorValue} ({percentTarget})";
                         else
-                            indicatorOutput += $"{indicator.Indicatorname} was {indicator.IndicatorValue} ({percentTarget})";
+                            indicatorOutput += $"{indicator.IndicatorValue} ({percentTarget})";
 
                     else if (i == indicatorList.Count - 1)
                         indicatorOutput += " and " + $"{indicator.Indicatorname}: {indicator.IndicatorValue} ({percentTarget})";
@@ -142,7 +142,7 @@ namespace LuisBot.Data
                         if (indicatorName == "") //No indicators specified
                             indicatorOutput += $"{indicator.Indicatorname}: {indicator.IndicatorValue} ({percentTarget})";
                         else
-                            indicatorOutput += $"{indicator.Indicatorname} was {indicator.IndicatorValue} ({percentTarget})";
+                            indicatorOutput += $"{indicator.IndicatorValue} ({percentTarget})";
 
                     else if (i == indicatorList.Count - 1)
                         indicatorOutput += " and " + $"{indicator.Indicatorname}: {indicator.IndicatorValue} ({percentTarget})";
