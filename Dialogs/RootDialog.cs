@@ -434,6 +434,12 @@ namespace LuisBot.Dialogs
 
         #endregion
 
+        // Test method
+        [ConvElement("firstPerformance")]
+        private void DoSomething()
+        {
+        }
+
         string GetEntityValue(string entityName, string defaultVal, LuisFullResult result)
         {
             LuisEntity entity;

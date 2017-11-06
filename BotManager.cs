@@ -10,6 +10,16 @@ using System.Web.Script.Serialization;
 namespace LuisBot
 {
     [Serializable]
+    public class ConvElement : Attribute
+    {
+        string _convElementName;
+        public ConvElement(string name)
+        {
+            _convElementName = name;
+        }
+    }
+        
+    [Serializable]
     public class BotManager
     {
         // Define all the classes for the JSON Object
@@ -39,6 +49,7 @@ namespace LuisBot
             public string familiarText { get; set; }
             public string ShortDescription { get; set; }
             public double boost { get; set; }
+            public Subconvelement[] subConvElements { get; set; }
         }
         [Serializable]
         public class Luisapplication
@@ -99,7 +110,7 @@ namespace LuisBot
                     }
 
                     // For each returned intent, we need to check if it is one of the current returned intents
-                    if (_currentConvElement == null)
+                    if ((_currentConvElement == null) || (_currentConvElement.subConvElements == null))
                     {
                         // Work with the main conversation element
                         foreach (Subconvelement convElement in _bot.conversation.mainTopic.subConvElements)
@@ -121,15 +132,39 @@ namespace LuisBot
                     }
                     else
                     {
-                        //// Work with the current conv element
-                        //foreach (Subconvelement convElement in _currentConvElement.subConvElements)
-                        //{
-
-                        //}
+                        // Work with the main conversation element
+                        foreach (Subconvelement convElement in _currentConvElement.subConvElements)
+                        {
+                            // Check if this element matches the intent returned, and boost if so
+                            if (convElement.intent == intent.Name)
+                            {
+                                // Boost
+                                // This means we had a returned intent that we were expecting
+                                double thisIntentScore = intent.Score * convElement.boost;
+                                if (thisIntentScore > topIntentScore)
+                                {
+                                    topIntentScore = thisIntentScore;
+                                    topIntent = intent;
+                                    topConvElement = convElement;
+                                }
+                            }
+                        }
                     }
 
-                    // Update the boost amount
                 }
+            }
+
+            // Here we have the conv element that is highest, and the intent that is highest.
+            if (topConvElement != null)
+            {
+                // Pick out the name and look for a method with this name
+                string attributeName = topConvElement.convName;
+                // Use reflection to find the methods with this attribute?
+
+            }
+            else
+            {
+
             }
 
             return returnedLuisResponses;
