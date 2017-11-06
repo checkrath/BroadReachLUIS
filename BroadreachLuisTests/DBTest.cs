@@ -62,5 +62,11 @@ namespace BroadreachLuisTests
             //check that it has a couple of items
             Assert.IsTrue(indicatorList.Length > 5);
         }
+
+        [TestMethod]
+        public void DB_Get_ListOf_Programs()
+        {
+
+        }
     }
 }

@@ -9,6 +9,7 @@ using Microsoft.Bot.Connector;
 using Microsoft.Cognitive.LUIS;
 using System.Net.Http;
 using LuisBot.LuisHelper;
+using LuisBot.Data;
 
 namespace LuisBot.Dialogs
 {
@@ -209,8 +210,23 @@ namespace LuisBot.Dialogs
             fullOutput = fullOutput.Replace(TOKEN_DISTRICT, GetDistrictProgramme(result));
 
             //generate the performance reposnse
-            string performance = $"{actual} against a target of {target} which is {percentTarget}% of target";
+            string performance;
+            PerformanceDBQuery query = new PerformanceDBQuery();
+            if (lastDistrict == "")
+            {
+                //get performance for the program
+                performance = query.GetProgramPerformanceAsString(lastProgramme, (lastTerm == "Annual"), true);
+
+            }
+            else
+            {
+                //get performance for the district
+                performance = $"{actual} against a target of {target} which is {percentTarget}% of target";
+                
+            }
             fullOutput = fullOutput.Replace("[performance]", performance);
+
+
 
             //Add a note if required
             if (percentTarget > 100)
@@ -230,7 +246,10 @@ namespace LuisBot.Dialogs
 
         private async Task ListDistricts_Intent(IDialogContext context, LuisFullResult result)
         {
-            await context.PostAsync($"I can give you the performance of the Gert Sibande, Ugu, Sedibeng, Alfred Nzo, Harry Gwala and King Cetshwayo districts. Alternatively, you can request the performance of all districts or a specific programme.");
+            //get a list of districts 
+            EntitiesDBQuery query = new EntitiesDBQuery();
+            string districts = query.GetListOfDistrictsAsString(lastProgramme);
+            await context.PostAsync($"I can give you the performance of the {districts} districts. Alternatively, you can request the performance of all districts or a specific programme.");
         }
 
         private async Task ListPrograms_Intent(IDialogContext context, LuisFullResult result)

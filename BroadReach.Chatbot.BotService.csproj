@@ -141,8 +141,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\WebApiConfig.cs" />
-    <Compile Include="BotManager.cs" />
-    <Compile Include="Dialogs\BasicLuisDialog.cs" />
+    <Compile Include="Data\DataObjects.cs" />
+    <Compile Include="Data\EntitiesDBQuery.cs" />
+    <Compile Include="Data\PerformanceDBQuery.cs" />
     <Compile Include="Controllers\MessagesController.cs" />
     <Compile Include="Dialogs\QnADialog.cs" />
     <Compile Include="Dialogs\RatingDialog.cs" />
@@ -160,7 +161,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
-    <Content Include="BotConfiguration.json" />
+    <None Include="Properties\PublishProfiles\CheckrathBRChatbot - FTP.pubxml" />
+    <None Include="Properties\PublishProfiles\CheckrathBRChatbot - Web Deploy.pubxml" />
+    <None Include="Properties\PublishProfiles\CheckrathBRChatbot-Web-Deploy.pubxml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -168,6 +171,7 @@
       <DependentUpon>Web.config</DependentUpon>
     </None>
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
