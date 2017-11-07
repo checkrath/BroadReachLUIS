@@ -80,9 +80,15 @@ namespace LuisBot
         private BotDescription _bot;
         private Subconvelement _currentConvElement;
         private object _callingObject;
+        // Use events for this later
+        private string _noneEventMethodName;
+
+        // User details
+        private string _userId;
+        private string _userName;
 
 
-        public BotManager(string BotConfigFile, object callingObject)
+        public BotManager(string BotConfigFile, object callingObject, string noneEventMethodName)
         {
             // Todo: Not sure what will happen here once this is in Azure?
             string fileLocation = System.Web.HttpContext.Current.Server.MapPath("/") + BotConfigFile;
@@ -97,10 +103,25 @@ namespace LuisBot
 
             // Set that we are currently in the main conversation element
             _currentConvElement = null;
+
+            // None event
+            _noneEventMethodName = noneEventMethodName;
         }
 
-        public async Task<List<LuisBot.LuisHelper.LuisFullResult>> ExecuteQuery(string query, IDialogContext context, IAwaitable<IMessageActivity> argument)
+        public async Task<List<LuisBot.LuisHelper.LuisFullResult>> ExecuteQuery(string query, IDialogContext context, IAwaitable<IMessageActivity> message)
         {
+            // Get username stuff
+            //Get the username
+            if (context.Activity.From.Id != null)
+            {
+                _userId = context.Activity.From.Id;
+                _userName = context.Activity.From.Name;
+            }
+            else
+            {
+                _userId = "Anonymous";
+                _userName = "Unknown User";
+            }
             double topIntentScore = 0;
             LuisHelper.LuisIntent topIntent = null;
             Subconvelement topConvElement = null;
@@ -179,7 +200,7 @@ namespace LuisBot
             {
                 // Pick out the name and look for a method with this name
                 string attributeName = topConvElement.convName;
-                string result = await TryExecuteMethodWithAttributeName(typeof(ConvElement), attributeName, _callingObject, topLuisResult, topConvElement, topIntent);
+                string result = await TryExecuteMethodWithAttributeName(typeof(ConvElement), attributeName, _callingObject, context, message, topLuisResult, topConvElement, topIntent);
                 // Is it correct?
                 if (result != null)
                 {
@@ -194,7 +215,7 @@ namespace LuisBot
                 // Here, we search for the generic Intent method and do the same thing
                 // Pick out the name and look for a method with this name
                 string intentName = topIntent.Name;
-                string result = await TryExecuteMethodWithAttributeName(typeof(IntentAttribute), intentName, _callingObject, topLuisResult, null, topIntent);
+                string result = await TryExecuteMethodWithAttributeName(typeof(IntentAttribute), intentName, _callingObject, context, message, topLuisResult, null, topIntent);
                 // Is it correct?
                 if (result != null)
                 {
@@ -204,6 +225,23 @@ namespace LuisBot
             }
 
             // At this point, call the "None" response
+            if (!String.IsNullOrEmpty(_noneEventMethodName))
+            {
+                // private async Task NoneIntent(IDialogContext context, IAwaitable<IMessageActivity> message, LuisFullResult result)
+                object[] paramList = new object[] { context, message, topLuisResult };
+                // Use reflection to find the methods with this attribute?
+                var methods = _callingObject.GetType().GetMethods();
+                foreach (var method in methods)
+                {
+                    if (method.Name.ToLower() == _noneEventMethodName.ToLower())
+                    {
+                        Task tReturn = (Task)method.Invoke(_callingObject, paramList);
+                        //tReturn.Wait();
+                    }
+                }
+            }
+            else
+                throw new Exception("No conversation element, intent or none event found to deal with the query");
 
 
             return returnedLuisResponses;
@@ -247,7 +285,7 @@ namespace LuisBot
             return _bot.conversation.mainTopic.greeting;
         }
 
-        private async Task<string> TryExecuteMethodWithAttributeName(Type type, string attributeName, object callingObject,LuisFullResult luisResult, Subconvelement convElement, LuisHelper.LuisIntent intent)
+        private async Task<string> TryExecuteMethodWithAttributeName(Type type, string attributeName, object callingObject,IDialogContext context, IAwaitable<IMessageActivity> message, LuisFullResult luisResult, Subconvelement convElement, LuisHelper.LuisIntent intent)
         {
             // Use reflection to find the methods with this attribute?
             var methods = callingObject.GetType().GetMethods();
@@ -271,9 +309,9 @@ namespace LuisBot
                         object[] paramList = null;
 
                         if (type == typeof(ConvElement))
-                            paramList = new object[] { luisResult, convElement, intent };
+                            paramList = new object[] { context, message, luisResult, convElement, intent };
                         else
-                            paramList = new object[] { luisResult, intent };
+                            paramList = new object[] { context, message, luisResult, intent };
                         Task<string> tReturn = (Task<string>)method.Invoke(_callingObject, paramList);
 
                         tReturn.Wait();
