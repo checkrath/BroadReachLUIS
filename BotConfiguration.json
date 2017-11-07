@@ -17,17 +17,6 @@
         "None",
         "PerformanceAgainstTarget"
       ]
-    },
-    {
-      "name": "BroadReachPerformanceQuery",
-      "requestURI": "https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/{AppId}?subscription-key={AppKey}&timezoneOffset=0&verbose=true&q={Query}",
-      "AppId": "44f211aa-530a-481f-a641-2342d07e700d",
-      "AppKey": "e9fb84acf75d4053a9cc1a716c94ca7e",
-      "intents": [
-        "Performance",
-        "PerformanceIncrease",
-        "SwitchIntent"
-      ]
     }
   ],
   "conversation": {
@@ -51,14 +40,6 @@
               "boost": 1.02
             }
           ]
-        },
-        {
-          "convName": "firstHello",
-          "intent": "Greeting_Hello",
-          "text": "Hi User. How can I help?",
-          "familiarText": "Greeting",
-          "ShortDescription": "say hello",
-          "boost": 1.01
         }
       ]
     }
