@@ -218,7 +218,7 @@ namespace LuisBot.Dialogs
             if (lastDistrict == "")
             {
                 //get performance for the program
-                if (lastIndicator == "All indicators")
+                if (lastIndicator.ToLower() == "all indicators")
                     performance = query.GetProgramPerformanceAsString(lastProgramme, (lastTerm == "Annual"), true);
                 else
                     performance = query.GetProgramPerformanceAsString(lastProgramme, (lastTerm == "Annual"), true,lastIndicator);
@@ -227,7 +227,7 @@ namespace LuisBot.Dialogs
             else
             {
                 //get performance for the district
-                if (lastIndicator == "All indicators")
+                if (lastIndicator.ToLower() == "all indicators")
                     performance = query.GetDistrictPerformanceAsString(lastDistrict, (lastTerm == "Annual"), true);
                 else
                     performance = query.GetDistrictPerformanceAsString(lastDistrict, (lastTerm == "Annual"), true, lastIndicator);
