@@ -172,9 +172,11 @@ namespace LuisBot.Dialogs
         #region functionalIntents
         private async Task ChangeParameter_Intent(IDialogContext context, LuisFullResult result)
         {
-            if (lastIntent == "PerformanceAgainstTarget")
-                await PerformanceAgainstTarget_Intent(context, result);
-            
+            //if (lastIntent == "PerformanceAgainstTarget")
+            //    await PerformanceAgainstTarget_Intent(context, result);
+            //todo: fix this so it goes to the correct method
+            await PerformanceAgainstTarget_Intent(context, result);
+
         }
 
         private async Task PerformanceAgainstTarget_Intent(IDialogContext context, LuisFullResult result)
