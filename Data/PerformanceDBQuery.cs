@@ -140,9 +140,9 @@ namespace LuisBot.Data
                     //Create string
                     if (i == 0)
                         if (indicatorName == "") //No indicators specified
-                            indicatorOutput += $"{indicator.Indicatorname}: {indicator.IndicatorValue} ({percentTarget})";
+                            indicatorOutput += $"{indicator.Indicatorname}: {indicator.IndicatorValue:0.0} ({percentTarget})";
                         else
-                            indicatorOutput += $"{indicator.IndicatorValue} ({percentTarget})";
+                            indicatorOutput += $"{indicator.IndicatorValue:0.0} ({percentTarget})";
 
                     else if (i == indicatorList.Count - 1)
                         indicatorOutput += " and " + $"{indicator.Indicatorname}: {indicator.IndicatorValue} ({percentTarget})";
