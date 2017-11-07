@@ -196,7 +196,7 @@ namespace LuisBot.Dialogs
             //if (lastIntent == "PerformanceAgainstTarget")
             //    await PerformanceAgainstTarget_Intent(context, result);
             //todo: fix this so it goes to the correct method
-            await PerformanceAgainstTarget_Intent(context, result);
+            await PerformanceAgainstTarget_Intent(context,message, result,intent);
 
         }
 
