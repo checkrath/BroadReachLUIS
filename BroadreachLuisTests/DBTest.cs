@@ -136,6 +136,14 @@ namespace BroadreachLuisTests
             string indicatorList = query.GetProgramPerformanceAsString("", false, true,"",false,2);
             //check that it has a couple of items
             Assert.IsTrue(indicatorList.Length > 5);
+
+            //get the top indicator for ugu
+            List<IndicatorPerformance> districtList = query.GetDistrictPerformance("Ugu",best:true,n:1);
+            Assert.IsTrue(districtList.Count ==1);
+
+            //get the worst 2 YTD indicators of the Alfred Nzo district
+            string perf = query.GetDistrictPerformanceAsString("Alfred Nzo", true,best:false,n:2);
+            Assert.IsTrue(perf.Length > 10);
         }
     }
 }

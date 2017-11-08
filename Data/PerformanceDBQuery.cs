@@ -92,12 +92,14 @@ namespace LuisBot.Data
             return indicatorList;
         }
 
-        public List<IndicatorPerformance> GetDistrictPerformance(string districtName, string indicatorName = "")
+        public List<IndicatorPerformance> GetDistrictPerformance(string districtName, string indicatorName = "", bool best = true, int n = 10, bool sortByAnnual = true)
         {
-            string sql = "SELECT [IndicatorName],[Value],[AnnualTarget],[YTDTarget],[PerformanceAgainstTarget]" +
+            string sortField = (sortByAnnual) ? "[PerformanceAgainstTarget]" : "[PerformanceAgainstYTDTarget]";
+            string ascDesc = (best) ? " desc " : " asc ";
+            string sql = $"SELECT top {n} [IndicatorName],[Value],[AnnualTarget],[YTDTarget],[PerformanceAgainstTarget]" +
                 ",[PerformanceAgainstYTDTarget] " +
-                "FROM[dbo].[vw_DistrictsPerformance] " +
-                "where DistrictName like @DistrictName";
+                "FROM[dbo].[vw_DistrictsPerformance] where DistrictName like @DistrictName " +
+                $"order by {sortField} {ascDesc}";
             List<IndicatorPerformance> indicatorList = new List<IndicatorPerformance>();
             using (SqlConnection connection = new SqlConnection(DB_CONN))
             using (SqlCommand cmd = new SqlCommand(sql, connection))
@@ -128,9 +130,9 @@ namespace LuisBot.Data
             return indicatorList;
         }
 
-        public string GetDistrictPerformanceAsString(string districtName, bool annual, bool verbose = true, string indicatorName = "")
+        public string GetDistrictPerformanceAsString(string districtName, bool annual, bool verbose = true, string indicatorName = "", bool best = true, int n = 10)
         {
-            List<IndicatorPerformance> indicatorList = GetProgramPerformance(districtName, indicatorName);
+            List<IndicatorPerformance> indicatorList = GetProgramPerformance(districtName, indicatorName,best,n,annual);
             string indicatorOutput = "";
             if (verbose)
             {
