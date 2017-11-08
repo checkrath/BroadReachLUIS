@@ -263,7 +263,10 @@ namespace LuisBot
                 }
             }
             else
+            {
+                // Return the generic strings?
                 throw new Exception("No conversation element, intent or none event found to deal with the query");
+            }
 
 
             return returnedLuisResponses;

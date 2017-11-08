@@ -183,60 +183,7 @@ namespace LuisBot.Dialogs
         [IntentAttribute("BestXThings")]
         public async Task<string> BestXThings_Intent(IDialogContext context, IAwaitable<IMessageActivity> message, LuisFullResult result, LuisIntent intent)
         {
-            // We need:
-            // Which [3] [facilities] in [Ugu] are under-spending?
-            // [Number] [EntityType] [District]/[Programme]/[Country]
-            // Also, where are we currently?
-
-
-            string term = "this year";
-            string thing = GetEntityValue("EntityType", "District", result);
-            string number = GetEntityValue("Number", "3", result);
-            string inWhichDistrict = GetEntityValue("District", "", result);
-            string inWhichProgramme = GetEntityValue("Program", "", result);
-            string inWhichCountry = GetEntityValue("Country", "", result);
-            string inWhichFacility = GetEntityValue("Country", "", result);
-            string outputAnswer = "";
-            // Get the context
-            switch (thing)
-            {
-                case "District":
-                    // District, we need to know the Country
-                    if (inWhichCountry == "")
-                    {
-                        if (lastCountry != "")
-                            inWhichCountry = lastCountry;
-                        else
-                            return "To show you this, I need you to narrow it down to a country?";
-                    }
-                    outputAnswer = $"The top {number} districts over {term} for country {inWhichCountry} are X, Y, Z";
-                    break;
-                case "Facility":
-                    // Facility, we need to know the District
-                    if (inWhichDistrict == "")
-                    {
-                        if (lastDistrict != "")
-                            inWhichDistrict = lastDistrict;
-                        else
-                           return "To show you this, I need you to narrow it down to a district";
-                    }
-                    outputAnswer = $"The top {number} facilities over {term} for district {inWhichDistrict} are X, Y, Z";
-                    break;
-                case "Indicator":
-                    // Facility, we need to know the District
-                    if (inWhichFacility == "")
-                    {
-                        if (inWhichDistrict == "")
-                           return "To show you the top indicators, I need to know which facility or district you want to see the indicators for";
-                        else
-                            outputAnswer = $"The top {number} indicators over {term} for district {inWhichDistrict} are X, Y, Z";
-                    }
-                    else
-                        outputAnswer = $"The top {number} indicators over {term} for facility {inWhichFacility} are X, Y, Z";
-                    
-                    break;
-            }
-            // Post the answers
+            string outputAnswer = TopBottomThings(context, message, result, intent, false);
 #if UseBotManager
             return outputAnswer;
 #else
@@ -247,13 +194,25 @@ namespace LuisBot.Dialogs
         [IntentAttribute("WorstXThings")]
         public async Task<string> WorstXThings_Intent(IDialogContext context, IAwaitable<IMessageActivity> message, LuisFullResult result, LuisIntent intent)
         {
+            string outputAnswer = TopBottomThings(context, message, result, intent, true);
+#if UseBotManager
+            return outputAnswer;
+#else
+            await context.PostAsync(outputAnswer);
+            return "";
+#endif
+        }
+
+        private string TopBottomThings(IDialogContext context, IAwaitable<IMessageActivity> message, LuisFullResult result, LuisIntent intent, bool isTop)
+        {
+
             // We need:
             // Which [3] [facilities] in [Ugu] are under-spending?
             // [Number] [EntityType] [District]/[Programme]/[Country]
             // Also, where are we currently?
 
-
             string term = "this year";
+            string topBottom = (isTop ? "highest" : "lowest");
             string thing = GetEntityValue("EntityType", "District", result);
             string number = GetEntityValue("Number", "3", result);
             string inWhichDistrict = GetEntityValue("District", "", result);
@@ -273,7 +232,7 @@ namespace LuisBot.Dialogs
                         else
                             return "To show you this, I need you to narrow it down to a country?";
                     }
-                    outputAnswer = $"The lowest {number} districts over {term} for country {inWhichCountry} are X, Y, Z";
+                    outputAnswer = $"The {topBottom} {number} districts over {term} for country {inWhichCountry} are X, Y, Z";
                     break;
                 case "Facility":
                     // Facility, we need to know the District
@@ -284,19 +243,19 @@ namespace LuisBot.Dialogs
                         else
                             return "To show you this, I need you to narrow it down to a district";
                     }
-                    outputAnswer = $"The lowest {number} facilities over {term} for district {inWhichDistrict} are X, Y, Z";
+                    outputAnswer = $"The {topBottom} {number} facilities over {term} for district {inWhichDistrict} are X, Y, Z";
                     break;
                 case "Indicator":
                     // Facility, we need to know the District
                     if (inWhichFacility == "")
                     {
                         if (inWhichDistrict == "")
-                            return "To show you the top indicators, I need to know which facility or district you want to see the indicators for";
+                            return $"To show you the {topBottom} indicators, I need to know which facility or district you want to see the indicators for";
                         else
-                            outputAnswer = $"The lowest {number} indicators over {term} for district {inWhichDistrict} are X, Y, Z";
+                            outputAnswer = $"The {topBottom} {number} indicators over {term} for district {inWhichDistrict} are X, Y, Z";
                     }
                     else
-                        outputAnswer = $"The lowest {number} indicators over {term} for facility {inWhichFacility} are X, Y, Z";
+                        outputAnswer = $"The {topBottom} {number} indicators over {term} for facility {inWhichFacility} are X, Y, Z";
 
                     break;
             }

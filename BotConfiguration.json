@@ -17,7 +17,8 @@
         "None",
         "PerformanceAgainstTarget",
         "BestXThings",
-        "WorstXThings"
+        "WorstXThings",
+        "Thanks"
       ]
     }
   ],
@@ -76,6 +77,15 @@
               "boost": 1
             }
           ]
+        },
+        {
+          "convName": "thankYou",
+          "intent": "Thanks",
+          "text": "Its a pleasure!",
+          "alwaysUseAsIntentHome": true,
+          "listInHelpText": false,
+          "ShortDescription": "tell you how you are doing against target",
+          "boost": 1
         }
       ]
     }
