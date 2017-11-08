@@ -140,9 +140,9 @@ namespace LuisBot.Data
                     //Create string
                     if (i == 0)
                         if (indicatorName == "") //No indicators specified
-                            indicatorOutput += $"{indicator.Indicatorname}: {indicator.IndicatorValue} ({percentTarget})";
+                            indicatorOutput += $"{indicator.Indicatorname}: {indicator.IndicatorValue:0.0} ({percentTarget})";
                         else
-                            indicatorOutput += $"{indicator.IndicatorValue} ({percentTarget})";
+                            indicatorOutput += $"{indicator.IndicatorValue:0.0} ({percentTarget})";
 
                     else if (i == indicatorList.Count - 1)
                         indicatorOutput += " and " + $"{indicator.Indicatorname}: {indicator.IndicatorValue} ({percentTarget})";
@@ -163,7 +163,47 @@ namespace LuisBot.Data
             return indicatorOutput;
         }
 
+        /// <summary>
+        /// Return the best/worst n districts in a program
+        /// </summary>
+        /// <param name="programName"></param>
+        /// <param name="annual"></param>
+        /// <param name="best"></param>
+        /// <param name="n"></param>
+        /// <returns></returns>
+        public List<string> GetBestWorstDistrict(string programName, bool annual, bool best,int n=1)
+        {
+            //create the query
+            string valField= (annual)? "[aveTargetPerf]" : "[aveYTDPerf]";
+            string ascDesc= (best) ? " desc " : " asc ";
+            string sql = $"select top {n} [DistrictName],{valField} from [dbo].[vw_DistrictsPerformanceSummary] " +
+                $"order by {valField} {ascDesc}" ;
 
+            //Execute the query
+            List<string> districtList = new List<string>();
+            using (SqlConnection connection = new SqlConnection(DB_CONN))
+            using (SqlCommand cmd = new SqlCommand(sql, connection))
+            {
+                //cmd.Parameters.AddWithValue("DistrictName", districtName);
+                connection.Open();
+                using (var reader = cmd.ExecuteReader())
+                {
+                    if (reader.HasRows)
+                        while (reader.Read())
+                        {
+                            //create the output string
+                            string districtText = reader.GetString(0) + ": " +
+                                ((float)reader.GetDouble(1) * 100).ToString("0.00") + "%" ;
+                            districtList.Add(districtText);
+                        }
+                }
+            }
+
+            //Return a list of districts
+            return districtList;
+
+
+        }
 
     }
 }

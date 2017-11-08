@@ -18,18 +18,14 @@ namespace BroadreachLuisTests
             //check that the list has a couple of items
             Assert.IsTrue(districts.Count > 1);
 
-        }
-
-        [TestMethod]
-        public void DB_Get_District_String()
-        {
-            //try create a new query and get back a list of districts
-            EntitiesDBQuery query = new EntitiesDBQuery();
-            string districts = query.GetListOfDistrictsAsString("");
+            //check if i can get the districts as a string
+            string districtString = query.GetListOfDistrictsAsString("");
             //check that the list has a couple of items
-            Assert.IsTrue(districts.Length > 5);
+            Assert.IsTrue(districtString.Length > 5);
+
         }
 
+       
         [TestMethod]
         public void DB_Get_Indicator_perfromance_for_program()
         {
@@ -41,14 +37,9 @@ namespace BroadreachLuisTests
 
             //check that it has a percentage for YTD
             Assert.IsTrue(list[0].TargetPercentage > 0);
-        }
 
-        [TestMethod]
-        public void DB_Get_Indicator_string_perfromance_for_program()
-        {
-            //Get the perf from the DB
-            PerformanceDBQuery query = new PerformanceDBQuery();
-            string indicatorList = query.GetProgramPerformanceAsString("",true, true);
+            //Get the perf from the DB as a string
+            string indicatorList = query.GetProgramPerformanceAsString("", true, true);
             //check that it has a couple of items
             Assert.IsTrue(indicatorList.Length > 5);
 
@@ -62,6 +53,7 @@ namespace BroadreachLuisTests
             //check that it has a couple of items
             Assert.IsTrue(indicatorList.Length > 3);
         }
+        
 
         [TestMethod]
         public void DB_Get_ListOf_Programs()
@@ -76,8 +68,7 @@ namespace BroadreachLuisTests
 
             Assert.IsTrue(programString.Length > 5);
         }
-
-        
+                
 
 
         [TestMethod]
@@ -85,20 +76,16 @@ namespace BroadreachLuisTests
         {
             EntitiesDBQuery query = new EntitiesDBQuery();
 
-            List<string> districts = query.GetListOfFacilities("Ugu");
+            List<string> facilityList = query.GetListOfFacilities("Ugu");
 
-            Assert.IsTrue(districts.Count > 1);
-        }
+            Assert.IsTrue(facilityList.Count > 1);
 
-        [TestMethod]
-        public void DB_Get_List_Facilities_String()
-        {
-            EntitiesDBQuery query = new EntitiesDBQuery();
-
+            //try get the list as a string
             string facilities = query.GetListOfFacilitiesAsString("Ugu");
 
             Assert.IsTrue(facilities.Length > 5);
         }
+        
 
         [TestMethod]
         public void DB_Performance_Of_District()
@@ -117,8 +104,20 @@ namespace BroadreachLuisTests
             perf = query.GetDistrictPerformanceAsString("Alfred Nzo", true,indicatorName: "TX_NEW");
             Assert.IsTrue(perf.Length > 5);
 
+        }
 
+        [TestMethod]
+        public void DB_BestWorst_District()
+        {
+            //Get as a list
+            PerformanceDBQuery query = new PerformanceDBQuery();
+            //get best district (annual average)
+            List<string> list = query.GetBestWorstDistrict("",true,true);
+            Assert.IsTrue(list.Count == 1);
 
+            //get worst 2 districts (YTD average)
+            list = query.GetBestWorstDistrict("", false, false,2);
+            Assert.IsTrue(list.Count ==2);
 
 
 
