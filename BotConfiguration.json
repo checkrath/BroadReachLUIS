@@ -82,6 +82,7 @@
           "convName": "thankYou",
           "intent": "Thanks",
           "text": "Its a pleasure!",
+          "alternativeText": [ "Pleasure!", "Yup, no problem", "I'm here to help." ],
           "alwaysUseAsIntentHome": true,
           "listInHelpText": false,
           "ShortDescription": "tell you how you are doing against target",

@@ -202,7 +202,24 @@ namespace LuisBot.Data
             //Return a list of districts
             return districtList;
 
+        }
 
+        /// <summary>
+        /// Returns the best worst districts as a string
+        /// </summary>
+        /// <param name="programName">As above!</param>
+        /// <param name="annual">As above!</param>
+        /// <param name="best">As above!</param>
+        /// <param name="n">As above!</param>
+        /// <returns></returns>
+        public string GetBestWorstDistrictAsString(string programName, bool annual, bool best, int n = 1)
+        {
+            List<string> districts = GetBestWorstDistrict(programName, annual, best, n);
+            string returnString = "";
+            foreach (string district in districts)
+                returnString += (returnString == "" ? "" : ", ") + district;
+
+            return returnString;
         }
 
     }

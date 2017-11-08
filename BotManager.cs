@@ -64,6 +64,9 @@ namespace LuisBot
             public double boost { get; set; }
             public Subconvelement[] subConvElements { get; set; }
             public bool alwaysUseAsIntentHome { get; set; }
+            public bool listInHelpText { get; set; }
+            public string[] alternativeText { get; set; }
+
         }
         [Serializable]
         public class Luisapplication
@@ -224,27 +227,49 @@ namespace LuisBot
                     await context.PostAsync(result);
                     return returnedLuisResponses;
                 }
-
             }
-            // Fall through; either no conv element (generic intent) or the method doesn't work
+
             if (topIntent != null)
             {
                 // Here, we search for the generic Intent method and do the same thing
                 // Pick out the name and look for a method with this name
                 string intentName = topIntent.Name;
-                _conversationFlow += "> [Intent] " + intentName;
+                // Only populate the intent if we didn't find a conv element
+                if (topConvElement == null)
+                    _conversationFlow += "> [Intent] " + intentName;
                 string result = await TryExecuteMethodWithAttributeName(typeof(IntentAttribute), intentName, _callingObject, context, message, topLuisResult, null, topIntent);
                 // Is it correct?
                 if (result != null)
                 {
                     // Set the conversation element if we can
-                    var topLevelConvElement = GetConversationElementFromIntent(topIntent);
-                    if (topLevelConvElement != null)
-                        _currentConvElement = topLevelConvElement;
+                    if (topConvElement == null)
+                    { 
+                        var topLevelConvElement = GetConversationElementFromIntent(topIntent);
+                        if (topLevelConvElement != null)
+                            _currentConvElement = topLevelConvElement;
+                    }
                     await context.PostAsync(result);
                     return returnedLuisResponses;
                 }
+                else
+                {
+                    // Here, we had no attribute or intent method. But we could have found a conv element?
+                    if (topConvElement != null)
+                    {
+                        // Return the text and description
+                        if (topConvElement.text != null)
+                        {
+                            await context.PostAsync(topConvElement.text);
+                            return returnedLuisResponses;
+                        }
+                        else
+                            throw new Exception($"Found conversation elemenet, but it had no execute or intent method and no text description");
+                    }
+                }
             }
+            
+
+
 
             // At this point, call the "None" response
             if (!String.IsNullOrEmpty(_noneEventMethodName))

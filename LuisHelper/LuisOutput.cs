@@ -134,8 +134,13 @@ namespace LuisBot.LuisHelper
                     break;
                 case ("Number"):
                     luisEntity = new LuisNumberEntity();
-                    string entityValue = luisOutput["entities"][entityNumber]["entity"].ToString();
-                    ((LuisNumberEntity)luisEntity).TrueValue = Convert.ToInt32(entityValue);
+                    string entityNumberValue = luisOutput["entities"][entityNumber]["entity"].ToString();
+                    ((LuisNumberEntity)luisEntity).TrueValue = Convert.ToInt32(entityNumberValue);
+                    break;
+                case ("builtin.number"):
+                    luisEntity = new LuisNumberEntity();
+                    string entitybuiltinNumberValue = luisOutput["entities"][entityNumber]["resolution"]["value"].ToString();
+                    ((LuisNumberEntity)luisEntity).TrueValue = Convert.ToInt32(entitybuiltinNumberValue);
                     break;
                 default:
                     luisEntity = new LuisStandardEntity();

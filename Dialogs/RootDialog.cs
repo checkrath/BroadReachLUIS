@@ -183,7 +183,7 @@ namespace LuisBot.Dialogs
         [IntentAttribute("BestXThings")]
         public async Task<string> BestXThings_Intent(IDialogContext context, IAwaitable<IMessageActivity> message, LuisFullResult result, LuisIntent intent)
         {
-            string outputAnswer = TopBottomThings(context, message, result, intent, false);
+            string outputAnswer = TopBottomThings(context, message, result, intent, true);
 #if UseBotManager
             return outputAnswer;
 #else
@@ -194,7 +194,7 @@ namespace LuisBot.Dialogs
         [IntentAttribute("WorstXThings")]
         public async Task<string> WorstXThings_Intent(IDialogContext context, IAwaitable<IMessageActivity> message, LuisFullResult result, LuisIntent intent)
         {
-            string outputAnswer = TopBottomThings(context, message, result, intent, true);
+            string outputAnswer = TopBottomThings(context, message, result, intent, false);
 #if UseBotManager
             return outputAnswer;
 #else
@@ -217,22 +217,23 @@ namespace LuisBot.Dialogs
             string number = GetEntityValue("Number", "3", result);
             string inWhichDistrict = GetEntityValue("District", "", result);
             string inWhichProgramme = GetEntityValue("Program", "", result);
-            string inWhichCountry = GetEntityValue("Country", "", result);
-            string inWhichFacility = GetEntityValue("Country", "", result);
+            string inWhichFacility = GetEntityValue("Facility", "", result);
             string outputAnswer = "";
             // Get the context
             switch (thing)
             {
                 case "District":
-                    // District, we need to know the Country
-                    if (inWhichCountry == "")
+                    // District, we need to know the Program
+                    if (inWhichProgramme == "")
                     {
-                        if (lastCountry != "")
-                            inWhichCountry = lastCountry;
+                        if (lastProgramme == "")
+                            outputAnswer = $"To list the {topBottom} districts, I need to know which program you are referring to? You can also ask for a list of programs.";
                         else
-                            return "To show you this, I need you to narrow it down to a country?";
+                            inWhichProgramme = lastProgramme;
                     }
-                    outputAnswer = $"The {topBottom} {number} districts over {term} for country {inWhichCountry} are X, Y, Z";
+                    PerformanceDBQuery queryEngine = new PerformanceDBQuery();
+                    string listOf = queryEngine.GetBestWorstDistrictAsString(inWhichProgramme, true, isTop, Convert.ToInt32(number));
+                    outputAnswer = $"The {topBottom} {number} districts for {inWhichProgramme} over {term} are {listOf}";
                     break;
                 case "Facility":
                     // Facility, we need to know the District
@@ -241,16 +242,16 @@ namespace LuisBot.Dialogs
                         if (lastDistrict != "")
                             inWhichDistrict = lastDistrict;
                         else
-                            return "To show you this, I need you to narrow it down to a district";
+                            return "To show you this, I need you to narrow it down to a district. You can also ask me to list the districts. ";
                     }
-                    outputAnswer = $"The {topBottom} {number} facilities over {term} for district {inWhichDistrict} are X, Y, Z";
+                    outputAnswer = $"The {topBottom} {number} facilities over {term} for {inWhichDistrict} are X, Y, Z";
                     break;
                 case "Indicator":
                     // Facility, we need to know the District
                     if (inWhichFacility == "")
                     {
                         if (inWhichDistrict == "")
-                            return $"To show you the {topBottom} indicators, I need to know which facility or district you want to see the indicators for";
+                            return $"To show you the {topBottom} indicators, I need to know which facility or district you want to see the indicators for. You can also ask me to list the facilities, districts and indicators.";
                         else
                             outputAnswer = $"The {topBottom} {number} indicators over {term} for district {inWhichDistrict} are X, Y, Z";
                     }
