@@ -25,13 +25,14 @@
   "conversation": {
     "mainTopic": {
       "greeting": "Welcome to the BroadReach bot. I can answer questions on your performance or business indicators for specific programmes or districts. Ensure your questions relate to districts, programs and indicators in our database.\r\n I can also answer general questions about Broadreach and our offerings.\r\n Try: 'What is the Ugu district performance for 2017?'",
+      "topLevelHelp": "I can answer questions on your performance or business indicators for specific programmes or districts. \n\nEnsure your questions relate to districts, programs and indicators in our database.\n\nI can also answer general questions about Broadreach and our offerings.\n\nTry: \"What is the Ugu district performance for 2017?\"\"",
+      "alwaysThereHelp": "You can ask me about performance, or the best or worst districts or facilities.",
       "subConvElements": [
         {
           "convName": "firstPerformance",
           "intent": "PerformanceAgainstTarget",
           "text": "The [term] [indicator] performance for [district/prog] is [performance]",
-          "alwaysUseAsIntentHome": true,
-          "ShortDescription": "tell you how you are doing against target",
+          "ShortDescription": "show you the performance against target",
           "boost": 1,
           "subConvElements": [
 
@@ -39,44 +40,25 @@
               "convName": "switchParameterPerformance",
               "intent": "ChangeParameter",
               "text": "",
-              "ShortDescription": "change district, facility or region",
-              "boost": 1
-            },
-            {
-              "convName": "listDistrictsPerformance",
-              "intent": "ListDistricts",
-              "text": "",
-              "ShortDescription": "list the districts",
-              "boost": 1
-            },
-            {
-              "convName": "listIndicatorsPerformance",
-              "intent": "Listindicators",
-              "text": "",
-              "ShortDescription": "list the indicators",
-              "boost": 1
-            },
-            {
-              "convName": "listProgramsPerformance",
-              "intent": "ListPrograms",
-              "text": "",
-              "ShortDescription": "list the programs",
+              "ShortDescription": "answer for a different district, region or facility",
               "boost": 1
             }
+
           ]
         },
         {
           "convName": "bestXThingsPerformance",
           "intent": "BestXThings",
           "text": "The top [number] [entities] over [term] for [entity2] [whichentity] are [list]",
-          "ShortDescription": "tell you the top measures that make up this number",
+          "ShortDescription": "tell you the top performing elements",
           "boost": 1,
+          "dontUseAsIntentHome": false,
           "subConvElements": [
             {
               "convName": "switchParameterBestX",
               "intent": "ChangeParameter",
               "text": "",
-              "ShortDescription": "change district, facility or region",
+              "ShortDescription": "show for a different change district, facility or region",
               "boost": 1
             }
           ]
@@ -85,25 +67,48 @@
           "convName": "worstXThingsPerformance",
           "intent": "WorstXThings",
           "text": "The bottom [number] [entities] over [term] for [entity2] [whichentity] are [list]",
-          "ShortDescription": "tell you the top measures that make up this number",
+          "ShortDescription": "tell you the worst performing elements",
           "boost": 1,
+          "dontUseAsIntentHome": false,
           "subConvElements": [
             {
               "convName": "switchParameterWorstX",
               "intent": "ChangeParameter",
               "text": "",
-              "ShortDescription": "change district, facility or region",
+              "ShortDescription": "show for a different district, facility or region",
               "boost": 1
             }
           ]
         },
         {
+          "convName": "listDistrictsPerformance",
+          "intent": "ListDistricts",
+          "text": "",
+          "ShortDescription": "list the districts",
+          "boost": 1
+        },
+        {
+          "convName": "listIndicatorsPerformance",
+          "intent": "Listindicators",
+          "text": "",
+          "ShortDescription": "list the indicators",
+          "boost": 1
+        },
+        {
+          "convName": "listProgramsPerformance",
+          "intent": "ListPrograms",
+          "text": "",
+          "ShortDescription": "list the programs",
+          "boost": 1
+        },
+        {
           "convName": "thankYou",
           "intent": "Thanks",
           "text": "Its a pleasure!",
+          "dontUseAsIntentHome": true,
           "alternativeText": [ "Pleasure!", "Yup, no problem", "I'm here to help." ],
           "alwaysUseAsIntentHome": true,
-          "listInHelpText": false,
+          "excludeFromHelpText": true,
           "ShortDescription": "tell you how you are doing against target",
           "boost": 1
         }

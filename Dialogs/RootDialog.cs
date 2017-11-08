@@ -627,14 +627,12 @@ namespace LuisBot.Dialogs
 #endif
         }
 
-        [IntentAttribute("Human")]
+        [IntentAttribute("Help")]
         public async Task<string> Help_Intent(IDialogContext context, IAwaitable<IMessageActivity> message, LuisFullResult result, LuisIntent intent)
         {
             string output = "";
-            output += $"Can certainly help...\r\n";
-            output += $"I can answer questions on your performance or business indicators for specific programmes or districts. Ensure your questions relate to districts, programs and indicators in our database.\r\n";
-            output += $"I can also answer general questions about Broadreach and our offerings.\r\n";
-            output += $"Try: \"What is the Ugu district performance for 2017?\"\r\n";
+            output += $"Can certainly help...\n\n\n\n";
+            output += _botManager.GetCurrentHelpString();
 
 #if UseBotManager
             return output;

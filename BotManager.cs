@@ -51,6 +51,8 @@ namespace LuisBot
         public class Maintopic
         {
             public string greeting { get; set; }
+            public string topLevelHelp { get; set; }
+            public string alwaysThereHelp { get; set; }
             public Subconvelement[] subConvElements { get; set; }
         }
         [Serializable]
@@ -63,8 +65,8 @@ namespace LuisBot
             public string ShortDescription { get; set; }
             public double boost { get; set; }
             public Subconvelement[] subConvElements { get; set; }
-            public bool alwaysUseAsIntentHome { get; set; }
-            public bool listInHelpText { get; set; }
+            public bool dontUseAsIntentHome { get; set; }
+            public bool excludeFromHelpText { get; set; }
             public string[] alternativeText { get; set; }
 
         }
@@ -263,7 +265,7 @@ namespace LuisBot
                             return returnedLuisResponses;
                         }
                         else
-                            throw new Exception($"Found conversation elemenet, but it had no execute or intent method and no text description");
+                            throw new Exception($"Found conversation element, but it had no execute or intent method and no text description");
                     }
                 }
             }
@@ -307,7 +309,7 @@ namespace LuisBot
             // Run through each top-level intent and see if it is listed in the conversation
             foreach (var conv in _bot.conversation.mainTopic.subConvElements)
             {
-                if ((conv.intent.ToLower() == intent.Name.ToLower()) && (conv.alwaysUseAsIntentHome))
+                if ((conv.intent.ToLower() == intent.Name.ToLower()) && (!conv.dontUseAsIntentHome))
                     return conv;
             }
             return null;
@@ -327,6 +329,9 @@ namespace LuisBot
             using (HttpClient client = new HttpClient())
             {
                 string RequestURI = app.requestURI.Replace("{AppId}", app.AppId).Replace("{AppKey}", app.AppKey).Replace("{Query}", query);
+#if DEBUG
+                RequestURI += "&staging=true";
+#endif
                 HttpResponseMessage msg = await client.GetAsync(RequestURI);
                 if (msg.IsSuccessStatusCode)
                 {
@@ -349,6 +354,38 @@ namespace LuisBot
         public string GetGreetingMessage()
         {
             return _bot.conversation.mainTopic.greeting;
+        }
+
+        /// <summary>
+        /// Returns a short, context-specific description of what you can do at any point
+        /// </summary>
+        /// <returns></returns>
+        public string GetCurrentHelpString()
+        {
+            string helpText = "";
+            Subconvelement[] elementsToIterate = _bot.conversation.mainTopic.subConvElements;
+
+            if (_currentConvElement != null)
+                elementsToIterate = _currentConvElement.subConvElements;
+            else
+            {
+                // Add top level help if needed
+                if (!String.IsNullOrEmpty(_bot.conversation.mainTopic.topLevelHelp))
+                    helpText += _bot.conversation.mainTopic.topLevelHelp;
+            }
+            helpText += "\n\n";
+            if (!String.IsNullOrEmpty(_bot.conversation.mainTopic.alwaysThereHelp))
+                helpText += _bot.conversation.mainTopic.alwaysThereHelp;
+
+            string specificHelpText = "";
+            foreach (Subconvelement subConv in elementsToIterate)
+            {
+                if ((!subConv.excludeFromHelpText) && (subConv.ShortDescription != null))
+                    specificHelpText += (specificHelpText == "" ? "" : ", ") + subConv.ShortDescription;
+            }
+
+            return helpText + "\n\nFrom here, I can also: " + specificHelpText;
+
         }
 
         private async Task<string> TryExecuteMethodWithAttributeName(Type type, string attributeName, object callingObject,IDialogContext context, IAwaitable<IMessageActivity> message, LuisFullResult luisResult, Subconvelement convElement, LuisHelper.LuisIntent intent)
