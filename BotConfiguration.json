@@ -34,20 +34,7 @@
           "ShortDescription": "tell you how you are doing against target",
           "boost": 1,
           "subConvElements": [
-            {
-              "convName": "bestXThingsPerformance",
-              "intent": "BestXThings",
-              "text": "The top [number] [entities] over [term] for [entity2] [whichentity] are [list]",
-              "ShortDescription": "tell you the top measures that make up this number",
-              "boost": 1
-            },
-            {
-              "convName": "worstXThingsPerformance",
-              "intent": "WorstXThings",
-              "text": "The bottom [number] [entities] over [term] for [entity2] [whichentity] are [list]",
-              "ShortDescription": "tell you the top measures that make up this number",
-              "boost": 1
-            },
+
             {
               "convName": "switchParameterPerformance",
               "intent": "ChangeParameter",
@@ -74,6 +61,38 @@
               "intent": "ListPrograms",
               "text": "",
               "ShortDescription": "list the programs",
+              "boost": 1
+            }
+          ]
+        },
+        {
+          "convName": "bestXThingsPerformance",
+          "intent": "BestXThings",
+          "text": "The top [number] [entities] over [term] for [entity2] [whichentity] are [list]",
+          "ShortDescription": "tell you the top measures that make up this number",
+          "boost": 1,
+          "subConvElements": [
+            {
+              "convName": "switchParameterBestX",
+              "intent": "ChangeParameter",
+              "text": "",
+              "ShortDescription": "change district, facility or region",
+              "boost": 1
+            }
+          ]
+        },
+        {
+          "convName": "worstXThingsPerformance",
+          "intent": "WorstXThings",
+          "text": "The bottom [number] [entities] over [term] for [entity2] [whichentity] are [list]",
+          "ShortDescription": "tell you the top measures that make up this number",
+          "boost": 1,
+          "subConvElements": [
+            {
+              "convName": "switchParameterWorstX",
+              "intent": "ChangeParameter",
+              "text": "",
+              "ShortDescription": "change district, facility or region",
               "boost": 1
             }
           ]

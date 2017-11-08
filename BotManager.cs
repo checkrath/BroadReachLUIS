@@ -218,12 +218,12 @@ namespace LuisBot
                 // Pick out the name and look for a method with this name
                 string attributeName = topConvElement.convName;
                 // Add to the conversation flow
-                _conversationFlow += "> [Conv] " + attributeName; 
+                _conversationFlow += "> [Conv] " + attributeName;
+                _currentConvElement = topConvElement;
                 string result = await TryExecuteMethodWithAttributeName(typeof(ConvElement), attributeName, _callingObject, context, message, topLuisResult, topConvElement, topIntent);
                 // Is it correct?
                 if (result != null)
                 {
-                    _currentConvElement = topConvElement;
                     await context.PostAsync(result);
                     return returnedLuisResponses;
                 }
