@@ -13,6 +13,7 @@ using System.Net.Http;
 using LuisBot.LuisHelper;
 using LuisBot.Data;
 using LuisBot;
+using System.Configuration;
 
 
 namespace LuisBot.Dialogs
@@ -433,6 +434,14 @@ namespace LuisBot.Dialogs
                 fullOutput = fullOutput.Replace("[note]", "Great work!");
             else
                 fullOutput = fullOutput.Replace("[note]", "");
+
+            //Display a card
+            if (ConfigurationManager.AppSettings["DisplayCard"] == "true")
+            {
+                Intents.PerformanceIntentHandler perfHandler = new Intents.PerformanceIntentHandler();
+                await perfHandler.ShowPerformanceCard(context, lastProgramme);
+            }
+
 
 #if UseBotManager
             return fullOutput;
