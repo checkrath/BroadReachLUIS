@@ -216,7 +216,15 @@ namespace LuisBot.Dialogs
             string topBottom = (isTop ? "highest" : "lowest");
             string thing = GetEntityValue("EntityType", "", result);
             if (thing == "")
-                thing = "District";
+            {
+                if (lastEntityBeingDiscussed == "")
+                {
+                    thing = "District";
+                    lastEntityBeingDiscussed = lastDistrict;
+                }
+                else
+                    thing = lastEntityBeingDiscussed;
+            }
             else
                 lastEntityBeingDiscussed = thing;
 
@@ -230,6 +238,7 @@ namespace LuisBot.Dialogs
             string inWhichProgramme = GetEntityValue("Programme", "", result);
             string inWhichFacility = GetEntityValue("Facility", "", result);
             string outputAnswer = "";
+            PerformanceDBQuery queryEngine = new PerformanceDBQuery();
             // Get the context
             switch (thing)
             {
@@ -244,7 +253,7 @@ namespace LuisBot.Dialogs
                     }
                     else
                         lastProgramme = inWhichProgramme; // Be responsible;
-                    PerformanceDBQuery queryEngine = new PerformanceDBQuery();
+
                     string listOf = queryEngine.GetBestWorstDistrictAsString(inWhichProgramme, true, isTop, Convert.ToInt32(number));
                     outputAnswer = $"The {topBottom} {number} districts for {inWhichProgramme} over {term} are {listOf}";
                     break;
@@ -259,26 +268,56 @@ namespace LuisBot.Dialogs
                     }
                     else
                         lastDistrict = inWhichDistrict; // Be responsible;
+
                     outputAnswer = $"The {topBottom} {number} facilities over {term} for {inWhichDistrict} are X, Y, Z";
                     break;
                 case "Indicator":
-                    // Facility, we need to know the District
-                    if (inWhichFacility == "")
+                    // Indicator can be for program, district or facility
+                    if ((inWhichFacility == "") && (inWhichProgramme == "") && (inWhichDistrict == ""))
                     {
-                        if (inWhichDistrict == "")
-                            return $"To show you the {topBottom} indicators, I need to know which facility or district you want to see the indicators for. You can also ask me to list the facilities, districts and indicators.";
-                        else
-                        {
-                            lastDistrict = inWhichDistrict;
-                            outputAnswer = $"The {topBottom} {number} indicators over {term} for district {inWhichDistrict} are X, Y, Z";
-                        }
+                        // Try to re-hydrate from saved, going from programme to district to facility
+                        if (lastProgramme != "")
+                            inWhichProgramme = lastProgramme;
+                        else if (lastDistrict != "")
+                            inWhichDistrict = lastDistrict;
+                        else if (lastFacility != "")
+                            inWhichFacility = lastFacility;
                     }
                     else
                     {
-                        lastFacility = inWhichFacility;
-                        outputAnswer = $"The {topBottom} {number} indicators over {term} for facility {inWhichFacility} are X, Y, Z";
+                        // Need to hydrate
+                        if (inWhichProgramme != "")
+                            lastProgramme = inWhichProgramme;
+                        else if (inWhichDistrict != "")
+                            lastDistrict = inWhichDistrict;
+                        else if (inWhichFacility != "")
+                            lastFacility = inWhichFacility;
                     }
+                    // Check again
+                    if ((inWhichFacility == "") && (inWhichProgramme == "") && (inWhichDistrict == ""))
+                        return $"To show you the {topBottom} indicators, I need to know which facility, district or program you want to see the indicators for. You can also ask me to list the facilities, districts and indicators.";
 
+                    if (inWhichProgramme != "")
+                    {
+                        // Indicators for a programme
+                        string indicatorsForProgram = queryEngine.GetProgramPerformanceAsString(inWhichProgramme, true, true, "", isTop, Convert.ToInt32(number));
+                        outputAnswer = $"The {topBottom} {number} indicators over {term} for {inWhichProgramme} are {indicatorsForProgram}";
+                        break;
+                    }
+                    if (inWhichDistrict != "")
+                    {
+                        // Indicators for a district
+                        string indicatorsForDistrict = queryEngine.GetDistrictPerformanceAsString(inWhichDistrict, true, best: isTop, n: Convert.ToInt32(number));
+                        outputAnswer = $"The {topBottom} {number} indicators over {term} for {inWhichDistrict} are {indicatorsForDistrict}";
+                        break;
+                    }
+                    if (inWhichFacility != "")
+                    {
+                        // Indicators for a facility
+                        string indicatorsForFacility = "Facility X, Facility Y, Facility Z";// queryEngine.GetDistrictPerformanceAsString(inWhichDistrict, true, best: isTop, n: Convert.ToInt32(number));
+                        outputAnswer = $"The {topBottom} {number} indicators over {term} for {inWhichFacility} are {indicatorsForFacility}";
+                        break;
+                    }
                     break;
             }
 #if UseBotManager
