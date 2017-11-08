@@ -11,9 +11,9 @@ namespace LuisBot.Data
         private const string DB_CONN = "Server=tcp:broadreachpoc.database.windows.net,1433;Initial Catalog=Checkrath_BroadreachPOC" +
     ";Integrated Security=False;User Id=checkrath;Password=brIIM@gic.17;Encrypt=True;";
 
-        public string GetProgramPerformanceAsString(string programName, bool annual, bool verbose=false, string indicatorName = "")
+        public string GetProgramPerformanceAsString(string programName, bool annual, bool verbose=false, string indicatorName = "", bool best = true, int n = 10)
         {
-            List<IndicatorPerformance> indicatorList = GetProgramPerformance(programName,indicatorName);
+            List<IndicatorPerformance> indicatorList = GetProgramPerformance(programName,indicatorName,best,n,annual);
             string indicatorOutput = "";
             if (verbose)
             {
@@ -53,11 +53,18 @@ namespace LuisBot.Data
             return indicatorOutput;
         }
 
-        public List<IndicatorPerformance> GetProgramPerformance(string programName,  string indicatorName="")
+        public List<IndicatorPerformance> GetProgramPerformance(string programName,  string indicatorName="", bool best=true,int n=10, bool sortByAnnual=true)
         {
+            //create sql
+            string sortField = (sortByAnnual) ? "[PerformanceAgainstTarget]" : "[PerformanceAgainstYTDTarget]";
+            string ascDesc = (best) ? " desc " : " asc ";
+            string sql = $"select top {n} * from [dbo].[vw_ContractsPerformance] " +
+                 $"order by {sortField} {ascDesc}";
+
+            //call DB
             List<IndicatorPerformance> indicatorList = new List<IndicatorPerformance>();
             using (SqlConnection connection = new SqlConnection(DB_CONN))
-            using (SqlCommand cmd = new SqlCommand("select * from [dbo].[vw_ContractsPerformance]", connection))
+            using (SqlCommand cmd = new SqlCommand(sql, connection))
             {
                 //cmd.Parameters.AddWithValue("FirstName", firstName);
                 connection.Open();
@@ -221,6 +228,8 @@ namespace LuisBot.Data
 
             return returnString;
         }
+
+        
 
     }
 }
