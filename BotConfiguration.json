@@ -15,7 +15,9 @@
         "Listindicators",
         "ListPrograms",
         "None",
-        "PerformanceAgainstTarget"
+        "PerformanceAgainstTarget",
+        "BestXThings",
+        "WorstXThings"
       ]
     }
   ],
@@ -26,18 +28,52 @@
         {
           "convName": "firstPerformance",
           "intent": "PerformanceAgainstTarget",
-          "text": "Here are the lowest {x} indicators",
-          "familiarText": "Performance",
-          "ShortDescription": "tell you performance against target",
-          "boost": 1.02,
+          "text": "The [term] [indicator] performance for [district/prog] is [performance]",
+          "alwaysUseAsIntentHome": true,
+          "ShortDescription": "tell you how you are doing against target",
+          "boost": 1,
           "subConvElements": [
             {
-              "convName": "secondPerformance",
-              "intent": "PerformanceAgainstTarget",
-              "text": "Here are the highest {x} indicators",
-              "familiarText": "High Performance",
-              "ShortDescription": "tell you performance against target",
-              "boost": 1.02
+              "convName": "bestXThingsPerformance",
+              "intent": "BestXThings",
+              "text": "The top [number] [entities] over [term] for [entity2] [whichentity] are [list]",
+              "ShortDescription": "tell you the top measures that make up this number",
+              "boost": 1
+            },
+            {
+              "convName": "worstXThingsPerformance",
+              "intent": "WorstXThings",
+              "text": "The bottom [number] [entities] over [term] for [entity2] [whichentity] are [list]",
+              "ShortDescription": "tell you the top measures that make up this number",
+              "boost": 1
+            },
+            {
+              "convName": "switchParameterPerformance",
+              "intent": "ChangeParameter",
+              "text": "",
+              "ShortDescription": "change district, facility or region",
+              "boost": 1
+            },
+            {
+              "convName": "listDistrictsPerformance",
+              "intent": "ListDistricts",
+              "text": "",
+              "ShortDescription": "list the districts",
+              "boost": 1
+            },
+            {
+              "convName": "listIndicatorsPerformance",
+              "intent": "Listindicators",
+              "text": "",
+              "ShortDescription": "list the indicators",
+              "boost": 1
+            },
+            {
+              "convName": "listProgramsPerformance",
+              "intent": "ListPrograms",
+              "text": "",
+              "ShortDescription": "list the programs",
+              "boost": 1
             }
           ]
         }

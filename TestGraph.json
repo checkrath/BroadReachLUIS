@@ -1,0 +1,17 @@
+﻿{
+  "nodes": [
+    { "name": "Node1" },
+    { "name": "Node2" },
+    { "name": "Node3" }
+  ],
+  "graph": [
+    {
+      "name": "Path1",
+      "from": "Node1",
+      "to": "Node2"
+
+    }
+  ]
+
+
+}

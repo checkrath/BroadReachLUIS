@@ -131,7 +131,12 @@ namespace LuisBot.LuisHelper
                         luisOutput["entities"][entityNumber]["resolution"]["values"][0]["type"].ToString(),
                         luisOutput["entities"][entityNumber]["resolution"]["values"][0]["start"].ToString(),
                         luisOutput["entities"][entityNumber]["resolution"]["values"][0]["end"].ToString());                 
-                    break;                    
+                    break;
+                case ("Number"):
+                    luisEntity = new LuisNumberEntity();
+                    string entityValue = luisOutput["entities"][entityNumber]["entity"].ToString();
+                    ((LuisNumberEntity)luisEntity).TrueValue = Convert.ToInt32(entityValue);
+                    break;
                 default:
                     luisEntity = new LuisStandardEntity();
                     ((LuisStandardEntity)luisEntity).TrueValue = luisOutput["entities"][entityNumber]["resolution"]["values"][0].ToString();
@@ -164,6 +169,12 @@ namespace LuisBot.LuisHelper
     public class LuisStandardEntity:LuisEntity
     {
         public string TrueValue { get; set; }
+    }
+
+
+    public class LuisNumberEntity : LuisEntity
+    {
+        public int TrueValue { get; set; }
     }
 
     public class LuisDatetimeEntity : LuisEntity

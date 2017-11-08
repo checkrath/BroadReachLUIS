@@ -67,6 +67,9 @@ namespace LuisBot.Dialogs
 
 #if UseBotManager
             List<LuisFullResult> results = await _botManager.ExecuteQuery(textIn, context, argument);
+
+            // Add a sweetener
+            await context.PostAsync(_botManager.GetConversationFlow());
 #else
             //Get the username
             if (context.Activity.From.Id != null)
@@ -112,6 +115,8 @@ namespace LuisBot.Dialogs
         }
 
 
+#if UseBotManager
+#else
         /// <summary>
         /// Will call the appropriate method based on the LUIS intent. This is the primary flow of the solution
         /// </summary>
@@ -173,35 +178,153 @@ namespace LuisBot.Dialogs
             }
 
         }
-
+#endif
         #region functionalIntents
         [IntentAttribute("BestXThings")]
-        public async Task BestXThings_Intent(IDialogContext context, IAwaitable<IMessageActivity> message, LuisFullResult result, LuisIntent intent)
+        public async Task<string> BestXThings_Intent(IDialogContext context, IAwaitable<IMessageActivity> message, LuisFullResult result, LuisIntent intent)
         {
-            // Todo: code here
+            // We need:
+            // Which [3] [facilities] in [Ugu] are under-spending?
+            // [Number] [EntityType] [District]/[Programme]/[Country]
+            // Also, where are we currently?
 
 
+            string term = "this year";
+            string thing = GetEntityValue("EntityType", "District", result);
+            string number = GetEntityValue("Number", "3", result);
+            string inWhichDistrict = GetEntityValue("District", "", result);
+            string inWhichProgramme = GetEntityValue("Program", "", result);
+            string inWhichCountry = GetEntityValue("Country", "", result);
+            string inWhichFacility = GetEntityValue("Country", "", result);
+            string outputAnswer = "";
+            // Get the context
+            switch (thing)
+            {
+                case "District":
+                    // District, we need to know the Country
+                    if (inWhichCountry == "")
+                    {
+                        if (lastCountry != "")
+                            inWhichCountry = lastCountry;
+                        else
+                            return "To show you this, I need you to narrow it down to a country?";
+                    }
+                    outputAnswer = $"The top {number} districts over {term} for country {inWhichCountry} are X, Y, Z";
+                    break;
+                case "Facility":
+                    // Facility, we need to know the District
+                    if (inWhichDistrict == "")
+                    {
+                        if (lastDistrict != "")
+                            inWhichDistrict = lastDistrict;
+                        else
+                           return "To show you this, I need you to narrow it down to a district";
+                    }
+                    outputAnswer = $"The top {number} facilities over {term} for district {inWhichDistrict} are X, Y, Z";
+                    break;
+                case "Indicator":
+                    // Facility, we need to know the District
+                    if (inWhichFacility == "")
+                    {
+                        if (inWhichDistrict == "")
+                           return "To show you the top indicators, I need to know which facility or district you want to see the indicators for";
+                        else
+                            outputAnswer = $"The top {number} indicators over {term} for district {inWhichDistrict} are X, Y, Z";
+                    }
+                    else
+                        outputAnswer = $"The top {number} indicators over {term} for facility {inWhichFacility} are X, Y, Z";
+                    
+                    break;
+            }
+            // Post the answers
+#if UseBotManager
+            return outputAnswer;
+#else
+            await context.PostAsync(outputAnswer);
+            return "";
+#endif
         }
         [IntentAttribute("WorstXThings")]
-        public async Task WorstXThings_Intent(IDialogContext context, IAwaitable<IMessageActivity> message, LuisFullResult result, LuisIntent intent)
+        public async Task<string> WorstXThings_Intent(IDialogContext context, IAwaitable<IMessageActivity> message, LuisFullResult result, LuisIntent intent)
         {
-            // Todo: code here
+            // We need:
+            // Which [3] [facilities] in [Ugu] are under-spending?
+            // [Number] [EntityType] [District]/[Programme]/[Country]
+            // Also, where are we currently?
 
 
+            string term = "this year";
+            string thing = GetEntityValue("EntityType", "District", result);
+            string number = GetEntityValue("Number", "3", result);
+            string inWhichDistrict = GetEntityValue("District", "", result);
+            string inWhichProgramme = GetEntityValue("Program", "", result);
+            string inWhichCountry = GetEntityValue("Country", "", result);
+            string inWhichFacility = GetEntityValue("Country", "", result);
+            string outputAnswer = "";
+            // Get the context
+            switch (thing)
+            {
+                case "District":
+                    // District, we need to know the Country
+                    if (inWhichCountry == "")
+                    {
+                        if (lastCountry != "")
+                            inWhichCountry = lastCountry;
+                        else
+                            return "To show you this, I need you to narrow it down to a country?";
+                    }
+                    outputAnswer = $"The lowest {number} districts over {term} for country {inWhichCountry} are X, Y, Z";
+                    break;
+                case "Facility":
+                    // Facility, we need to know the District
+                    if (inWhichDistrict == "")
+                    {
+                        if (lastDistrict != "")
+                            inWhichDistrict = lastDistrict;
+                        else
+                            return "To show you this, I need you to narrow it down to a district";
+                    }
+                    outputAnswer = $"The lowest {number} facilities over {term} for district {inWhichDistrict} are X, Y, Z";
+                    break;
+                case "Indicator":
+                    // Facility, we need to know the District
+                    if (inWhichFacility == "")
+                    {
+                        if (inWhichDistrict == "")
+                            return "To show you the top indicators, I need to know which facility or district you want to see the indicators for";
+                        else
+                            outputAnswer = $"The lowest {number} indicators over {term} for district {inWhichDistrict} are X, Y, Z";
+                    }
+                    else
+                        outputAnswer = $"The lowest {number} indicators over {term} for facility {inWhichFacility} are X, Y, Z";
+
+                    break;
+            }
+#if UseBotManager
+            return outputAnswer;
+#else
+            await context.PostAsync(outputAnswer);
+            return "";
+#endif
         }
 
         [IntentAttribute("ChangeParameter")]
-        public async Task ChangeParameter_Intent(IDialogContext context, IAwaitable<IMessageActivity> message, LuisFullResult result, LuisIntent intent)
+        public async Task<string> ChangeParameter_Intent(IDialogContext context, IAwaitable<IMessageActivity> message, LuisFullResult result, LuisIntent intent)
         {
             //if (lastIntent == "PerformanceAgainstTarget")
             //    await PerformanceAgainstTarget_Intent(context, result);
             //todo: fix this so it goes to the correct method
-            await PerformanceAgainstTarget_Intent(context, result);
-
+            string output = await PerformanceAgainstTarget_Intent(context, message, result, intent);
+#if UseBotManager
+            return output;
+#else
+            await context.PostAsync(output);
+            return "";
+#endif
         }
 
         [IntentAttribute("PerformanceAgainstTarget")]
-        public async Task PerformanceAgainstTarget_Intent(IDialogContext context, IAwaitable<IMessageActivity> message, LuisFullResult result, LuisIntent intent)
+        public async Task<string> PerformanceAgainstTarget_Intent(IDialogContext context, IAwaitable<IMessageActivity> message, LuisFullResult result, LuisIntent intent)
         {
             //check if they passed params through
             //this.lastdate = GetEntityValue("builtin.datetimeV2.daterange", this.lastdate, result);
@@ -266,30 +389,48 @@ namespace LuisBot.Dialogs
             else
                 fullOutput = fullOutput.Replace("[note]", "");
 
-            //output the reponse
+#if UseBotManager
+            return fullOutput;
+#else
             await context.PostAsync(fullOutput);
-
+            return "";
+#endif
         }
 
         [IntentAttribute("Listindicators")]
-        public async Task ListIndicators_Intent(IDialogContext context, IAwaitable<IMessageActivity> message, LuisFullResult result, LuisIntent intent)
+        public async Task<string> ListIndicators_Intent(IDialogContext context, IAwaitable<IMessageActivity> message, LuisFullResult result, LuisIntent intent)
         {
+#if UseBotManager
+            return $"I can give you the status of the HTS_TST, HTS_TST +, TX_CURR, TX_NEW, Testing Yield % or finance indicator performance. Alternatively, you can request the performance of all indicators.";
+#else
             await context.PostAsync($"I can give you the status of the HTS_TST, HTS_TST +, TX_CURR, TX_NEW, Testing Yield % or finance indicator performance. Alternatively, you can request the performance of all indicators.");
+            return "";
+#endif
         }
 
         [IntentAttribute("ListDistricts")]
-        public async Task ListDistricts_Intent(IDialogContext context, IAwaitable<IMessageActivity> message, LuisFullResult result, LuisIntent intent)
+        public async Task<string> ListDistricts_Intent(IDialogContext context, IAwaitable<IMessageActivity> message, LuisFullResult result, LuisIntent intent)
         {
             //get a list of districts 
             EntitiesDBQuery query = new EntitiesDBQuery();
             string districts = query.GetListOfDistrictsAsString(lastProgramme);
+#if UseBotManager
+            return $"I can give you the performance of the {districts} districts. Alternatively, you can request the performance of all districts or a specific programme.";
+#else
             await context.PostAsync($"I can give you the performance of the {districts} districts. Alternatively, you can request the performance of all districts or a specific programme.");
+            return "";
+#endif
         }
 
         [IntentAttribute("ListPrograms")]
-        public async Task ListPrograms_Intent(IDialogContext context, IAwaitable<IMessageActivity> message,LuisFullResult result, LuisIntent intent)
+        public async Task<string> ListPrograms_Intent(IDialogContext context, IAwaitable<IMessageActivity> message,LuisFullResult result, LuisIntent intent)
         {
+#if UseBotManager
+            return $"I can give you the status of the Comprehensive, RAD or IDeAS programmes. Alternatively, you can request the performance of all programmes.";
+#else
             await context.PostAsync($"I can give you the status of the Comprehensive, RAD or IDeAS programmes. Alternatively, you can request the performance of all programmes.");
+            return "";
+#endif
         }
         
 
@@ -331,9 +472,9 @@ namespace LuisBot.Dialogs
             
         }
 
-        #endregion
+#endregion
 
-        #region NoneIntent
+#region NoneIntent
 
         public async Task NoneIntent(IDialogContext context, IAwaitable<IMessageActivity> message, LuisFullResult result)
         {
@@ -361,9 +502,9 @@ namespace LuisBot.Dialogs
 
         }
 
-        #endregion
+#endregion
 
-        #region Get rating
+#region Get rating
         private async Task GetRating(IDialogContext context, IAwaitable<IMessageActivity> message)
         {
             //set the get rating flag back to false
@@ -396,31 +537,45 @@ namespace LuisBot.Dialogs
 
         }
 
-        #endregion
+#endregion
 
-        #region Generic intents
+#region Generic intents
 
         [IntentAttribute("Greeting_Hello")]
-        public async Task Greeting_Hello_Intent(IDialogContext context, IAwaitable<IMessageActivity> message, LuisFullResult result, LuisIntent intent)
+        public async Task<string> Greeting_Hello_Intent(IDialogContext context, IAwaitable<IMessageActivity> message, LuisFullResult result, LuisIntent intent)
         {
+            string output = "";
             //Say hello back - joke if user said hello too recently
             if ((lastHello == null) || DateTime.Now.Subtract(lastHello).Minutes < 2)
-                await context.PostAsync($"Hi again :)");
+                output = $"Hi again :)";
             else
-                await context.PostAsync($"Hi {username}. If you need some help, just ask for it.");
+                output = $"Hi {username}. If you need some help, just ask for it.";
 
             lastHello = DateTime.Now;
+
+#if UseBotManager
+            return output;
+#else
+            await context.PostAsync(output);
+            return "";
+#endif
         }
 
         [IntentAttribute("Greeting_bye")]
-        public async Task Greeting_bye_Intent(IDialogContext context, IAwaitable<IMessageActivity> message, LuisFullResult result, LuisIntent intent)
+        public async Task<string> Greeting_bye_Intent(IDialogContext context, IAwaitable<IMessageActivity> message, LuisFullResult result, LuisIntent intent)
         {
-            await context.PostAsync($"Great chatting to you.. Let me know how I did on a scale from 1 to 10");
+            string output = "$Great chatting to you.. Let me know how I did on a scale from 1 to 10";
+
             //Get the bot ready for a rating
             getRating = true;
 
             //PromptDialog.Number(context, AfterNumberDialog, "How did I do on a scale from 1 to 10?", attempts: 3);
-            
+#if UseBotManager
+            return output;
+#else
+            await context.PostAsync(output);
+            return "";
+#endif
         }
 
 
@@ -442,8 +597,9 @@ namespace LuisBot.Dialogs
 
 
         [IntentAttribute("Human")]
-        public async Task Human_Intent(IDialogContext context, IAwaitable<IMessageActivity> message, LuisFullResult result, LuisIntent intent)
+        public async Task<string> Human_Intent(IDialogContext context, IAwaitable<IMessageActivity> message, LuisFullResult result, LuisIntent intent)
         {
+            string output = "";
             //string department;
             LuisEntity entity;
             bool departmentSet = result.TryFindEntity("Department", out entity);
@@ -451,23 +607,35 @@ namespace LuisBot.Dialogs
             if (departmentSet)
             {
                 //string depName = entity.Value;
-                await context.PostAsync($"Will pass your details onto someone in {departmentEntity.TrueValue}");
+               output = $"Will pass your details onto someone in {departmentEntity.TrueValue}";
             }
             else
             {
-                await context.PostAsync($"No problem. Will pass your details onto a human");
+                output = $"No problem. Will pass your details onto a human";
             }
-
+#if UseBotManager
+            return output;
+#else
+            await context.PostAsync(output);
+            return "";
+#endif
         }
 
         [IntentAttribute("Human")]
-        public async Task Help_Intent(IDialogContext context, IAwaitable<IMessageActivity> message, LuisFullResult result, LuisIntent intent)
+        public async Task<string> Help_Intent(IDialogContext context, IAwaitable<IMessageActivity> message, LuisFullResult result, LuisIntent intent)
         {
-            await context.PostAsync($"Can certainly help...");
-            await context.PostAsync($"I can answer questions on your performance or business indicators for specific programmes or districts. Ensure your questions relate to districts, programs and indicators in our database.");
-            await context.PostAsync($"I can also answer general questions about Broadreach and our offerings.");
-            await context.PostAsync($"Try: \"What is the Ugu district performance for 2017?\"");
+            string output = "";
+            output += $"Can certainly help...\r\n";
+            output += $"I can answer questions on your performance or business indicators for specific programmes or districts. Ensure your questions relate to districts, programs and indicators in our database.\r\n";
+            output += $"I can also answer general questions about Broadreach and our offerings.\r\n";
+            output += $"Try: \"What is the Ugu district performance for 2017?\"\r\n";
 
+#if UseBotManager
+            return output;
+#else
+            await context.PostAsync(output);
+            return "";
+#endif
         }
 
         #endregion
@@ -479,12 +647,7 @@ namespace LuisBot.Dialogs
         //    return convElement.text;
         //}
 
-        // Test method for intent
-        [IntentAttribute("SwitchInten")]
-        public async Task<string> DoSomething(IDialogContext context, IAwaitable<IMessageActivity> message, LuisFullResult result, LuisIntent intent)
-        {
-            return "...";
-        }
+
 
         string GetEntityValue(string entityName, string defaultVal, LuisFullResult result)
         {

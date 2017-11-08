@@ -166,6 +166,7 @@
     <None Include="Properties\PublishProfiles\CheckrathBRChatbot - FTP.pubxml" />
     <None Include="Properties\PublishProfiles\CheckrathBRChatbot - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\CheckrathBRChatbot-Web-Deploy.pubxml" />
+    <Content Include="TestGraph.json" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

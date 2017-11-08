@@ -63,6 +63,7 @@ namespace LuisBot
             public string ShortDescription { get; set; }
             public double boost { get; set; }
             public Subconvelement[] subConvElements { get; set; }
+            public bool alwaysUseAsIntentHome { get; set; }
         }
         [Serializable]
         public class Luisapplication
@@ -83,10 +84,21 @@ namespace LuisBot
         // Use events for this later
         private string _noneEventMethodName;
 
+        /// <summary>
+        ///  Return the conversational flow
+        /// </summary>
+        /// <returns></returns>
+        public string GetConversationFlow()
+        {
+            return _conversationFlow;
+        }
+
         // User details
         private string _userId;
         private string _userName;
 
+        // Used for later
+        private string _conversationFlow;
 
         public BotManager(string BotConfigFile, object callingObject, string noneEventMethodName)
         {
@@ -106,6 +118,8 @@ namespace LuisBot
 
             // None event
             _noneEventMethodName = noneEventMethodName;
+
+            _conversationFlow = "";
         }
 
         public async Task<List<LuisBot.LuisHelper.LuisFullResult>> ExecuteQuery(string query, IDialogContext context, IAwaitable<IMessageActivity> message)
@@ -161,7 +175,7 @@ namespace LuisBot
                                 // Boost
                                 // This means we had a returned intent that we were expecting
                                 double thisIntentScore = intent.Score * convElement.boost;
-                                if (thisIntentScore > topIntentScore)
+                                if (thisIntentScore >= topIntentScore)
                                 {
                                     topIntentScore = thisIntentScore;
                                     topIntent = intent;
@@ -182,7 +196,7 @@ namespace LuisBot
                                 // Boost
                                 // This means we had a returned intent that we were expecting
                                 double thisIntentScore = intent.Score * convElement.boost;
-                                if (thisIntentScore > topIntentScore)
+                                if (thisIntentScore >= topIntentScore)
                                 {
                                     topIntentScore = thisIntentScore;
                                     topIntent = intent;
@@ -200,10 +214,13 @@ namespace LuisBot
             {
                 // Pick out the name and look for a method with this name
                 string attributeName = topConvElement.convName;
+                // Add to the conversation flow
+                _conversationFlow += "> [Conv] " + attributeName; 
                 string result = await TryExecuteMethodWithAttributeName(typeof(ConvElement), attributeName, _callingObject, context, message, topLuisResult, topConvElement, topIntent);
                 // Is it correct?
                 if (result != null)
                 {
+                    _currentConvElement = topConvElement;
                     await context.PostAsync(result);
                     return returnedLuisResponses;
                 }
@@ -215,10 +232,15 @@ namespace LuisBot
                 // Here, we search for the generic Intent method and do the same thing
                 // Pick out the name and look for a method with this name
                 string intentName = topIntent.Name;
+                _conversationFlow += "> [Intent] " + intentName;
                 string result = await TryExecuteMethodWithAttributeName(typeof(IntentAttribute), intentName, _callingObject, context, message, topLuisResult, null, topIntent);
                 // Is it correct?
                 if (result != null)
                 {
+                    // Set the conversation element if we can
+                    var topLevelConvElement = GetConversationElementFromIntent(topIntent);
+                    if (topLevelConvElement != null)
+                        _currentConvElement = topLevelConvElement;
                     await context.PostAsync(result);
                     return returnedLuisResponses;
                 }
@@ -245,6 +267,22 @@ namespace LuisBot
 
 
             return returnedLuisResponses;
+        }
+
+        /// <summary>
+        /// Sets the current conversation element if necessary. Returns null if not found at the top level
+        /// </summary>
+        /// <param name="intent">The intent we are trying to match</param>
+        /// <returns></returns>
+        private Subconvelement GetConversationElementFromIntent(LuisIntent intent)
+        {
+            // Run through each top-level intent and see if it is listed in the conversation
+            foreach (var conv in _bot.conversation.mainTopic.subConvElements)
+            {
+                if ((conv.intent.ToLower() == intent.Name.ToLower()) && (conv.alwaysUseAsIntentHome))
+                    return conv;
+            }
+            return null;
         }
 
         /// <summary>
