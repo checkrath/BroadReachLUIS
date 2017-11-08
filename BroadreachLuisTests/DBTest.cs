@@ -25,7 +25,7 @@ namespace BroadreachLuisTests
 
         }
 
-       
+
         [TestMethod]
         public void DB_Get_Indicator_perfromance_for_program()
         {
@@ -53,7 +53,7 @@ namespace BroadreachLuisTests
             //check that it has a couple of items
             Assert.IsTrue(indicatorList.Length > 3);
         }
-        
+
 
         [TestMethod]
         public void DB_Get_ListOf_Programs()
@@ -68,7 +68,7 @@ namespace BroadreachLuisTests
 
             Assert.IsTrue(programString.Length > 5);
         }
-                
+
 
 
         [TestMethod]
@@ -85,7 +85,7 @@ namespace BroadreachLuisTests
 
             Assert.IsTrue(facilities.Length > 5);
         }
-        
+
 
         [TestMethod]
         public void DB_Performance_Of_District()
@@ -97,11 +97,11 @@ namespace BroadreachLuisTests
             Assert.IsTrue(list.Count > 2);
 
             //get the annula performance of the Alfred Nzo district
-            string perf = query.GetDistrictPerformanceAsString("Alfred Nzo",true);
+            string perf = query.GetDistrictPerformanceAsString("Alfred Nzo", true);
             Assert.IsTrue(perf.Length > 20);
 
             //Check the YTD for a specific indicator "TX_NEW"
-            perf = query.GetDistrictPerformanceAsString("Alfred Nzo", true,indicatorName: "TX_NEW");
+            perf = query.GetDistrictPerformanceAsString("Alfred Nzo", true, indicatorName: "TX_NEW");
             Assert.IsTrue(perf.Length > 5);
 
         }
@@ -112,15 +112,38 @@ namespace BroadreachLuisTests
             //Get as a list
             PerformanceDBQuery query = new PerformanceDBQuery();
             //get best district (annual average)
-            List<string> list = query.GetBestWorstDistrict("",true,true);
+            List<string> list = query.GetBestWorstDistrict("", true, true);
             Assert.IsTrue(list.Count == 1);
 
             //get worst 2 districts (YTD average)
-            list = query.GetBestWorstDistrict("", false, false,2);
-            Assert.IsTrue(list.Count ==2);
+            list = query.GetBestWorstDistrict("", false, false, 2);
+            Assert.IsTrue(list.Count == 2);
 
 
 
+        }
+
+        [TestMethod]
+        public void DB_BestWorst_Indicator()
+        {
+            //Get the top performing indicators from the DB
+            PerformanceDBQuery query = new PerformanceDBQuery();
+            List<IndicatorPerformance> list = query.GetProgramPerformance("","",true,2,true);
+            //check that it has a couple of items
+            Assert.IsTrue(list.Count == 2);
+
+            //Get worst perfoming YTD indicators
+            string indicatorList = query.GetProgramPerformanceAsString("", false, true,"",false,2);
+            //check that it has a couple of items
+            Assert.IsTrue(indicatorList.Length > 5);
+
+            //get the top indicator for ugu
+            List<IndicatorPerformance> districtList = query.GetDistrictPerformance("Ugu",best:true,n:1);
+            Assert.IsTrue(districtList.Count ==1);
+
+            //get the worst 2 YTD indicators of the Alfred Nzo district
+            string perf = query.GetDistrictPerformanceAsString("Alfred Nzo", true,best:false,n:2);
+            Assert.IsTrue(perf.Length > 10);
         }
     }
 }
