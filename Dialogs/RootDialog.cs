@@ -28,9 +28,12 @@ namespace LuisBot.Dialogs
         public string lastProgramme = "All Programmes";
         public string lastCountry = "Worldwide";
         public string lastDistrict = "";
+        public string lastFacility = "";
         public string lastIndicator = "All indicators";
         public string lastIntent = "";
         public string lastTerm = "Annual";
+        public string lastNumberEntities = "";
+        public string lastEntityBeingDiscussed = "";
         public string username;
         public string userId;
         public HappinessTracker happinessTracker;
@@ -68,8 +71,6 @@ namespace LuisBot.Dialogs
 #if UseBotManager
             List<LuisFullResult> results = await _botManager.ExecuteQuery(textIn, context, argument);
 
-            // Add a sweetener
-            await context.PostAsync(_botManager.GetConversationFlow());
 #else
             //Get the username
             if (context.Activity.From.Id != null)
@@ -213,10 +214,20 @@ namespace LuisBot.Dialogs
 
             string term = "this year";
             string topBottom = (isTop ? "highest" : "lowest");
-            string thing = GetEntityValue("EntityType", "District", result);
-            string number = GetEntityValue("Number", "3", result);
+            string thing = GetEntityValue("EntityType", "", result);
+            if (thing == "")
+                thing = "District";
+            else
+                lastEntityBeingDiscussed = thing;
+
+            string number = GetEntityValue("Number", "", result);
+            if (number == "")
+                number = "3";
+            else
+                lastNumberEntities = number;
+
             string inWhichDistrict = GetEntityValue("District", "", result);
-            string inWhichProgramme = GetEntityValue("Program", "", result);
+            string inWhichProgramme = GetEntityValue("Programme", "", result);
             string inWhichFacility = GetEntityValue("Facility", "", result);
             string outputAnswer = "";
             // Get the context
@@ -231,6 +242,8 @@ namespace LuisBot.Dialogs
                         else
                             inWhichProgramme = lastProgramme;
                     }
+                    else
+                        lastProgramme = inWhichProgramme; // Be responsible;
                     PerformanceDBQuery queryEngine = new PerformanceDBQuery();
                     string listOf = queryEngine.GetBestWorstDistrictAsString(inWhichProgramme, true, isTop, Convert.ToInt32(number));
                     outputAnswer = $"The {topBottom} {number} districts for {inWhichProgramme} over {term} are {listOf}";
@@ -244,6 +257,8 @@ namespace LuisBot.Dialogs
                         else
                             return "To show you this, I need you to narrow it down to a district. You can also ask me to list the districts. ";
                     }
+                    else
+                        lastDistrict = inWhichDistrict; // Be responsible;
                     outputAnswer = $"The {topBottom} {number} facilities over {term} for {inWhichDistrict} are X, Y, Z";
                     break;
                 case "Indicator":
@@ -253,10 +268,16 @@ namespace LuisBot.Dialogs
                         if (inWhichDistrict == "")
                             return $"To show you the {topBottom} indicators, I need to know which facility or district you want to see the indicators for. You can also ask me to list the facilities, districts and indicators.";
                         else
+                        {
+                            lastDistrict = inWhichDistrict;
                             outputAnswer = $"The {topBottom} {number} indicators over {term} for district {inWhichDistrict} are X, Y, Z";
+                        }
                     }
                     else
+                    {
+                        lastFacility = inWhichFacility;
                         outputAnswer = $"The {topBottom} {number} indicators over {term} for facility {inWhichFacility} are X, Y, Z";
+                    }
 
                     break;
             }
@@ -275,6 +296,31 @@ namespace LuisBot.Dialogs
             //    await PerformanceAgainstTarget_Intent(context, result);
             //todo: fix this so it goes to the correct method
             string output = await PerformanceAgainstTarget_Intent(context, message, result, intent);
+#if UseBotManager
+            return output;
+#else
+            await context.PostAsync(output);
+            return "";
+#endif
+        }
+
+        // To change parameter for the bestx or worstx
+        [ConvElement("switchParameterBestX")]
+        public async Task<string> ChangeParameterBestX_Conv(IDialogContext context, IAwaitable<IMessageActivity> message, LuisFullResult result, BotManager.Subconvelement convelement, LuisIntent intent)
+        {
+            string output = TopBottomThings(context, message, result, intent, true);
+#if UseBotManager
+            return output;
+#else
+            await context.PostAsync(output);
+            return "";
+#endif
+        }
+        // To change parameter for the bestx or worstx
+        [ConvElement("switchParameterWorstX")]
+        public async Task<string> ChangeParameterWortX_Conv(IDialogContext context, IAwaitable<IMessageActivity> message, LuisFullResult result, BotManager.Subconvelement convelement, LuisIntent intent)
+        {
+            string output = TopBottomThings(context, message, result, intent, false);
 #if UseBotManager
             return output;
 #else
