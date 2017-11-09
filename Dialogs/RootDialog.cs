@@ -1,4 +1,4 @@
-﻿#define UseBotManager
+﻿//#define UseBotManager
 
 using System;
 using System.Collections.Generic;
@@ -170,9 +170,11 @@ namespace LuisBot.Dialogs
                     break;
                 case "BestXThings":
                     await BestXThings_Intent(context, argument, luisOutput, null);
+                    this.happinessTracker.AddRating(5);
                     break;
                 case "WorstXThings":
                     await WorstXThings_Intent(context, argument, luisOutput, null);
+                    this.happinessTracker.AddRating(5);
                     break;
                 default:
                     throw new Exception($"Unconfigured intent of: {luisOutput.TopIntent.Name}");
@@ -439,7 +441,12 @@ namespace LuisBot.Dialogs
             if (ConfigurationManager.AppSettings["DisplayCard"] == "true")
             {
                 Intents.PerformanceIntentHandler perfHandler = new Intents.PerformanceIntentHandler();
-                await perfHandler.ShowPerformanceCard(context, lastProgramme);
+                Attachment card= await perfHandler.ShowPerformanceCard(context, lastProgramme);
+                var reply = context.MakeMessage();
+                reply.Attachments.Add(card);
+                //await context.PostAsync(reply);
+                await context.PostAsync("test");
+
             }
 
 

@@ -16,7 +16,7 @@ namespace LuisBot.Intents
     /// </summary>
     public class PerformanceIntentHandler
     {
-        public async Task ShowPerformanceCard(IDialogContext context,string lastProgram)
+        public async Task<Attachment> ShowPerformanceCard(IDialogContext context,string lastProgram)
         {
             //get the data
             PerformanceDBQuery query = new PerformanceDBQuery();
@@ -92,10 +92,11 @@ namespace LuisBot.Intents
                 Content = card
             };
 
-            var reply = context.MakeMessage();
-            reply.Attachments.Add(attachment);
+            //var reply = context.MakeMessage();
+            return attachment;
+            //(await message).Attachments.Add(attachment);
+            //await context.PostAsync((await message));
 
-            await context.PostAsync(reply);
 
 
 
