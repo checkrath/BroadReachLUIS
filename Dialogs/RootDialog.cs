@@ -13,7 +13,7 @@ using System.Net.Http;
 using LuisBot.LuisHelper;
 using LuisBot.Data;
 using LuisBot;
-
+using System.Configuration;
 
 namespace LuisBot.Dialogs
 {
@@ -320,12 +320,9 @@ namespace LuisBot.Dialogs
                     }
                     break;
             }
-#if UseBotManager
+
             return outputAnswer;
-#else
-            await context.PostAsync(outputAnswer);
-            return "";
-#endif
+
         }
 
         [IntentAttribute("ChangeParameter")]
@@ -433,6 +430,18 @@ namespace LuisBot.Dialogs
                 fullOutput = fullOutput.Replace("[note]", "Great work!");
             else
                 fullOutput = fullOutput.Replace("[note]", "");
+
+            if (ConfigurationManager.AppSettings["DisplayCard"] == "true")
+            {
+                Intents.PerformanceIntentHandler perfHandler = new Intents.PerformanceIntentHandler();
+                Attachment card = await perfHandler.ShowPerformanceCard(context, lastProgramme);
+                var reply = context.MakeMessage();
+                reply.Attachments.Add(card);
+                await context.PostAsync(reply);
+                //await context.PostAsync("test");
+
+            }
+
 
 #if UseBotManager
             return fullOutput;
