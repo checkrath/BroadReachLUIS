@@ -164,6 +164,10 @@ namespace LuisBot.Dialogs
                     await Help_Intent(context, argument, luisOutput, null);
                     this.happinessTracker.AddRating(-3);
                     break;
+                case "Thanks":
+                    await Thanks_Intent(context, argument, luisOutput, null);
+                    this.happinessTracker.AddRating(5);
+                    break;
                 case "None":
                     await NoneIntent(context,argument, luisOutput);
                     //happiness tracking in method
@@ -187,6 +191,7 @@ namespace LuisBot.Dialogs
         [IntentAttribute("BestXThings")]
         public async Task<string> BestXThings_Intent(IDialogContext context, IAwaitable<IMessageActivity> message, LuisFullResult result, LuisIntent intent)
         {
+            this.lastIntent = "BestXThings";
             string outputAnswer = TopBottomThings(context, message, result, intent, true);
 #if UseBotManager
             return outputAnswer;
@@ -198,6 +203,7 @@ namespace LuisBot.Dialogs
         [IntentAttribute("WorstXThings")]
         public async Task<string> WorstXThings_Intent(IDialogContext context, IAwaitable<IMessageActivity> message, LuisFullResult result, LuisIntent intent)
         {
+            this.lastIntent = "WorstXThings";
             string outputAnswer = TopBottomThings(context, message, result, intent, false);
 #if UseBotManager
             return outputAnswer;
@@ -323,25 +329,36 @@ namespace LuisBot.Dialogs
                     }
                     break;
             }
-#if UseBotManager
             return outputAnswer;
-#else
-            await context.PostAsync(outputAnswer);
-            return "";
-#endif
         }
 
         [IntentAttribute("ChangeParameter")]
         public async Task<string> ChangeParameter_Intent(IDialogContext context, IAwaitable<IMessageActivity> message, LuisFullResult result, LuisIntent intent)
         {
+            //BestXThings, WorstXThings
+            switch (lastIntent)
+            {
+                case ("PerformanceAgainstTarget"):
+                    await PerformanceAgainstTarget_Intent(context, message, result, intent);
+                    break;
+                case ("WorstXThings"):
+                     await WorstXThings_Intent(context, message, result, intent);
+                    break;
+                case ("BestXThings"):
+                    await BestXThings_Intent(context, message, result, intent);
+                    break;
+                default:
+                    await PerformanceAgainstTarget_Intent(context, message, result, intent);
+                    break;
+            }
             //if (lastIntent == "PerformanceAgainstTarget")
             //    await PerformanceAgainstTarget_Intent(context, result);
             //todo: fix this so it goes to the correct method
-            string output = await PerformanceAgainstTarget_Intent(context, message, result, intent);
+            //string output = await PerformanceAgainstTarget_Intent(context, message, result, intent);
 #if UseBotManager
             return output;
 #else
-            await context.PostAsync(output);
+            //await context.PostAsync(output);
             return "";
 #endif
         }
@@ -444,8 +461,8 @@ namespace LuisBot.Dialogs
                 Attachment card= await perfHandler.ShowPerformanceCard(context, lastProgramme);
                 var reply = context.MakeMessage();
                 reply.Attachments.Add(card);
-                //await context.PostAsync(reply);
-                await context.PostAsync("test");
+                await context.PostAsync(reply);
+                //await context.PostAsync("test");
 
             }
 
@@ -629,6 +646,22 @@ namespace LuisBot.Dialogs
 
             //Get the bot ready for a rating
             getRating = true;
+
+            //PromptDialog.Number(context, AfterNumberDialog, "How did I do on a scale from 1 to 10?", attempts: 3);
+#if UseBotManager
+            return output;
+#else
+            await context.PostAsync(output);
+            return "";
+#endif
+        }
+
+
+        [IntentAttribute("Thanks")]
+        public async Task<string> Thanks_Intent(IDialogContext context, IAwaitable<IMessageActivity> message, LuisFullResult result, LuisIntent intent)
+        {
+            string output = $"Glad to be of service";
+                      
 
             //PromptDialog.Number(context, AfterNumberDialog, "How did I do on a scale from 1 to 10?", attempts: 3);
 #if UseBotManager
