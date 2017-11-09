@@ -365,7 +365,7 @@ namespace LuisBot
             string helpText = "";
             Subconvelement[] elementsToIterate = _bot.conversation.mainTopic.subConvElements;
 
-            if (_currentConvElement != null)
+            if ((_currentConvElement != null) && (_currentConvElement.subConvElements != null))
                 elementsToIterate = _currentConvElement.subConvElements;
             else
             {
@@ -415,9 +415,10 @@ namespace LuisBot
                             paramList = new object[] { context, message, luisResult, convElement, intent };
                         else
                             paramList = new object[] { context, message, luisResult, intent };
+
                         Task<string> tReturn = (Task<string>)method.Invoke(_callingObject, paramList);
 
-                        tReturn.Wait();
+                        await tReturn;
                         return tReturn.Result;
                     }
                 }

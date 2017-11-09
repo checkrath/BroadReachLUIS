@@ -15,7 +15,6 @@ using LuisBot.Data;
 using LuisBot;
 using System.Configuration;
 
-
 namespace LuisBot.Dialogs
 {
     [Serializable]
