@@ -160,7 +160,6 @@
     <Compile Include="LuisHelper\LuisApp.cs" />
     <Compile Include="LuisHelper\LuisOutput.cs" />
     <Compile Include="LuisHelper\LuisUtil.cs" />
-    <Compile Include="PerformanceIntentHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
