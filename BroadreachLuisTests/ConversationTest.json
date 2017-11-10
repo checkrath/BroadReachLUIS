@@ -6,7 +6,7 @@
       "description": "Performance with parameter switching",
       "conversationScript": [
         {
-          "query": "what is the performance of the Ugu district?",
+          "query": "what is the performance of the Ugu district on testing?",
           "responseContains": "The Annual HTS_TST performance for Ugu is"
         },
         {
@@ -20,12 +20,12 @@
       "description": "Top Districts",
       "conversationScript": [
         {
-          "query": "whata re the top districts",
-          "responseContains": ""
+          "query": "what are the 4 worst performing districts?",
+          "responseContains": "The lowest  district for All Programmes over this year are"
         },
         {
-          "query": "and for Sedibeng?",
-          "responseContains": "The Annual HTS_TST performance for Sedibeng is"
+          "query": "and for RAD?",
+          "responseContains": "The lowest  district for RAD over this year are "
         }
       ]
     }
