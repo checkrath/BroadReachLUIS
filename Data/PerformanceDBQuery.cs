@@ -221,9 +221,9 @@ namespace LuisBot.Data
         /// <param name="best">As above!</param>
         /// <param name="n">As above!</param>
         /// <returns></returns>
-        public string GetBestWorstDistrictAsString(string programName, bool annual, bool best, int n = 1)
+        public string GetBestWorstDistrictAsString(string programName, bool annual, bool best, int n = 1, string whichIndicator = "")
         {
-            List<string> districts = GetBestWorstDistrict(programName, annual, best, n);
+            List<string> districts = GetBestWorstDistrict(programName, annual, best, n, whichIndicator);
             string returnString = "";
             foreach (string district in districts)
                 returnString += (returnString == "" ? "" : ", ") + district;
@@ -231,7 +231,7 @@ namespace LuisBot.Data
             return returnString;
         }
 
-        public List<string> GetBestWorstFacility(string district, bool annual, bool best, int n = 1)
+        public List<string> GetBestWorstFacility(string district, bool annual, bool best, int n = 1, string whichIndicator = "")
         {
             throw new NotImplementedException(); //todo: fix below
             //create the query

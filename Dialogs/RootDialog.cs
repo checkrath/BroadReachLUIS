@@ -219,6 +219,8 @@ namespace LuisBot.Dialogs
             // Which [3] [facilities] in [Ugu] are under-spending?
             // [Number] [EntityType] [District]/[Programme]/[Country]
             // Also, where are we currently?
+            // Bit of a hack for now
+            var unitsMap = new[] { "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen" };
 
             string term = "this year";
             string topBottom = (isTop ? "highest" : "lowest");
@@ -226,6 +228,10 @@ namespace LuisBot.Dialogs
             string inWhichDistrict = GetEntityValue("District", "", result);
             string inWhichProgramme = GetEntityValue("Programme", "", result);
             string inWhichFacility = GetEntityValue("Facility", "", result);
+            string whichIndicator = GetEntityValue("Indicator", "", result);
+            int numberElements = 1;
+            string numberPlural = "";
+            
 
             // Here, we do a bit of checking. Because you could say "what about the RAD programme?", 
             // we check if the entity and the inWhich is the same, and if so, discaard the entity
@@ -248,12 +254,32 @@ namespace LuisBot.Dialogs
             else
                 lastEntityBeingDiscussed = thing;
 
+            // Number of entities
             string number = GetEntityValue("Number", "", result);
-            if (number == "")
-                number = "3";
-            else
+            if (number != "")
+            { 
                 lastNumberEntities = number;
+                numberElements = Convert.ToInt32(number);
+                if (numberElements == 1)
+                    number = "";
+                else
+                    if (numberElements <= unitsMap.Length)
+                        number = unitsMap[numberElements];
+                if (numberElements > 1)
+                    numberPlural = "s";
 
+            }
+
+            // Indicator
+
+            string indicatorDescription = "";
+            if (whichIndicator != "")
+            {
+                indicatorDescription = $" on {whichIndicator} ";
+                lastIndicator = whichIndicator;
+            }
+            else
+                whichIndicator = lastIndicator;
 
             string outputAnswer = "";
             PerformanceDBQuery queryEngine = new PerformanceDBQuery();
@@ -265,15 +291,15 @@ namespace LuisBot.Dialogs
                     if (inWhichProgramme == "")
                     {
                         if (lastProgramme == "")
-                            outputAnswer = $"To list the {topBottom} districts, I need to know which program you are referring to? You can also ask for a list of programs.";
+                            outputAnswer = $"To list the {topBottom} districts{numberPlural}, I need to know which program you are referring to? You can also ask for a list of programs.";
                         else
                             inWhichProgramme = lastProgramme;
                     }
                     else
                         lastProgramme = inWhichProgramme; // Be responsible;
 
-                    string listOf = queryEngine.GetBestWorstDistrictAsString(inWhichProgramme, true, isTop, Convert.ToInt32(number));
-                    outputAnswer = $"The {topBottom} {number} districts for {inWhichProgramme} over {term} are {listOf}";
+                    string listOf = queryEngine.GetBestWorstDistrictAsString(inWhichProgramme, true, isTop, numberElements);
+                    outputAnswer = $"The {topBottom} {number} district{numberPlural} for {inWhichProgramme} {indicatorDescription}over {term} are {listOf}";
                     break;
                 case "Facility":
                     // Facility, we need to know the District
@@ -287,7 +313,7 @@ namespace LuisBot.Dialogs
                     else
                         lastDistrict = inWhichDistrict; // Be responsible;
 
-                    outputAnswer = $"The {topBottom} {number} facilities over {term} for {inWhichDistrict} are X, Y, Z";
+                    outputAnswer = $"The {topBottom} {number} facilitie{numberPlural} {indicatorDescription}over {term} for {inWhichDistrict} are X, Y, Z";
                     break;
                 case "Indicator":
                     // Indicator can be for program, district or facility
@@ -313,30 +339,31 @@ namespace LuisBot.Dialogs
                     }
                     // Check again
                     if ((inWhichFacility == "") && (inWhichProgramme == "") && (inWhichDistrict == ""))
-                        return $"To show you the {topBottom} indicators, I need to know which facility, district or program you want to see the indicators for. You can also ask me to list the facilities, districts and indicators.";
+                        return $"To show you the {topBottom} indicator{numberPlural}, I need to know which facility, district or program you want to see the indicators for. You can also ask me to list the facilities, districts and indicators.";
 
                     if (inWhichProgramme != "")
                     {
                         // Indicators for a programme
-                        string indicatorsForProgram = queryEngine.GetProgramPerformanceAsString(inWhichProgramme, true, true, "", isTop, Convert.ToInt32(number));
-                        outputAnswer = $"The {topBottom} {number} indicators over {term} for {inWhichProgramme} are {indicatorsForProgram}";
+                        string indicatorsForProgram = queryEngine.GetProgramPerformanceAsString(inWhichProgramme, true, true, whichIndicator, isTop, numberElements);
+                        outputAnswer = $"The {topBottom} {number} indicator{numberPlural} {indicatorDescription}over {term} for {inWhichProgramme} are {indicatorsForProgram}";
                         break;
                     }
                     if (inWhichDistrict != "")
                     {
                         // Indicators for a district
-                        string indicatorsForDistrict = queryEngine.GetDistrictPerformanceAsString(inWhichDistrict, true, best: isTop, n: Convert.ToInt32(number));
-                        outputAnswer = $"The {topBottom} {number} indicators over {term} for {inWhichDistrict} are {indicatorsForDistrict}";
+                        string indicatorsForDistrict = queryEngine.GetDistrictPerformanceAsString(inWhichDistrict, true, indicatorName: whichIndicator, best: isTop, n: numberElements);
+                        outputAnswer = $"The {topBottom} {number} indicator{numberPlural} {indicatorDescription}over {term} for {inWhichDistrict} are {indicatorsForDistrict}";
                         break;
                     }
                     if (inWhichFacility != "")
                     {
                         // Indicators for a facility
                         string indicatorsForFacility = "Facility X, Facility Y, Facility Z";// queryEngine.GetDistrictPerformanceAsString(inWhichDistrict, true, best: isTop, n: Convert.ToInt32(number));
-                        outputAnswer = $"The {topBottom} {number} indicators over {term} for {inWhichFacility} are {indicatorsForFacility}";
+                        outputAnswer = $"The {topBottom} {number} indicator{numberPlural} {indicatorDescription}over {term} for {inWhichFacility} are {indicatorsForFacility}";
                         break;
                     }
                     break;
+                case "Programme":throw new NotImplementedException();
             }
             return outputAnswer;
         }
