@@ -223,7 +223,7 @@ namespace LuisBot.Data
         /// <returns></returns>
         public string GetBestWorstDistrictAsString(string programName, bool annual, bool best, int n = 1, string whichIndicator = "")
         {
-            List<string> districts = GetBestWorstDistrict(programName, annual, best, n, whichIndicator);
+            List<string> districts = GetBestWorstDistrict(programName, annual, best, n);
             string returnString = "";
             foreach (string district in districts)
                 returnString += (returnString == "" ? "" : ", ") + district;

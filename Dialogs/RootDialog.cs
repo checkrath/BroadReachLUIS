@@ -14,6 +14,7 @@ using LuisBot.LuisHelper;
 using LuisBot.Data;
 using LuisBot;
 using System.Configuration;
+using LuisBot.Intents;
 
 namespace LuisBot.Dialogs
 {
@@ -447,6 +448,10 @@ namespace LuisBot.Dialogs
             //After [Mx_Past] months you should have spent $[LatestMonth_YTDTarget] [Indicator] but you have spent $[LatestMonth_YTDValue] which is [LatestMonth_AnnualTarget_perc]% of the annual target of $[LatestMonth_AnnualTarget]
             //if (this.lastProgramme == "All Programmes")
 
+            //determine if it's a single indicator or a list
+            bool allIndicators = (lastIndicator.ToLower() == "all indicators");
+            PerformanceType performanceType;
+
             //get the term
             fullOutput = fullOutput.Replace("[term]", lastTerm);
 
@@ -464,6 +469,7 @@ namespace LuisBot.Dialogs
             PerformanceDBQuery query = new PerformanceDBQuery();
             if (lastDistrict == "")
             {
+                performanceType = PerformanceType.Program;
                 //get performance for the program
                 if (lastIndicator.ToLower() == "all indicators")
                     performance = query.GetProgramPerformanceAsString(lastProgramme, (lastTerm == "Annual"), true);
@@ -473,6 +479,7 @@ namespace LuisBot.Dialogs
             }
             else
             {
+                performanceType = PerformanceType.District;
                 //get performance for the district
                 if (lastIndicator.ToLower() == "all indicators")
                     performance = query.GetDistrictPerformanceAsString(lastDistrict, (lastTerm == "Annual"), true);
@@ -491,26 +498,29 @@ namespace LuisBot.Dialogs
             else
                 fullOutput = fullOutput.Replace("[note]", "");
 
-            //Display a card
-            if (ConfigurationManager.AppSettings["DisplayCard"] == "true")
+            //Display a card  todo: this is also calling 
+            if (allIndicators && (ConfigurationManager.AppSettings["DisplayCard"] == "true"))
             {
                 Intents.PerformanceIntentHandler perfHandler = new Intents.PerformanceIntentHandler();
-                Attachment card= await perfHandler.ShowPerformanceCard(context, lastProgramme);
+                Attachment card = await perfHandler.ShowPerformanceCard(context, lastProgramme, lastDistrict,lastTerm,performanceType);
                 var reply = context.MakeMessage();
                 reply.Attachments.Add(card);
                 await context.PostAsync(reply);
                 //await context.PostAsync("test");
-
+                return "";
             }
-
-
+            else
+            {
 #if UseBotManager
             return fullOutput;
 #else
-            await context.PostAsync(fullOutput);
-            return "";
+                await context.PostAsync(fullOutput);
+                return "";
 #endif
-        }
+            }
+
+
+            }
 
         [IntentAttribute("Listindicators")]
         public async Task<string> ListIndicators_Intent(IDialogContext context, IAwaitable<IMessageActivity> message, LuisFullResult result, LuisIntent intent)
@@ -825,7 +835,7 @@ namespace LuisBot.Dialogs
             using (HttpClient client = new HttpClient())
             {
                 //https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/05d130e4-3419-47de-8a50-f9ee960f02f3?subscription-key=664a0179dac5472b895eacc3f08ff58c&timezoneOffset=0&verbose=true&q=
-                string RequestURI = "https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/05d130e4-3419-47de-8a50-f9ee960f02f3?subscription-key=664a0179dac5472b895eacc3f08ff58c&timezoneOffset=0&verbose=true&q=" + query;
+                string RequestURI = "https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/05d130e4-3419-47de-8a50-f9ee960f02f3?subscription-key=a64477db395d4458855e42186eed40d2&timezoneOffset=0&verbose=true&q=" + query;
                 HttpResponseMessage msg = await client.GetAsync(RequestURI);
                 if (msg.IsSuccessStatusCode)
                 {
