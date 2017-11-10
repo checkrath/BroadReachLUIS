@@ -231,7 +231,39 @@ namespace LuisBot.Data
             return returnString;
         }
 
-        
+        public List<string> GetBestWorstFacility(string district, bool annual, bool best, int n = 1)
+        {
+            throw new NotImplementedException(); //todo: fix below
+            //create the query
+            string valField = (annual) ? "[aveTargetPerf]" : "[aveYTDPerf]";
+            string ascDesc = (best) ? " desc " : " asc ";
+            string sql = $"select top {n} [DistrictName],{valField} from [dbo].[vw_DistrictsPerformanceSummary] " +
+                $"order by {valField} {ascDesc}";
+
+            //Execute the query
+            List<string> facilityList = new List<string>();
+            using (SqlConnection connection = new SqlConnection(DB_CONN))
+            using (SqlCommand cmd = new SqlCommand(sql, connection))
+            {
+                //cmd.Parameters.AddWithValue("DistrictName", districtName);
+                connection.Open();
+                using (var reader = cmd.ExecuteReader())
+                {
+                    if (reader.HasRows)
+                        while (reader.Read())
+                        {
+                            //create the output string
+                            string facilityText = reader.GetString(0) + ": " +
+                                ((float)reader.GetDouble(1) * 100).ToString("0.00") + "%";
+                            facilityList.Add(facilityText);
+                        }
+                }
+            }
+
+            //Return a list of districts
+            return facilityList;
+
+        }
 
     }
 }

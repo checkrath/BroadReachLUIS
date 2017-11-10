@@ -135,6 +135,7 @@
   <ItemGroup>
     <Content Include="default.htm" />
     <Content Include="Global.asax" />
+    <Content Include="Images\exampleGraph.jpg" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
@@ -154,11 +155,11 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Intents\PerformanceIntentHandler.cs" />
     <Compile Include="LuisHelper\HappinessTracker.cs" />
     <Compile Include="LuisHelper\LuisApp.cs" />
     <Compile Include="LuisHelper\LuisOutput.cs" />
     <Compile Include="LuisHelper\LuisUtil.cs" />
-    <Compile Include="PerformanceIntentHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
