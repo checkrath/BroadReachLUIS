@@ -28,15 +28,10 @@ namespace LuisBot.Data
                     else
                         percentTarget = $"{indicator.YTDPercentage:0.0}% of YTD target";
                     //Create string
-                    if (i == 0)
                         if (indicatorName=="") //No indicators specified
-                            indicatorOutput += $"{indicator.Indicatorname}: {indicator.IndicatorValue} ({percentTarget})";
+                            indicatorOutput += $"**{indicator.Indicatorname}**: {indicator.IndicatorValue} ({percentTarget})\n\n";
                         else
-                            indicatorOutput += $"{indicator.IndicatorValue} ({percentTarget})";
-
-                    else if (i == indicatorList.Count - 1)
-                        indicatorOutput += " and " + $"{indicator.Indicatorname}: {indicator.IndicatorValue} ({percentTarget})";
-                    else indicatorOutput += ", " + $"{indicator.Indicatorname}: {indicator.IndicatorValue} ({percentTarget})";
+                            indicatorOutput += $"{indicator.IndicatorValue} ({percentTarget})\n\n";
                 }
             }
             else
@@ -147,15 +142,20 @@ namespace LuisBot.Data
                     else
                         percentTarget = $"{indicator.YTDPercentage:0.0}% of YTD target";
                     //Create string
-                    if (i == 0)
-                        if (indicatorName == "") //No indicators specified
-                            indicatorOutput += $"{indicator.Indicatorname}: {indicator.IndicatorValue:0.0} ({percentTarget})";
-                        else
-                            indicatorOutput += $"{indicator.IndicatorValue:0.0} ({percentTarget})";
+                    if (indicatorName == "") //No indicators specified
+                        indicatorOutput += $"**{indicator.Indicatorname}**: {indicator.IndicatorValue:0.0} ({percentTarget})\n\n";
+                    else
+                        indicatorOutput += $"{indicator.IndicatorValue:0.0} ({percentTarget})\n\n";
 
-                    else if (i == indicatorList.Count - 1)
-                        indicatorOutput += " and " + $"{indicator.Indicatorname}: {indicator.IndicatorValue} ({percentTarget})";
-                    else indicatorOutput += ", " + $"{indicator.Indicatorname}: {indicator.IndicatorValue} ({percentTarget})";
+                    //if (i == 0)
+                    //    if (indicatorName == "") //No indicators specified
+                    //        indicatorOutput += $"**{indicator.Indicatorname}**: {indicator.IndicatorValue:0.0} ({percentTarget})";
+                    //    else
+                    //        indicatorOutput += $"{indicator.IndicatorValue:0.0} ({percentTarget})";
+
+                    //else if (i == indicatorList.Count - 1)
+                    //    indicatorOutput += " and " + $"{indicator.Indicatorname}: {indicator.IndicatorValue} ({percentTarget})";
+                    //else indicatorOutput += ", " + $"{indicator.Indicatorname}: {indicator.IndicatorValue} ({percentTarget})";
                 }
             }
             else

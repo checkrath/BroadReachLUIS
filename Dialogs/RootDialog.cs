@@ -1,4 +1,4 @@
-﻿#define UseBotManager
+﻿//#define UseBotManager
 
 using System;
 using System.Collections.Generic;
@@ -437,7 +437,7 @@ namespace LuisBot.Dialogs
 
             //Build up a string describing performance:
             const string TOKEN_DISTRICT = "[district/prog]";
-            string fullOutput = "The [term] [indicator]performance for [district/prog] is [performance]. [note]";
+            string fullOutput = "The [term] [indicator]performance for **[district/prog]** is:\n\n[performance] [note]";
 
             //dummy output
             Random rnd = new Random();
@@ -459,7 +459,7 @@ namespace LuisBot.Dialogs
             if (lastIndicator == "All indicators")
                 fullOutput = fullOutput.Replace("[indicator]", "");
             else
-                fullOutput = fullOutput.Replace("[indicator]", lastIndicator + " ");
+                fullOutput = fullOutput.Replace("[indicator]", "**" + lastIndicator + "** ");
 
             //Get the district or program
             fullOutput = fullOutput.Replace(TOKEN_DISTRICT, GetDistrictProgramme(result));
