@@ -180,7 +180,7 @@ namespace LuisBot.Data
         /// <param name="best"></param>
         /// <param name="n"></param>
         /// <returns></returns>
-        public List<string> GetBestWorstDistrict(string programName, bool annual, bool best,int n=1)
+        public List<string> GetBestWorstDistrict(string programName, bool annual, bool best,int n=1, string whichIndicator = "")
         {
             //create the query
             string valField= (annual)? "[aveTargetPerf]" : "[aveYTDPerf]";
@@ -231,7 +231,7 @@ namespace LuisBot.Data
             return returnString;
         }
 
-        public List<string> GetBestWorstFacility(string district, bool annual, bool best, int n = 1, string whichIndicator = "")
+        public List<string> GetBestWorstFacility(string district, bool annual, bool best, int n = 1)
         {
             throw new NotImplementedException(); //todo: fix below
             //create the query

@@ -1,0 +1,33 @@
+﻿{
+  "botSecret": "O_rKk3moEgw.cwA.pfs.5jThC52wl0roeLJumaB0nFdD2woHrpxR7RhYBtHxEYc",
+  "tests": [
+    {
+      "name": "Performance1",
+      "description": "Performance with parameter switching",
+      "conversationScript": [
+        {
+          "query": "what is the performance of Ugu?",
+          "responseContains": "The Annual HTS_TST performance for Ugu is"
+        },
+        {
+          "query": "and for Sedibeng?",
+          "responseContains": "The Annual HTS_TST performance for Sedibeng is"
+        }
+      ]
+    },
+    {
+      "name": "BestWorst",
+      "description": "Top Districts",
+      "conversationScript": [
+        {
+          "query": "whata re the top districts",
+          "responseContains": ""
+        },
+        {
+          "query": "and for Sedibeng?",
+          "responseContains": "The Annual HTS_TST performance for Sedibeng is"
+        }
+      ]
+    }
+  ]
+}

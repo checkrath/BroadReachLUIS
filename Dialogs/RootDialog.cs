@@ -1,4 +1,4 @@
-﻿//#define UseBotManager
+﻿#define UseBotManager
 
 using System;
 using System.Collections.Generic;
@@ -371,20 +371,21 @@ namespace LuisBot.Dialogs
         [IntentAttribute("ChangeParameter")]
         public async Task<string> ChangeParameter_Intent(IDialogContext context, IAwaitable<IMessageActivity> message, LuisFullResult result, LuisIntent intent)
         {
+            string output = "";
             //BestXThings, WorstXThings
             switch (lastIntent)
             {
                 case ("PerformanceAgainstTarget"):
-                    await PerformanceAgainstTarget_Intent(context, message, result, intent);
+                    output = await PerformanceAgainstTarget_Intent(context, message, result, intent);
                     break;
                 case ("WorstXThings"):
-                     await WorstXThings_Intent(context, message, result, intent);
+                     output = await WorstXThings_Intent(context, message, result, intent);
                     break;
                 case ("BestXThings"):
-                    await BestXThings_Intent(context, message, result, intent);
+                    output = await BestXThings_Intent(context, message, result, intent);
                     break;
                 default:
-                    await PerformanceAgainstTarget_Intent(context, message, result, intent);
+                    output = await PerformanceAgainstTarget_Intent(context, message, result, intent);
                     break;
             }
             //if (lastIntent == "PerformanceAgainstTarget")
