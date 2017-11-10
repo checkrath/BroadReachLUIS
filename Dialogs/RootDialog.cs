@@ -232,6 +232,7 @@ namespace LuisBot.Dialogs
             string whichIndicator = GetEntityValue("Indicator", "", result);
             int numberElements = 1;
             string numberPlural = "";
+            string numberIsAre = "is";
             
 
             // Here, we do a bit of checking. Because you could say "what about the RAD programme?", 
@@ -267,9 +268,13 @@ namespace LuisBot.Dialogs
                     if (numberElements <= unitsMap.Length)
                         number = unitsMap[numberElements];
                 if (numberElements > 1)
+                { 
                     numberPlural = "s";
+                    numberIsAre = "are";
+                }
 
-            }
+
+             }
 
             // Indicator
 
@@ -300,7 +305,7 @@ namespace LuisBot.Dialogs
                         lastProgramme = inWhichProgramme; // Be responsible;
 
                     string listOf = queryEngine.GetBestWorstDistrictAsString(inWhichProgramme, true, isTop, numberElements);
-                    outputAnswer = $"The {topBottom} {number} district{numberPlural} for {inWhichProgramme} {indicatorDescription}over {term} are {listOf}";
+                    outputAnswer = $"The {topBottom} {number} district{numberPlural} for {inWhichProgramme} {indicatorDescription}over {term} {numberIsAre} {listOf}";
                     break;
                 case "Facility":
                     // Facility, we need to know the District
@@ -314,7 +319,7 @@ namespace LuisBot.Dialogs
                     else
                         lastDistrict = inWhichDistrict; // Be responsible;
 
-                    outputAnswer = $"The {topBottom} {number} facilitie{numberPlural} {indicatorDescription}over {term} for {inWhichDistrict} are X, Y, Z";
+                    outputAnswer = $"The {topBottom} {number} facilitie{numberPlural} {indicatorDescription}over {term} for {inWhichDistrict} {numberIsAre} X, Y, Z";
                     break;
                 case "Indicator":
                     // Indicator can be for program, district or facility
@@ -346,21 +351,21 @@ namespace LuisBot.Dialogs
                     {
                         // Indicators for a programme
                         string indicatorsForProgram = queryEngine.GetProgramPerformanceAsString(inWhichProgramme, true, true, whichIndicator, isTop, numberElements);
-                        outputAnswer = $"The {topBottom} {number} indicator{numberPlural} {indicatorDescription}over {term} for {inWhichProgramme} are {indicatorsForProgram}";
+                        outputAnswer = $"The {topBottom} {number} indicator{numberPlural} {indicatorDescription}over {term} for {inWhichProgramme} {numberIsAre} {indicatorsForProgram}";
                         break;
                     }
                     if (inWhichDistrict != "")
                     {
                         // Indicators for a district
                         string indicatorsForDistrict = queryEngine.GetDistrictPerformanceAsString(inWhichDistrict, true, indicatorName: whichIndicator, best: isTop, n: numberElements);
-                        outputAnswer = $"The {topBottom} {number} indicator{numberPlural} {indicatorDescription}over {term} for {inWhichDistrict} are {indicatorsForDistrict}";
+                        outputAnswer = $"The {topBottom} {number} indicator{numberPlural} {indicatorDescription}over {term} for {inWhichDistrict} {numberIsAre} {indicatorsForDistrict}";
                         break;
                     }
                     if (inWhichFacility != "")
                     {
                         // Indicators for a facility
                         string indicatorsForFacility = "Facility X, Facility Y, Facility Z";// queryEngine.GetDistrictPerformanceAsString(inWhichDistrict, true, best: isTop, n: Convert.ToInt32(number));
-                        outputAnswer = $"The {topBottom} {number} indicator{numberPlural} {indicatorDescription}over {term} for {inWhichFacility} are {indicatorsForFacility}";
+                        outputAnswer = $"The {topBottom} {number} indicator{numberPlural} {indicatorDescription}over {term} for {inWhichFacility} {numberIsAre} {indicatorsForFacility}";
                         break;
                     }
                     break;
