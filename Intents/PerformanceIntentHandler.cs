@@ -16,6 +16,12 @@ namespace LuisBot.Intents
     /// </summary>
     public class PerformanceIntentHandler
     {
+        /// <summary>
+        /// Generate a card showing indicator performance against programs or districts
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="lastProgram"></param>
+        /// <returns></returns>
         public async Task<Attachment> ShowPerformanceCard(IDialogContext context,string lastProgram)
         {
             //get the data
@@ -23,7 +29,8 @@ namespace LuisBot.Intents
             List<IndicatorPerformance> indicators = query.GetProgramPerformance(lastProgram);
 
             //card title
-            var title = $"Program performance for {lastProgram}";
+            string listEntity = "program";
+            var title = $"{listEntity} performance for {lastProgram}";
             var titleBlock = new TextBlock()
             {
                 Text = title,
@@ -35,7 +42,9 @@ namespace LuisBot.Intents
             var facts = new FactSet();
             foreach (IndicatorPerformance indicator in indicators )
             {
-                var fact = new AdaptiveCards.Fact(indicator.Indicatorname, indicator.TargetPercentage.ToString("0.0"));
+                //create info string
+                MessageFormater messageFormater = new MessageFormater();
+                var fact = new AdaptiveCards.Fact(indicator.Indicatorname, messageFormater.IndicatorPerformance(indicator, true));
                 facts.Facts.Add(fact);
             }
 
