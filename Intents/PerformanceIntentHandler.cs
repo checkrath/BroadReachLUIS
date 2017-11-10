@@ -71,23 +71,27 @@ namespace LuisBot.Intents
 
             //big layout
             var bodyLayout = new List<CardElement>()
-            {
-                titleBlock,
-                new ColumnSet
-                {
-                    Columns=new List<Column>()
-                    {
-                        new Column()
-                        {
-                            Size=ColumnSize.Auto,
-                            Items=factsBlock
-                        },
-                        new Column()
-                        {
-                            Items=imageBlock
-                        }
-                    }
-                }
+            {          
+               titleBlock,
+               new Container()
+               {Items=factsBlock },
+               new Container()
+               {Items=imageBlock}
+                //new ColumnSet
+                //{
+                //    Columns=new List<Column>()
+                //    {
+                //        new Column()
+                //        {
+                //            Size=ColumnSize.Auto,
+                //            Items=factsBlock
+                //        },
+                //        new Column()
+                //        {
+                //            Items=imageBlock
+                //        }
+                //    }
+                //}
             };
 
             var card = new AdaptiveCard()
