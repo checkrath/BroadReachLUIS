@@ -215,6 +215,18 @@ namespace LuisBot.Dialogs
             string term = "this year";
             string topBottom = (isTop ? "highest" : "lowest");
             string thing = GetEntityValue("EntityType", "", result);
+            string inWhichDistrict = GetEntityValue("District", "", result);
+            string inWhichProgramme = GetEntityValue("Programme", "", result);
+            string inWhichFacility = GetEntityValue("Facility", "", result);
+
+            // Here, we do a bit of checking. Because you could say "what about the RAD programme?", 
+            // we check if the entity and the inWhich is the same, and if so, discaard the entity
+            if ((thing == "District") && (inWhichDistrict != ""))
+                    thing = "";
+            if ((thing == "Programme") && (inWhichProgramme != ""))
+                thing = "";
+            if ((thing == "Facility") && (inWhichFacility != ""))
+                thing = "";
             if (thing == "")
             {
                 if (lastEntityBeingDiscussed == "")
@@ -234,9 +246,7 @@ namespace LuisBot.Dialogs
             else
                 lastNumberEntities = number;
 
-            string inWhichDistrict = GetEntityValue("District", "", result);
-            string inWhichProgramme = GetEntityValue("Programme", "", result);
-            string inWhichFacility = GetEntityValue("Facility", "", result);
+
             string outputAnswer = "";
             PerformanceDBQuery queryEngine = new PerformanceDBQuery();
             // Get the context

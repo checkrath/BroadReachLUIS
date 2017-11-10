@@ -4,7 +4,7 @@
       "name": "BroadReachChat",
       "requestURI": "https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/{AppId}?subscription-key={AppKey}&timezoneOffset=0&verbose=true&q={Query}",
       "AppId": "05d130e4-3419-47de-8a50-f9ee960f02f3",
-      "AppKey": "664a0179dac5472b895eacc3f08ff58c",
+      "AppKey": "e9fb84acf75d4053a9cc1a716c94ca7e",
       "intents": [
         "ChangeParameter",
         "Greeting_Hello",
