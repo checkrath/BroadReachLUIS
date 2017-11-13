@@ -31,7 +31,7 @@ namespace LuisBot.Dialogs
         //public string lastDistrict = "";
         //public string lastFacility = "";
         //public string lastIndicator = "All indicators";
-        //public string lastIntent = "";
+        public string lastIntent = "";
         //public string lastTerm = "Annual";
         //public string lastNumberEntities = "";
         //public string lastEntityBeingDiscussed = "";
@@ -75,7 +75,6 @@ namespace LuisBot.Dialogs
             _botManager.Memory.CreateField("lastDistrict", "");
             _botManager.Memory.CreateField("lastFacility", "");
             _botManager.Memory.CreateField("lastIndicator", "All indicators");
-            _botManager.Memory.CreateField("lastIntent", "");
             _botManager.Memory.CreateField("lastTerm", "Annual");
             _botManager.Memory.CreateField("lastNumberEntities", "1");
             _botManager.Memory.CreateField("lastEntityBeingDiscussed", "");
@@ -84,14 +83,14 @@ namespace LuisBot.Dialogs
             switch (userId)
             {
                 case "29:1m7tKLruT83A7deu1eAKk3wjXs6DMPS8Ypl61jnFhpZA":
-                    lastProgramme = "RAD";
+                    _botManager.Memory["lastProgramme"] = "RAD";
                     break;
                 case "29:1DjfA6tW52VZga3DTUNW6HbGNzXnjSlR_pSSzCbdB-tc":
-                    lastProgramme = "Comprehensive";
-                    lastDistrict = "Ugu";
+                    _botManager.Memory["lastProgramme"] = "Comprehensive";
+                    _botManager.Memory["lastDistrict"] ="Ugu";
                     break;
                 default:
-                    lastProgramme = "All Programmes";
+                    _botManager.Memory["lastProgramme"] ="All Programmes";
                     break;
             }
 
@@ -267,11 +266,6 @@ namespace LuisBot.Dialogs
 
             string term = "this year";
             string topBottom = (isTop ? "highest" : "lowest");
-            //string thing = GetEntityValue("EntityType", "", result);
-            //string inWhichDistrict = GetEntityValue("District", "", result);
-            //string inWhichProgramme = GetEntityValue("Programme", "", result);
-            //string inWhichFacility = GetEntityValue("Facility", "", result);
-            //string whichIndicator = GetEntityValue("Indicator", "", result);
             bool foundInLUIS;
             string inWhichDistrict = _botManager.Memory.GetFieldValueWithEntityUpdate("lastDistrict", "District", result, out foundInLUIS);
             string inWhichProgramme = _botManager.Memory.GetFieldValueWithEntityUpdate("lastProgramme", "Programme", result, out foundInLUIS);
@@ -439,9 +433,12 @@ namespace LuisBot.Dialogs
         {
             //check if they passed params through
             //this.lastdate = GetEntityValue("builtin.datetimeV2.daterange", this.lastdate, result);
-            this.lastTerm = GetEntityValue("Term", this.lastTerm, result);
+            bool foundInLUIS;
+            string lastTermPerformance = _botManager.Memory.GetFieldValueWithEntityUpdate("lastTerm","Term",result, out foundInLUIS);
             this.lastIntent = "PerformanceAgainstTarget";
-            this.lastIndicator= GetEntityValue("Indicator", this.lastIndicator, result);
+            string lastIndicatorPerformance = _botManager.Memory.GetFieldValueWithEntityUpdate("lastIndicator", "Indicator", result, out foundInLUIS);
+            string lastDistrictPerformance = _botManager.Memory.GetFieldValueWithEntityUpdate("lastDistrict", "District", result, out foundInLUIS);
+            string lastProgrammePerformance = _botManager.Memory.GetFieldValueWithEntityUpdate("lastProgramme", "Programme", result, out foundInLUIS);
 
             //Build up a string describing performance:
             const string TOKEN_DISTRICT = "[district/prog]";
@@ -457,17 +454,17 @@ namespace LuisBot.Dialogs
             //if (this.lastProgramme == "All Programmes")
 
             //determine if it's a single indicator or a list
-            bool allIndicators = (lastIndicator.ToLower() == "all indicators");
+            bool allIndicators = (lastIndicatorPerformance.ToLower() == "all indicators");
             PerformanceType performanceType;
 
             //get the term
-            fullOutput = fullOutput.Replace("[term]", lastTerm);
+            fullOutput = fullOutput.Replace("[term]", _botManager.Memory["lastTerm"]);
 
             //get the indicator
-            if (lastIndicator == "All indicators")
+            if (lastIndicatorPerformance == "All indicators")
                 fullOutput = fullOutput.Replace("[indicator]", "");
             else
-                fullOutput = fullOutput.Replace("[indicator]", "**" + lastIndicator + "** ");
+                fullOutput = fullOutput.Replace("[indicator]", "**" + lastIndicatorPerformance + "** ");
 
             //Get the district or program
             fullOutput = fullOutput.Replace(TOKEN_DISTRICT, GetDistrictProgramme(result));
@@ -475,24 +472,24 @@ namespace LuisBot.Dialogs
             //generate the performance reposnse
             string performance;
             PerformanceDBQuery query = new PerformanceDBQuery();
-            if (lastDistrict == "")
+            if (lastDistrictPerformance == "")
             {
                 performanceType = PerformanceType.Program;
                 //get performance for the program
-                if (lastIndicator.ToLower() == "all indicators")
-                    performance = query.GetProgramPerformanceAsString(lastProgramme, (lastTerm == "Annual"), true);
+                if (lastIndicatorPerformance.ToLower() == "all indicators")
+                    performance = query.GetProgramPerformanceAsString(lastProgrammePerformance, (lastTermPerformance == "Annual"), true);
                 else
-                    performance = query.GetProgramPerformanceAsString(lastProgramme, (lastTerm == "Annual"), true,lastIndicator);
+                    performance = query.GetProgramPerformanceAsString(lastProgrammePerformance, (lastTermPerformance == "Annual"), true, lastIndicatorPerformance);
                 
             }
             else
             {
                 performanceType = PerformanceType.District;
                 //get performance for the district
-                if (lastIndicator.ToLower() == "all indicators")
-                    performance = query.GetDistrictPerformanceAsString(lastDistrict, (lastTerm == "Annual"), true);
+                if (lastIndicatorPerformance.ToLower() == "all indicators")
+                    performance = query.GetDistrictPerformanceAsString(lastDistrictPerformance, (lastTermPerformance == "Annual"), true);
                 else
-                    performance = query.GetDistrictPerformanceAsString(lastDistrict, (lastTerm == "Annual"), true, lastIndicator);
+                    performance = query.GetDistrictPerformanceAsString(lastDistrictPerformance, (lastTermPerformance == "Annual"), true, lastIndicatorPerformance);
                 //performance = $"{actual} against a target of {target} which is {percentTarget}% of target";
 
             }
@@ -510,7 +507,7 @@ namespace LuisBot.Dialogs
             if (allIndicators && (ConfigurationManager.AppSettings["DisplayCard"] == "true"))
             {
                 Intents.PerformanceIntentHandler perfHandler = new Intents.PerformanceIntentHandler();
-                Attachment card = await perfHandler.ShowPerformanceCard(context, lastProgramme, lastDistrict,lastTerm,performanceType);
+                Attachment card = await perfHandler.ShowPerformanceCard(context, lastProgrammePerformance, lastDistrictPerformance,lastTermPerformance ,performanceType);
                 var reply = context.MakeMessage();
                 reply.Attachments.Add(card);
                 await context.PostAsync(reply);
@@ -546,7 +543,7 @@ namespace LuisBot.Dialogs
         {
             //get a list of districts 
             EntitiesDBQuery query = new EntitiesDBQuery();
-            string districts = query.GetListOfDistrictsAsString(lastProgramme);
+            string districts = query.GetListOfDistrictsAsString(_botManager.Memory["lastProgramme"]);
 #if UseBotManager
             return $"I can give you the performance of the {districts} districts. Alternatively, you can request the performance of all districts or a specific programme.";
 #else
@@ -586,22 +583,22 @@ namespace LuisBot.Dialogs
 
             if (foundDistrict)
             {
-                lastDistrict = ((LuisStandardEntity)districtEntity).TrueValue;
-                return lastDistrict;
+                _botManager.Memory["lastDistrict"] =  ((LuisStandardEntity)districtEntity).TrueValue;
+                return _botManager.Memory["lastDistrict"];
             }
             else if (foundProgram)
             {
-                lastProgramme = ((LuisStandardEntity)programEntity).TrueValue;
-                lastDistrict = "";
-                return lastProgramme;
+                _botManager.Memory["lastProgramme"] = ((LuisStandardEntity)programEntity).TrueValue;
+                _botManager.Memory["lastDistrict"] = "";
+                return _botManager.Memory["lastProgramme"];
             }
-            else if (lastDistrict == "")
+            else if (_botManager.Memory["lastDistrict"] == "")
             {
                 //No district so program
-                return lastProgramme;
+                return _botManager.Memory["lastProgramme"];
             }
             else
-                return lastDistrict;
+                return _botManager.Memory["lastDistrict"];
             
         }
 

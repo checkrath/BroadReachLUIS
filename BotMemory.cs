@@ -79,6 +79,16 @@ namespace LuisBot
                 return m.Value;
         }
 
+        public string GetFieldValueWithoutDefault(string name)
+        {
+            if (!_memoryStore.ContainsKey(name))
+                throw new Exception($"No memory item by name {name} found in the store");
+
+            MemoryField m = _memoryStore[name];
+
+            return m.Value;
+        }
+
         /// <summary>
         /// This method returns the default value if a blank is passed in, or sets the value to the value passed in and then returns it
         /// </summary>
@@ -128,6 +138,7 @@ namespace LuisBot
         public string this[string s]
         {
             get { return GetFieldValue(s);  }
+            set { this.SetFieldValue(s, value);  }
         }
 
         // Get the whole object
