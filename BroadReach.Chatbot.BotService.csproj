@@ -143,6 +143,7 @@
   <ItemGroup>
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="BotManager.cs" />
+    <Compile Include="BotMemory.cs" />
     <Compile Include="Data\DataObjects.cs" />
     <Compile Include="Data\EntitiesDBQuery.cs" />
     <Compile Include="Data\PerformanceDBQuery.cs" />

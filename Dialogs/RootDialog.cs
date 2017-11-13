@@ -1,4 +1,4 @@
-﻿#define UseBotManager
+﻿//#define UseBotManager
 
 using System;
 using System.Collections.Generic;

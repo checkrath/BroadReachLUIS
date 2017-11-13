@@ -35,6 +35,8 @@ namespace LuisBot
     [Serializable]
     public class BotManager
     {
+        #region JSON Classes
+        
         // Define all the classes for the JSON Object
         [Serializable]
         public class BotDescription
@@ -79,6 +81,7 @@ namespace LuisBot
             public string AppKey { get; set; }
             public string[] intents { get; set; }
         }
+        #endregion
 
         /// <summary>
         /// Description of the bot, in JSON
@@ -101,6 +104,9 @@ namespace LuisBot
         // User details
         private string _userId;
         private string _userName;
+
+        public string Username { get { return _userName; } }
+        public string UserID {  get { return _userId; } }
 
         // Used for later
         private string _conversationFlow;
