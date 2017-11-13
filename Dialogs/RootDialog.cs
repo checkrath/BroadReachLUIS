@@ -25,16 +25,16 @@ namespace LuisBot.Dialogs
         DateTime lastHello;
         public string outText;
         public bool isHandled;
-        public string lastdate = "2017";
-        public string lastProgramme = "All Programmes";
-        public string lastCountry = "Worldwide";
-        public string lastDistrict = "";
-        public string lastFacility = "";
-        public string lastIndicator = "All indicators";
+        //public string lastdate = "2017";
+        //public string lastProgramme = "All Programmes";
+        //public string lastCountry = "Worldwide";
+        //public string lastDistrict = "";
+        //public string lastFacility = "";
+        //public string lastIndicator = "All indicators";
         public string lastIntent = "";
-        public string lastTerm = "Annual";
-        public string lastNumberEntities = "";
-        public string lastEntityBeingDiscussed = "";
+        //public string lastTerm = "Annual";
+        //public string lastNumberEntities = "";
+        //public string lastEntityBeingDiscussed = "";
         public string username;
         public string userId;
         public HappinessTracker happinessTracker;
@@ -52,7 +52,7 @@ namespace LuisBot.Dialogs
             happinessTracker = new HappinessTracker();
 
             // Start the Bot Manager
-            _botManager = new BotManager("BotConfiguration.json",this, "NoneIntent");
+            _botManager = new BotManager("BotConfiguration.json", this, "NoneIntent");
 
             // Extract the username and userid
             //Get the username
@@ -67,20 +67,33 @@ namespace LuisBot.Dialogs
                 username = "Unknown User";
             }
 
+
+            // Populate the memory
+            _botManager.Memory.CreateField("lastdate", "2017");
+            _botManager.Memory.CreateField("lastProgramme", "All Programmes");
+            _botManager.Memory.CreateField("lastCountry", "Worldwide");
+            _botManager.Memory.CreateField("lastDistrict", "");
+            _botManager.Memory.CreateField("lastFacility", "");
+            _botManager.Memory.CreateField("lastIndicator", "All indicators");
+            _botManager.Memory.CreateField("lastTerm", "Annual");
+            _botManager.Memory.CreateField("lastNumberEntities", "1");
+            _botManager.Memory.CreateField("lastEntityBeingDiscussed", "");
+
             // Do the defaults - hard-code for now
             switch (userId)
             {
                 case "29:1m7tKLruT83A7deu1eAKk3wjXs6DMPS8Ypl61jnFhpZA":
-                    lastProgramme = "RAD";
+                    _botManager.Memory["lastProgramme"] = "RAD";
                     break;
                 case "29:1DjfA6tW52VZga3DTUNW6HbGNzXnjSlR_pSSzCbdB-tc":
-                    lastProgramme = "Comprehensive";
-                    lastDistrict = "Ugu";
+                    _botManager.Memory["lastProgramme"] = "Comprehensive";
+                    _botManager.Memory["lastDistrict"] ="Ugu";
                     break;
                 default:
-                    lastProgramme = "All Programmes";
+                    _botManager.Memory["lastProgramme"] ="All Programmes";
                     break;
             }
+
         }
 
         //public async Task FirstReceivedAsync(IDialogContext context, IAwaitable<IMessageActivity> argument)
@@ -253,67 +266,50 @@ namespace LuisBot.Dialogs
 
             string term = "this year";
             string topBottom = (isTop ? "highest" : "lowest");
-            string thing = GetEntityValue("EntityType", "", result);
-            string inWhichDistrict = GetEntityValue("District", "", result);
-            string inWhichProgramme = GetEntityValue("Programme", "", result);
-            string inWhichFacility = GetEntityValue("Facility", "", result);
-            string whichIndicator = GetEntityValue("Indicator", "", result);
+            bool foundInLUIS;
+            string inWhichDistrict = _botManager.Memory.GetFieldValueWithEntityUpdate("lastDistrict", "District", result, out foundInLUIS);
+            string inWhichProgramme = _botManager.Memory.GetFieldValueWithEntityUpdate("lastProgramme", "Programme", result, out foundInLUIS);
+            string inWhichFacility = _botManager.Memory.GetFieldValueWithEntityUpdate("lastFacility", "Facility", result, out foundInLUIS);
+            string whichIndicator = _botManager.Memory.GetFieldValueWithEntityUpdate("lastIndicator", "Indicator", result, out foundInLUIS);
+            bool numberEntitiesFoundInLUIS;
+            string numberEntities = _botManager.Memory.GetFieldValueWithEntityUpdate("lastNumberEntities", "Number", result, out numberEntitiesFoundInLUIS);
             int numberElements = 1;
             string numberPlural = "";
             string numberIsAre = "is";
-            
+
 
             // Here, we do a bit of checking. Because you could say "what about the RAD programme?", 
             // we check if the entity and the inWhich is the same, and if so, discaard the entity
-            if ((thing == "District") && (inWhichDistrict != ""))
-                    thing = "";
-            if ((thing == "Programme") && (inWhichProgramme != ""))
+            string thing = GetEntityValue("EntityType", "", result); // We don't want to persist it yet
+
+            if (((thing == "District") && (inWhichDistrict != "")) || ((thing == "Programme") && (inWhichProgramme != "")) || ((thing == "Facility") && (inWhichFacility != "")))
                 thing = "";
-            if ((thing == "Facility") && (inWhichFacility != ""))
-                thing = "";
+
             if (thing == "")
-            {
-                if (lastEntityBeingDiscussed == "")
-                {
-                    thing = "District";
-                    lastEntityBeingDiscussed = lastDistrict;
-                }
-                else
-                    thing = lastEntityBeingDiscussed;
-            }
+                thing = _botManager.Memory.GetFieldValueWithEntityUpdate("lastEntityBeingDiscussed", "District", out foundInLUIS);
             else
-                lastEntityBeingDiscussed = thing;
+                _botManager.Memory.SetFieldValue("lastEntityBeingDiscussed", thing);
 
             // Number of entities
-            string number = GetEntityValue("Number", "", result);
-            if (number != "")
+            string number = "";
+            numberElements = Convert.ToInt32(numberEntities);
+            if (numberElements != 1)
             { 
-                lastNumberEntities = number;
-                numberElements = Convert.ToInt32(number);
-                if (numberElements == 1)
-                    number = "";
-                else
-                    if (numberElements <= unitsMap.Length)
-                        number = unitsMap[numberElements];
+                if (numberElements <= unitsMap.Length)
+                    number = unitsMap[numberElements];
                 if (numberElements > 1)
                 { 
                     numberPlural = "s";
                     numberIsAre = "are";
                 }
-
-
              }
 
             // Indicator
 
             string indicatorDescription = "";
             if (whichIndicator != "")
-            {
                 indicatorDescription = $" on {whichIndicator} ";
-                lastIndicator = whichIndicator;
-            }
-            else
-                whichIndicator = lastIndicator;
+
 
             string outputAnswer = "";
             PerformanceDBQuery queryEngine = new PerformanceDBQuery();
@@ -323,54 +319,27 @@ namespace LuisBot.Dialogs
                 case "District":
                     // District, we need to know the Program
                     if (inWhichProgramme == "")
-                    {
-                        if (lastProgramme == "")
-                            outputAnswer = $"To list the {topBottom} districts{numberPlural}, I need to know which program you are referring to? You can also ask for a list of programs.";
-                        else
-                            inWhichProgramme = lastProgramme;
-                    }
+                        outputAnswer = $"To list the {topBottom} districts{numberPlural}, I need to know which program you are referring to? You can also ask for a list of programs.";
                     else
-                        lastProgramme = inWhichProgramme; // Be responsible;
+                    {
+                        string listOf = queryEngine.GetBestWorstDistrictAsString(inWhichProgramme, true, isTop, numberElements);
+                        outputAnswer = $"The {topBottom} {number} district{numberPlural} for {inWhichProgramme} {indicatorDescription}over {term} {numberIsAre} {listOf}";
+                    }
 
-                    string listOf = queryEngine.GetBestWorstDistrictAsString(inWhichProgramme, true, isTop, numberElements);
-                    outputAnswer = $"The {topBottom} {number} district{numberPlural} for {inWhichProgramme} {indicatorDescription}over {term} {numberIsAre} {listOf}";
                     break;
                 case "Facility":
                     // Facility, we need to know the District
                     if (inWhichDistrict == "")
-                    {
-                        if (lastDistrict != "")
-                            inWhichDistrict = lastDistrict;
-                        else
-                            return "To show you this, I need you to narrow it down to a district. You can also ask me to list the districts. ";
-                    }
+                        outputAnswer = "To show you this, I need you to narrow it down to a district. You can also ask me to list the districts. ";
                     else
-                        lastDistrict = inWhichDistrict; // Be responsible;
+                    {
+                        outputAnswer = $"The {topBottom} {number} facilitie{numberPlural} {indicatorDescription}over {term} for {inWhichDistrict} {numberIsAre} X, Y, Z";
+                    }
 
-                    outputAnswer = $"The {topBottom} {number} facilitie{numberPlural} {indicatorDescription}over {term} for {inWhichDistrict} {numberIsAre} X, Y, Z";
+
                     break;
                 case "Indicator":
-                    // Indicator can be for program, district or facility
-                    if ((inWhichFacility == "") && (inWhichProgramme == "") && (inWhichDistrict == ""))
-                    {
-                        // Try to re-hydrate from saved, going from programme to district to facility
-                        if (lastProgramme != "")
-                            inWhichProgramme = lastProgramme;
-                        else if (lastDistrict != "")
-                            inWhichDistrict = lastDistrict;
-                        else if (lastFacility != "")
-                            inWhichFacility = lastFacility;
-                    }
-                    else
-                    {
-                        // Need to hydrate
-                        if (inWhichProgramme != "")
-                            lastProgramme = inWhichProgramme;
-                        else if (inWhichDistrict != "")
-                            lastDistrict = inWhichDistrict;
-                        else if (inWhichFacility != "")
-                            lastFacility = inWhichFacility;
-                    }
+
                     // Check again
                     if ((inWhichFacility == "") && (inWhichProgramme == "") && (inWhichDistrict == ""))
                         return $"To show you the {topBottom} indicator{numberPlural}, I need to know which facility, district or program you want to see the indicators for. You can also ask me to list the facilities, districts and indicators.";
@@ -464,9 +433,12 @@ namespace LuisBot.Dialogs
         {
             //check if they passed params through
             //this.lastdate = GetEntityValue("builtin.datetimeV2.daterange", this.lastdate, result);
-            this.lastTerm = GetEntityValue("Term", this.lastTerm, result);
+            bool foundInLUIS;
+            string lastTermPerformance = _botManager.Memory.GetFieldValueWithEntityUpdate("lastTerm","Term",result, out foundInLUIS);
             this.lastIntent = "PerformanceAgainstTarget";
-            this.lastIndicator= GetEntityValue("Indicator", this.lastIndicator, result);
+            string lastIndicatorPerformance = _botManager.Memory.GetFieldValueWithEntityUpdate("lastIndicator", "Indicator", result, out foundInLUIS);
+            string lastDistrictPerformance = _botManager.Memory.GetFieldValueWithEntityUpdate("lastDistrict", "District", result, out foundInLUIS);
+            string lastProgrammePerformance = _botManager.Memory.GetFieldValueWithEntityUpdate("lastProgramme", "Programme", result, out foundInLUIS);
 
             //Build up a string describing performance:
             const string TOKEN_DISTRICT = "[district/prog]";
@@ -482,17 +454,17 @@ namespace LuisBot.Dialogs
             //if (this.lastProgramme == "All Programmes")
 
             //determine if it's a single indicator or a list
-            bool allIndicators = (lastIndicator.ToLower() == "all indicators");
+            bool allIndicators = (lastIndicatorPerformance.ToLower() == "all indicators");
             PerformanceType performanceType;
 
             //get the term
-            fullOutput = fullOutput.Replace("[term]", lastTerm);
+            fullOutput = fullOutput.Replace("[term]", _botManager.Memory["lastTerm"]);
 
             //get the indicator
-            if (lastIndicator == "All indicators")
+            if (lastIndicatorPerformance == "All indicators")
                 fullOutput = fullOutput.Replace("[indicator]", "");
             else
-                fullOutput = fullOutput.Replace("[indicator]", "**" + lastIndicator + "** ");
+                fullOutput = fullOutput.Replace("[indicator]", "**" + lastIndicatorPerformance + "** ");
 
             //Get the district or program
             fullOutput = fullOutput.Replace(TOKEN_DISTRICT, GetDistrictProgramme(result));
@@ -500,24 +472,24 @@ namespace LuisBot.Dialogs
             //generate the performance reposnse
             string performance;
             PerformanceDBQuery query = new PerformanceDBQuery();
-            if (lastDistrict == "")
+            if (lastDistrictPerformance == "")
             {
                 performanceType = PerformanceType.Program;
                 //get performance for the program
-                if (lastIndicator.ToLower() == "all indicators")
-                    performance = query.GetProgramPerformanceAsString(lastProgramme, (lastTerm == "Annual"), true);
+                if (lastIndicatorPerformance.ToLower() == "all indicators")
+                    performance = query.GetProgramPerformanceAsString(lastProgrammePerformance, (lastTermPerformance == "Annual"), true);
                 else
-                    performance = query.GetProgramPerformanceAsString(lastProgramme, (lastTerm == "Annual"), true,lastIndicator);
+                    performance = query.GetProgramPerformanceAsString(lastProgrammePerformance, (lastTermPerformance == "Annual"), true, lastIndicatorPerformance);
                 
             }
             else
             {
                 performanceType = PerformanceType.District;
                 //get performance for the district
-                if (lastIndicator.ToLower() == "all indicators")
-                    performance = query.GetDistrictPerformanceAsString(lastDistrict, (lastTerm == "Annual"), true);
+                if (lastIndicatorPerformance.ToLower() == "all indicators")
+                    performance = query.GetDistrictPerformanceAsString(lastDistrictPerformance, (lastTermPerformance == "Annual"), true);
                 else
-                    performance = query.GetDistrictPerformanceAsString(lastDistrict, (lastTerm == "Annual"), true, lastIndicator);
+                    performance = query.GetDistrictPerformanceAsString(lastDistrictPerformance, (lastTermPerformance == "Annual"), true, lastIndicatorPerformance);
                 //performance = $"{actual} against a target of {target} which is {percentTarget}% of target";
 
             }
@@ -535,7 +507,7 @@ namespace LuisBot.Dialogs
             if (allIndicators && (ConfigurationManager.AppSettings["DisplayCard"] == "true"))
             {
                 Intents.PerformanceIntentHandler perfHandler = new Intents.PerformanceIntentHandler();
-                Attachment card = await perfHandler.ShowPerformanceCard(context, lastProgramme, lastDistrict,lastTerm,performanceType);
+                Attachment card = await perfHandler.ShowPerformanceCard(context, lastProgrammePerformance, lastDistrictPerformance,lastTermPerformance ,performanceType);
                 var reply = context.MakeMessage();
                 reply.Attachments.Add(card);
                 await context.PostAsync(reply);
@@ -571,7 +543,7 @@ namespace LuisBot.Dialogs
         {
             //get a list of districts 
             EntitiesDBQuery query = new EntitiesDBQuery();
-            string districts = query.GetListOfDistrictsAsString(lastProgramme);
+            string districts = query.GetListOfDistrictsAsString(_botManager.Memory["lastProgramme"]);
 #if UseBotManager
             return $"I can give you the performance of the {districts} districts. Alternatively, you can request the performance of all districts or a specific programme.";
 #else
@@ -611,22 +583,22 @@ namespace LuisBot.Dialogs
 
             if (foundDistrict)
             {
-                lastDistrict = ((LuisStandardEntity)districtEntity).TrueValue;
-                return lastDistrict;
+                _botManager.Memory["lastDistrict"] =  ((LuisStandardEntity)districtEntity).TrueValue;
+                return _botManager.Memory["lastDistrict"];
             }
             else if (foundProgram)
             {
-                lastProgramme = ((LuisStandardEntity)programEntity).TrueValue;
-                lastDistrict = "";
-                return lastProgramme;
+                _botManager.Memory["lastProgramme"] = ((LuisStandardEntity)programEntity).TrueValue;
+                _botManager.Memory["lastDistrict"] = "";
+                return _botManager.Memory["lastProgramme"];
             }
-            else if (lastDistrict == "")
+            else if (_botManager.Memory["lastDistrict"] == "")
             {
                 //No district so program
-                return lastProgramme;
+                return _botManager.Memory["lastProgramme"];
             }
             else
-                return lastDistrict;
+                return _botManager.Memory["lastDistrict"];
             
         }
 
@@ -828,20 +800,7 @@ namespace LuisBot.Dialogs
             bool foundIt = result.TryFindEntity(entityName, out entity);
             if (foundIt)
             {
-                //get entity type and original value
-                //if (entity.Type == "builtin.datetimeV2.daterange")
-                //{
-                //    foreach (var vals in entity.Resolution.Values)
-                //    {
-                //        System.Collections.Generic.List<Object> valsAsString = (List<Object>)vals;
-                //        if (((Newtonsoft.Json.Linq.JArray)vals).First.SelectToken("type").ToString() == "daterange")
-                //        {
-                //            var start = (DateTime)((Newtonsoft.Json.Linq.JArray)vals).First.SelectToken("start");
-                //            var end = (DateTime)((Newtonsoft.Json.Linq.JArray)vals).First.SelectToken("end");
-                //        }
-                //    }
-                //}
-                
+               
                 //check on the type and return appropriate value
                 if (entity is LuisStandardEntity)
                 {
