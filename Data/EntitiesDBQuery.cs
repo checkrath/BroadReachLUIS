@@ -140,6 +140,36 @@ namespace LuisBot.Data
             return facilitiesAsString;
         }
 
+        public UserInfo GetUserInfo(string userID)
+        {
+            //get the user from the DB
+            UserInfo userInfo = new UserInfo();
+            using (SqlConnection connection = new SqlConnection(DB_CONN))
+            using (SqlCommand cmd = new SqlCommand("SELECT [UserRefID],[ProgrammeName],[DistrictName]  FROM [dbo].[vw_User] where UserRefID like @UserRefID", connection))
+            {
+                cmd.Parameters.AddWithValue("UserRefID", userID);
+                connection.Open();
+                using (var reader = cmd.ExecuteReader())
+                {
+                    if (reader.HasRows)
+                    {
+                        reader.Read();
+                        //get program and facility
+                        userInfo.DefaultProgram = (reader.IsDBNull(1)) ? "": reader.GetString(1);
+                        userInfo.DefaultFacility = (reader.IsDBNull(2)) ? "" : reader.GetString(2);
+                    }
+                    else
+                    {
+                        //if no user then default to all programs and all districts
+                        userInfo.DefaultFacility = "";
+                        userInfo.DefaultProgram = "";
+                    }
+                }
+            }
+
+            return userInfo;
+
+        }
 
     }
 }
