@@ -12,6 +12,7 @@ using System.Web.Script.Serialization;
 
 namespace LuisBot
 {
+    #region Attributes
     [Serializable]
     public class ConvElement : Attribute
     {
@@ -32,6 +33,8 @@ namespace LuisBot
         }
         public string Value { get { return _intentAttrName; } }
     }
+    #endregion
+
     [Serializable]
     public class BotManager
     {
@@ -83,6 +86,7 @@ namespace LuisBot
         }
         #endregion
 
+        private BotMemory _memory;
         /// <summary>
         /// Description of the bot, in JSON
         /// </summary>
@@ -131,7 +135,17 @@ namespace LuisBot
             _noneEventMethodName = noneEventMethodName;
 
             _conversationFlow = "";
+
+            // Initialize Memory
+            _memory = new BotMemory();
         }
+
+        #region Memory Area
+        public BotMemory Memory
+        {
+            get { return _memory; }
+        }
+        #endregion
 
         public async Task<List<LuisBot.LuisHelper.LuisFullResult>> ExecuteQuery(string query, IDialogContext context, IAwaitable<IMessageActivity> message)
         {

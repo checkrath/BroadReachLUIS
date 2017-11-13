@@ -67,6 +67,26 @@ namespace LuisBot.LuisHelper
             return false;
         }
 
+        public string GetEntityValue(string entityName, string defaultVal)
+        {
+            LuisEntity entity;
+            //get params
+            bool foundIt = TryFindEntity(entityName, out entity);
+            if (foundIt)
+            {
+
+                //check on the type and return appropriate value
+                if (entity is LuisStandardEntity)
+                {
+                    return ((LuisStandardEntity)entity).TrueValue;
+                }
+                else
+                    return entity.Value;
+            }
+            else
+                return defaultVal;
+        }
+
     }
 
     public class LuisIntent
