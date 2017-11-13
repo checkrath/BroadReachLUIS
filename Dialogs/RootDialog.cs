@@ -53,6 +53,34 @@ namespace LuisBot.Dialogs
 
             // Start the Bot Manager
             _botManager = new BotManager("BotConfiguration.json",this, "NoneIntent");
+
+            // Extract the username and userid
+            //Get the username
+            if (context.Activity.From.Id != null)
+            {
+                userId = context.Activity.From.Id;
+                username = context.Activity.From.Name;
+            }
+            else
+            {
+                userId = "Anonymous";
+                username = "Unknown User";
+            }
+
+            // Do the defaults - hard-code for now
+            switch (userId)
+            {
+                case "29:1m7tKLruT83A7deu1eAKk3wjXs6DMPS8Ypl61jnFhpZA":
+                    lastProgramme = "RAD";
+                    break;
+                case "29:1DjfA6tW52VZga3DTUNW6HbGNzXnjSlR_pSSzCbdB-tc":
+                    lastProgramme = "Comprehensive";
+                    lastDistrict = "Ugu";
+                    break;
+                default:
+                    lastProgramme = "All Programmes";
+                    break;
+            }
         }
 
         //public async Task FirstReceivedAsync(IDialogContext context, IAwaitable<IMessageActivity> argument)
@@ -679,7 +707,7 @@ namespace LuisBot.Dialogs
             if ((lastHello == null) || DateTime.Now.Subtract(lastHello).Minutes < 2)
                 output = $"Hi again :)";
             else
-                output = $"Hi {username}. If you need some help, just ask for it.";
+                output = $"Hi {userId}. If you need some help, just ask for it.";
 
             lastHello = DateTime.Now;
 
