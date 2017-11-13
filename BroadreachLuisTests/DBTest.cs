@@ -134,6 +134,14 @@ namespace BroadreachLuisTests
             //get worst 2 districts (YTD average)
             list = query.GetBestWorstDistrict("", false, false, 2);
             Assert.IsTrue(list.Count == 2);
+
+            //Get the 2 best performing districts for a specified indicator
+            list = query.GetBestWorstDistrict("", true, true, 2, "HTS_TST");
+            Assert.IsTrue(list.Count == 2);
+
+            //Get the 2 worst YTD performing districts for a specified indicator
+            list = query.GetBestWorstDistrict("", false, false, 3, "HTS_TST");
+            Assert.IsTrue(list.Count == 3);
         }
 
         [TestMethod]

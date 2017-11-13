@@ -87,6 +87,8 @@ namespace LuisBot.Data
             return indicatorList;
         }
 
+
+        
         public List<IndicatorPerformance> GetDistrictPerformance(string districtName, string indicatorName = "", bool best = true, int n = 10, bool sortByAnnual = true)
         {
             string sortField = (sortByAnnual) ? "[PerformanceAgainstTarget]" : "[PerformanceAgainstYTDTarget]";
@@ -180,29 +182,51 @@ namespace LuisBot.Data
         /// <param name="best"></param>
         /// <param name="n"></param>
         /// <returns></returns>
-        public List<string> GetBestWorstDistrict(string programName, bool annual, bool best,int n=1, string whichIndicator = "")
+        public List<string> GetBestWorstDistrict(string programName, bool annual, bool best, int n = 1, string whichIndicator = "")
         {
             //create the query
-            string valField= (annual)? "[aveTargetPerf]" : "[aveYTDPerf]";
-            string ascDesc= (best) ? " desc " : " asc ";
-            string sql = $"select top {n} [DistrictName],{valField} from [dbo].[vw_DistrictsPerformanceSummary] " +
-                $"order by {valField} {ascDesc}" ;
+            string sql;
+            string ascDesc = (best) ? " desc " : " asc ";
+            //Check the type of performance we're filtering on
+            if (whichIndicator == "")
+            { 
+                //best/worst overall performance
+                string valField = (annual) ? "[aveTargetPerf]" : "[aveYTDPerf]";
+                sql = $"select top {n} [DistrictName],{valField} from [dbo].[vw_DistrictsPerformanceSummary] " +
+                    $"order by {valField} {ascDesc}";
+            }
+            else
+            {
+                //best/worst performance on an indicator
+                string valField = (annual) ? "[PerformanceAgainstTarget]" : "[PerformanceAgainstYTDTarget]";
+                sql = $"SELECT top ({n}) [DistrictName],[Value],[PerformanceAgainstTarget] FROM[dbo].[vw_DistrictsPerformance] " +
+                    "where IndicatorName like @IndicatorName " +
+                    $"order by {valField} {ascDesc}";
+            }
 
             //Execute the query
             List<string> districtList = new List<string>();
             using (SqlConnection connection = new SqlConnection(DB_CONN))
             using (SqlCommand cmd = new SqlCommand(sql, connection))
             {
-                //cmd.Parameters.AddWithValue("DistrictName", districtName);
-                connection.Open();
+                if (whichIndicator != "") cmd.Parameters.AddWithValue("IndicatorName", whichIndicator);
+                        connection.Open();
                 using (var reader = cmd.ExecuteReader())
                 {
                     if (reader.HasRows)
                         while (reader.Read())
                         {
                             //create the output string
-                            string districtText = reader.GetString(0) + ": " +
-                                ((float)reader.GetDouble(1) * 100).ToString("0.00") + "%" ;
+                            string districtText = reader.GetString(0) + ": ";
+                            if (whichIndicator == "")
+                            {
+                                districtText += ((float)reader.GetDouble(1) * 100).ToString("0.00") + "%";
+                            }
+                            else
+                            {
+                                districtText += ((float)reader.GetDouble(1)).ToString() + 
+                                    $" ({((float)reader.GetDouble(2) * 100).ToString("0.00")}%)";
+                            }
                             districtList.Add(districtText);
                         }
                 }
