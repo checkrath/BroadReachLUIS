@@ -25,6 +25,22 @@ namespace BroadreachLuisTests
 
         }
 
+        [TestMethod]
+        public void DB_GetUser()
+        {
+            //get a user from the DB
+            EntitiesDBQuery query = new EntitiesDBQuery();
+            UserInfo userInfo;
+            //get a known user
+            userInfo = query.GetUserInfo("Test",new UserInfo { DefaultProgram = "All Programs" });
+            Assert.IsTrue(userInfo.DefaultProgram!= "All Programs");
+            Assert.IsTrue(userInfo.DefaultProgram.Length>1);
+            //get an unknown user
+            userInfo = query.GetUserInfo("Blah", new UserInfo { DefaultProgram = "All Programs" });
+            Assert.IsTrue(userInfo.DefaultProgram== "All Programs");
+
+        }
+
 
         [TestMethod]
         public void DB_Get_Indicator_perfromance_for_program()
@@ -118,9 +134,6 @@ namespace BroadreachLuisTests
             //get worst 2 districts (YTD average)
             list = query.GetBestWorstDistrict("", false, false, 2);
             Assert.IsTrue(list.Count == 2);
-
-
-
         }
 
         [TestMethod]

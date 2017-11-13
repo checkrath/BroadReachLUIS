@@ -141,5 +141,43 @@ namespace LuisBot.Data
         }
 
 
+        /// <summary>
+        /// Will return the user info for a user. 
+        /// If parameters aren't set (e.g. program is null), it will use the passed defaults. 
+        /// </summary>
+        /// <param name="userID"></param>
+        /// <param name="defaultUserInfo"></param>
+        /// <returns></returns>
+        public UserInfo GetUserInfo(string userID, UserInfo defaultUserInfo)
+        {
+            //get the user from the DB
+            UserInfo userInfo = new UserInfo();
+            using (SqlConnection connection = new SqlConnection(DB_CONN))
+            using (SqlCommand cmd = new SqlCommand("SELECT [UserRefID],[ProgrammeName],[DistrictName]  FROM [dbo].[vw_User] where UserRefID like @UserRefID", connection))
+            {
+                cmd.Parameters.AddWithValue("UserRefID", userID);
+                connection.Open();
+                using (var reader = cmd.ExecuteReader())
+                {
+                    if (reader.HasRows)
+                    {
+                        reader.Read();
+                        //get program and facility
+                        userInfo.DefaultProgram = (reader.IsDBNull(1)) ? defaultUserInfo.DefaultProgram : reader.GetString(1);
+                        userInfo.DefaultFacility = (reader.IsDBNull(2)) ? defaultUserInfo.DefaultFacility : reader.GetString(2);
+                    }
+                    else
+                    {
+                        //if no user then default to all programs and all districts
+                        userInfo.DefaultFacility = defaultUserInfo.DefaultFacility;
+                        userInfo.DefaultProgram = defaultUserInfo.DefaultProgram;
+                    }
+                }
+            }
+
+            return userInfo;
+
+        }
+
     }
 }

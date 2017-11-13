@@ -14,4 +14,11 @@ namespace LuisBot.Data
         public float TargetPercentage;
         public float YTDPercentage;
     }
+
+
+    public class UserInfo
+    {
+        public string DefaultProgram="";
+        public string DefaultFacility="";
+    }
 }
