@@ -18,7 +18,7 @@ namespace LuisBot.Data
 
     public class UserInfo
     {
-        public string DefaultProgram;
-        public string DefaultFacility;
+        public string DefaultProgram="";
+        public string DefaultFacility="";
     }
 }

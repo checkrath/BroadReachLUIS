@@ -32,13 +32,12 @@ namespace BroadreachLuisTests
             EntitiesDBQuery query = new EntitiesDBQuery();
             UserInfo userInfo;
             //get a known user
-            userInfo = query.GetUserInfo("Test");
-            Assert.IsTrue(userInfo.DefaultProgram.Length > 1);
+            userInfo = query.GetUserInfo("Test",new UserInfo { DefaultProgram = "All Programs" });
+            Assert.IsTrue(userInfo.DefaultProgram!= "All Programs");
+            Assert.IsTrue(userInfo.DefaultProgram.Length>1);
             //get an unknown user
-            userInfo = query.GetUserInfo("Blah");
-            Assert.IsTrue(userInfo.DefaultProgram=="");
-
-
+            userInfo = query.GetUserInfo("Blah", new UserInfo { DefaultProgram = "All Programs" });
+            Assert.IsTrue(userInfo.DefaultProgram== "All Programs");
 
         }
 

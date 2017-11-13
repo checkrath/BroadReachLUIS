@@ -140,7 +140,15 @@ namespace LuisBot.Data
             return facilitiesAsString;
         }
 
-        public UserInfo GetUserInfo(string userID)
+
+        /// <summary>
+        /// Will return the user info for a user. 
+        /// If parameters aren't set (e.g. program is null), it will use the passed defaults. 
+        /// </summary>
+        /// <param name="userID"></param>
+        /// <param name="defaultUserInfo"></param>
+        /// <returns></returns>
+        public UserInfo GetUserInfo(string userID, UserInfo defaultUserInfo)
         {
             //get the user from the DB
             UserInfo userInfo = new UserInfo();
@@ -155,14 +163,14 @@ namespace LuisBot.Data
                     {
                         reader.Read();
                         //get program and facility
-                        userInfo.DefaultProgram = (reader.IsDBNull(1)) ? "": reader.GetString(1);
-                        userInfo.DefaultFacility = (reader.IsDBNull(2)) ? "" : reader.GetString(2);
+                        userInfo.DefaultProgram = (reader.IsDBNull(1)) ? defaultUserInfo.DefaultProgram : reader.GetString(1);
+                        userInfo.DefaultFacility = (reader.IsDBNull(2)) ? defaultUserInfo.DefaultFacility : reader.GetString(2);
                     }
                     else
                     {
                         //if no user then default to all programs and all districts
-                        userInfo.DefaultFacility = "";
-                        userInfo.DefaultProgram = "";
+                        userInfo.DefaultFacility = defaultUserInfo.DefaultFacility;
+                        userInfo.DefaultProgram = defaultUserInfo.DefaultProgram;
                     }
                 }
             }
