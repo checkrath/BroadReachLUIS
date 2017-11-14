@@ -689,7 +689,12 @@ namespace LuisBot.Dialogs
             if ((lastHello == null) || DateTime.Now.Subtract(lastHello).Minutes < 2)
                 output = $"Hi again :)";
             else
-                output = $"Hi {userId}. If you need some help, just ask for it.";
+            {
+                string userNameDisplay = "";
+                if (!String.IsNullOrEmpty(username))
+                    userNameDisplay = $" {username}";
+                output = $"Hi{userNameDisplay}. If you need some help, just ask for it.";
+            }
 
             lastHello = DateTime.Now;
 
