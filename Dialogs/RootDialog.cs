@@ -68,31 +68,37 @@ namespace LuisBot.Dialogs
             }
 
 
+            //// Do the defaults - hard-code for now
+            //switch (userId)
+            //{
+            //    case "29:1m7tKLruT83A7deu1eAKk3wjXs6DMPS8Ypl61jnFhpZA":
+            //        _botManager.Memory["lastProgramme"] = "RAD";
+            //        break;
+            //    case "29:1DjfA6tW52VZga3DTUNW6HbGNzXnjSlR_pSSzCbdB-tc":
+            //        _botManager.Memory["lastProgramme"] = "Comprehensive";
+            //        _botManager.Memory["lastDistrict"] = "Ugu";
+            //        break;
+            //    default:
+            //        _botManager.Memory["lastProgramme"] = "All Programmes";
+            //        break;
+            //}
+
+            UserInfo us = new UserInfo();
+            us.DefaultFacility = "";
+            us.DefaultProgram = "All Programmes";
+            EntitiesDBQuery db = new EntitiesDBQuery();
+            UserInfo outInfo = db.GetUserInfo(userId, us);
+
             // Populate the memory
             _botManager.Memory.CreateField("lastdate", "2017");
-            _botManager.Memory.CreateField("lastProgramme", "All Programmes");
+            _botManager.Memory.CreateField("lastProgramme", outInfo.DefaultProgram);
             _botManager.Memory.CreateField("lastCountry", "Worldwide");
             _botManager.Memory.CreateField("lastDistrict", "");
-            _botManager.Memory.CreateField("lastFacility", "");
+            _botManager.Memory.CreateField("lastFacility", outInfo.DefaultFacility);
             _botManager.Memory.CreateField("lastIndicator", "All indicators");
             _botManager.Memory.CreateField("lastTerm", "Annual");
             _botManager.Memory.CreateField("lastNumberEntities", "1");
             _botManager.Memory.CreateField("lastEntityBeingDiscussed", "");
-
-            // Do the defaults - hard-code for now
-            switch (userId)
-            {
-                case "29:1m7tKLruT83A7deu1eAKk3wjXs6DMPS8Ypl61jnFhpZA":
-                    _botManager.Memory["lastProgramme"] = "RAD";
-                    break;
-                case "29:1DjfA6tW52VZga3DTUNW6HbGNzXnjSlR_pSSzCbdB-tc":
-                    _botManager.Memory["lastProgramme"] = "Comprehensive";
-                    _botManager.Memory["lastDistrict"] ="Ugu";
-                    break;
-                default:
-                    _botManager.Memory["lastProgramme"] ="All Programmes";
-                    break;
-            }
 
         }
 
