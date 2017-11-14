@@ -503,6 +503,10 @@ namespace LuisBot.Dialogs
             else
                 fullOutput = fullOutput.Replace("[note]", "");
 
+            //Add link to RAD program. 
+            if (lastProgrammePerformance.ToLower() == "rad")
+                fullOutput += "\n\nFor more information on RAD, visit https://tinyurl.com/ya8sp8qu";
+
             //Display a card  todo: this is also calling 
             if (allIndicators && (ConfigurationManager.AppSettings["DisplayCard"] == "true"))
             {
