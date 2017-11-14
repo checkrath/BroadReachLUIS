@@ -787,11 +787,13 @@ namespace LuisBot.Dialogs
         {
             string output = "";
             output += $"Can certainly help...\n\n\n\n";
-            output += _botManager.GetCurrentHelpString();
+
 
 #if UseBotManager
+            output += _botManager.GetCurrentHelpString();
             return output;
 #else
+            output += "Welcome to the BroadReach bot.I can answer questions on your performance or business indicators for specific programmes or districts.Ensure your questions relate to districts, programs and indicators in our database.\n\n I can also answer general questions about Broadreach and our offerings.\n\n Try: 'What is the Ugu district performance for 2017?'\n\n";
             await context.PostAsync(output);
             return "";
 #endif
