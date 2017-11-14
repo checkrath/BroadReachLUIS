@@ -328,7 +328,7 @@ namespace LuisBot.Dialogs
                         outputAnswer = $"To list the {topBottom} districts{numberPlural}, I need to know which program you are referring to? You can also ask for a list of programs.";
                     else
                     {
-                        string listOf = queryEngine.GetBestWorstDistrictAsString(inWhichProgramme, true, isTop, numberElements);
+                        string listOf = queryEngine.GetBestWorstDistrictAsString(inWhichProgramme, true, isTop, numberElements,( whichIndicator.ToLower() == "all indicators"?"": whichIndicator));
                         outputAnswer = $"The {topBottom} {number} district{numberPlural} for {inWhichProgramme} {indicatorDescription}over {term} {numberIsAre} {listOf}";
                     }
 
