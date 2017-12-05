@@ -324,7 +324,7 @@ namespace LuisBot.Dialogs
                     else
                         lastProgramme = inWhichProgramme; // Be responsible;
 
-                    string listOf = queryEngine.GetBestWorstDistrictAsString(inWhichProgramme, true, isTop, numberElements);
+                    string listOf = queryEngine.GetBestWorstDistrictAsString(inWhichProgramme, true, isTop, numberElements, (whichIndicator.ToLower() == "all indicators" ? "" : whichIndicator));
                     outputAnswer = $"The {topBottom} {number} district{numberPlural} for {inWhichProgramme} {indicatorDescription}over {term} {numberIsAre} {listOf}";
                     break;
                 case "Facility":
@@ -523,6 +523,12 @@ namespace LuisBot.Dialogs
             else
                 fullOutput = fullOutput.Replace("[note]", "");
 
+            //Add link to RAD program. 
+            if (lastProgramme.ToLower() == "rad")
+                fullOutput += "\n\nFor more information on RAD, visit https://tinyurl.com/ya8sp8qu";
+
+
+
             //Display a card  todo: this is also calling 
             if (allIndicators && (ConfigurationManager.AppSettings["DisplayCard"] == "true"))
             {
@@ -699,7 +705,7 @@ namespace LuisBot.Dialogs
             if ((lastHello == null) || DateTime.Now.Subtract(lastHello).Minutes < 2)
                 output = $"Hi again :)";
             else
-                output = $"Hi {userId}. If you need some help, just ask for it.";
+                output = $"Hi {username}. If you need some help, just ask for it.";
 
             lastHello = DateTime.Now;
 
