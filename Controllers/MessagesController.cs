@@ -15,7 +15,7 @@ namespace Microsoft.Bot.Sample.LuisBot
     public class MessagesController : ApiController
     {
 
-        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly log4net.ILog log = log4net.LogManager.GetLogger("SleepyCore");
 
         /// <summary>
         /// POST: api/Messages
@@ -25,7 +25,7 @@ namespace Microsoft.Bot.Sample.LuisBot
         [ResponseType(typeof(void))]
         public virtual async Task<HttpResponseMessage> Post([FromBody] Activity activity)
         {
-            // check if activity is of type message
+            // check if activity is of type message            
             
 
             if (activity.GetActivityType() == ActivityTypes.Message)
@@ -34,7 +34,7 @@ namespace Microsoft.Bot.Sample.LuisBot
                 //var luisDialog = new BasicLuisDialog();
                 //await Conversation.SendAsync(activity, () => new BasicLuisDialog());
                 //RootDialog rootDialog = new RootDialog();
-                log.Debug("about to send message");
+                log.Info("about to send message" + DateTime.Now.ToShortTimeString());
                 if (activity.From.Id!= activity.Recipient.Id)
                     await Conversation.SendAsync(activity, () => new RootDialog());
                 log.Debug("Out of root dialog");
