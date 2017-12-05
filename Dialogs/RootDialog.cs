@@ -37,11 +37,11 @@ namespace LuisBot.Dialogs
         public string lastEntityBeingDiscussed = "";
         public string username;
         public string userId;
-        public HappinessTracker happinessTracker;
+        //public HappinessTracker happinessTracker;
         public bool getRating=false;
 
         // Bot Manager
-        public BotManager _botManager;
+        //public BotManager _botManager;
 
         public async Task StartAsync(IDialogContext context)
         {
@@ -49,11 +49,34 @@ namespace LuisBot.Dialogs
             //await Greeting_Hello_Intent(context);
             context.Wait(MessageReceivedAsync); // State transition: wait for user to start conversation
 
-            happinessTracker = new HappinessTracker();
+            //happinessTracker = new HappinessTracker();
 
             // Start the Bot Manager
-            _botManager = new BotManager("BotConfiguration.json",this, "NoneIntent");
+            //_botManager = new BotManager("BotConfiguration.json",this, "NoneIntent");
 
+            
+        }
+
+        //public async Task FirstReceivedAsync(IDialogContext context, IAwaitable<IMessageActivity> argument)
+        //{
+        //    await context.PostAsync("Welcome to the BroadReach bot.");
+        //    await context.PostAsync($"I can answer questions on your performance or business indicators for specific programmes or districts. Ensure your questions relate to districts, programs and indicators in our database.");
+        //    await context.PostAsync($"I can also answer general questions about Broadreach and our offerings.");
+        //    await context.PostAsync($"Try: \"What is the Ugu district performance for 2017?\"");
+
+        //}
+
+        public async Task MessageReceivedAsync(IDialogContext context, IAwaitable<IMessageActivity> argument)
+        {
+            //await context.UserData.
+
+            //Get the user input
+            string textIn = (await argument).Text;
+
+#if UseBotManager
+            List<LuisFullResult> results = await _botManager.ExecuteQuery(textIn, context, argument);
+
+#else
             // Extract the username and userid
             //Get the username
             if (context.Activity.From.Id != null)
@@ -81,37 +104,6 @@ namespace LuisBot.Dialogs
                     lastProgramme = "All Programmes";
                     break;
             }
-        }
-
-        //public async Task FirstReceivedAsync(IDialogContext context, IAwaitable<IMessageActivity> argument)
-        //{
-        //    await context.PostAsync("Welcome to the BroadReach bot.");
-        //    await context.PostAsync($"I can answer questions on your performance or business indicators for specific programmes or districts. Ensure your questions relate to districts, programs and indicators in our database.");
-        //    await context.PostAsync($"I can also answer general questions about Broadreach and our offerings.");
-        //    await context.PostAsync($"Try: \"What is the Ugu district performance for 2017?\"");
-
-        //}
-
-        public async Task MessageReceivedAsync(IDialogContext context, IAwaitable<IMessageActivity> argument)
-        {
-            //Get the user input
-            string textIn = (await argument).Text;
-
-#if UseBotManager
-            List<LuisFullResult> results = await _botManager.ExecuteQuery(textIn, context, argument);
-
-#else
-            //Get the username
-            if (context.Activity.From.Id != null)
-            {
-                userId = context.Activity.From.Id;
-                username= context.Activity.From.Name;
-            }
-            else
-            {
-                userId = "Anonymous";
-                username = "Unknown User";
-            }
 
             //await context.PostAsync($"You said:{textIn}");
             //call LUIS for a reponse
@@ -124,13 +116,13 @@ namespace LuisBot.Dialogs
             //call intent method based on LUIS intent
             await CallCorrectMethodFromLuisResponse(luisOutput, context, argument);
 
-            //If the user is unhappy and they haven't already asked for help, check on them
-            if (luisOutput.TopIntent.Name != "Help" && this.happinessTracker.RatingsCount > 3 
-                && this.happinessTracker.AverageRating < 0 && this.happinessTracker.LastRating<0)
-            {
-                await context.PostAsync("Seriously, feel free to ask for help");
-                this.happinessTracker.ResetRatings();
-            }
+            ////If the user is unhappy and they haven't already asked for help, check on them
+            //if (luisOutput.TopIntent.Name != "Help" && this.happinessTracker.RatingsCount > 3 
+            //    && this.happinessTracker.AverageRating < 0 && this.happinessTracker.LastRating<0)
+            //{
+            //    await context.PostAsync("Seriously, feel free to ask for help");
+            //    this.happinessTracker.ResetRatings();
+            //}
 
 #endif
             try
@@ -158,43 +150,43 @@ namespace LuisBot.Dialogs
             {
                 case "ChangeParameter":
                     await ChangeParameter_Intent(context, argument, luisOutput, null);
-                    this.happinessTracker.AddRating(5);
+                    //this.happinessTracker.AddRating(5);
                     break;
                 case "PerformanceAgainstTarget":
                     await PerformanceAgainstTarget_Intent(context, argument, luisOutput, null);
-                    this.happinessTracker.AddRating(5);
+                    //this.happinessTracker.AddRating(5);
                     break;
                 case "ListDistricts":
                     await ListDistricts_Intent(context, argument, luisOutput, null);
-                    this.happinessTracker.AddRating(0);
+                    //this.happinessTracker.AddRating(0);
                     break;
                 case "ListIndicators":
                     await ListIndicators_Intent(context, argument, luisOutput, null);
-                    this.happinessTracker.AddRating(0);
+                    //this.happinessTracker.AddRating(0);
                     break;
                 case "ListPrograms":
                     await ListPrograms_Intent(context, argument, luisOutput, null);
-                    this.happinessTracker.AddRating(0);
+                    //this.happinessTracker.AddRating(0);
                     break;
                 case "Greeting_Hello":
                     await Greeting_Hello_Intent(context, argument, luisOutput, null);
-                    this.happinessTracker.AddRating(0);
+                    //this.happinessTracker.AddRating(0);
                     break;
                 case "Greeting_bye":
                     await Greeting_bye_Intent(context, argument, luisOutput, null);
-                    this.happinessTracker.AddRating(-1);
+                    //this.happinessTracker.AddRating(-1);
                     break;
                 case "Human":
                     await Human_Intent(context, argument, luisOutput, null);
-                    this.happinessTracker.AddRating(-3);
+                    //this.happinessTracker.AddRating(-3);
                     break;
                 case "Help":
                     await Help_Intent(context, argument, luisOutput, null);
-                    this.happinessTracker.AddRating(-3);
+                    //this.happinessTracker.AddRating(-3);
                     break;
                 case "Thanks":
                     await Thanks_Intent(context, argument, luisOutput, null);
-                    this.happinessTracker.AddRating(5);
+                    //this.happinessTracker.AddRating(5);
                     break;
                 case "None":
                     await NoneIntent(context,argument, luisOutput);
@@ -202,11 +194,11 @@ namespace LuisBot.Dialogs
                     break;
                 case "BestXThings":
                     await BestXThings_Intent(context, argument, luisOutput, null);
-                    this.happinessTracker.AddRating(5);
+                    //this.happinessTracker.AddRating(5);
                     break;
                 case "WorstXThings":
                     await WorstXThings_Intent(context, argument, luisOutput, null);
-                    this.happinessTracker.AddRating(5);
+                    //this.happinessTracker.AddRating(5);
                     break;
                 default:
                     throw new Exception($"Unconfigured intent of: {luisOutput.TopIntent.Name}");
@@ -653,9 +645,9 @@ namespace LuisBot.Dialogs
                 await context.PostAsync($"I can answer questions on your performance or business indicators for specific programmes or districts. Ensure your questions relate to districts, programs and indicators in our database.");
                 await context.PostAsync($"For example: \"What is the Ugu district performance for 2017?\"");
 
-                this.happinessTracker.AddRating(-5);
+                //this.happinessTracker.AddRating(-5);
             }
-            else this.happinessTracker.AddRating(0);
+            //else this.happinessTracker.AddRating(0);
 
 
         }
@@ -800,7 +792,7 @@ namespace LuisBot.Dialogs
         {
             string output = "";
             output += $"Can certainly help...\n\n\n\n";
-            output += _botManager.GetCurrentHelpString();
+            //output += _botManager.GetCurrentHelpString();
 
 #if UseBotManager
             return output;
