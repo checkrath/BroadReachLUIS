@@ -798,6 +798,9 @@ namespace LuisBot.Dialogs
         {
             string output = "";
             output += $"Can certainly help...\n\n\n\n";
+            output += $"I can answer questions on your performance or business indicators for specific programmes or districts. Ensure your questions relate to districts, programs and indicators in our database. \n\n";
+            output += $"I can also answer general questions about Broadreach and our offerings. \n\n";
+            output += $"Try: \"What is the Ugu district performance for 2017?\"";
             //output += _botManager.GetCurrentHelpString();
 
 #if UseBotManager
