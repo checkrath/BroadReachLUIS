@@ -481,7 +481,7 @@ namespace LuisBot.Dialogs
             fullOutput = fullOutput.Replace("[term]", lastTerm);
 
             //get the indicator
-            if (lastIndicator == "All indicators")
+            if (lastIndicator.ToLower() == "all indicators")
                 fullOutput = fullOutput.Replace("[indicator]", "");
             else
                 fullOutput = fullOutput.Replace("[indicator]", "**" + lastIndicator + "** ");
@@ -523,8 +523,10 @@ namespace LuisBot.Dialogs
             else
                 fullOutput = fullOutput.Replace("[note]", "");
 
-            //Add link to RAD program. 
-            if (lastProgramme.ToLower() == "rad")
+            //Add link to sites. 
+            if (lastDistrict.ToLower() =="ugu")
+                fullOutput += "\n\nFor more information on the Ugu district, visit https://demo.broadreachanalytics.ch/#/board/profiles/ugu_profile";
+            else if (lastProgramme.ToLower() == "rad")
                 fullOutput += "\n\nFor more information on RAD, visit https://tinyurl.com/ya8sp8qu";
 
 
