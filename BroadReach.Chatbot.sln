@@ -9,15 +9,20 @@ EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		Preprod|Any CPU = Preprod|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{9C7E3A46-B60F-4052-9A21-DC8D1A942216}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9C7E3A46-B60F-4052-9A21-DC8D1A942216}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C7E3A46-B60F-4052-9A21-DC8D1A942216}.Preprod|Any CPU.ActiveCfg = Preprod|Any CPU
+		{9C7E3A46-B60F-4052-9A21-DC8D1A942216}.Preprod|Any CPU.Build.0 = Preprod|Any CPU
 		{9C7E3A46-B60F-4052-9A21-DC8D1A942216}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9C7E3A46-B60F-4052-9A21-DC8D1A942216}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C8B99DA5-5306-4165-BB38-EFC2035E113E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C8B99DA5-5306-4165-BB38-EFC2035E113E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C8B99DA5-5306-4165-BB38-EFC2035E113E}.Preprod|Any CPU.ActiveCfg = Preprod|Any CPU
+		{C8B99DA5-5306-4165-BB38-EFC2035E113E}.Preprod|Any CPU.Build.0 = Preprod|Any CPU
 		{C8B99DA5-5306-4165-BB38-EFC2035E113E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C8B99DA5-5306-4165-BB38-EFC2035E113E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection

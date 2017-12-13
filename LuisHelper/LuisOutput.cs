@@ -9,6 +9,7 @@ namespace LuisBot.LuisHelper
     /// <summary>
     /// Represents the json result from a LUIS call
     /// </summary>
+    [Serializable]
     public class LuisFullResult
     {
         public LuisIntent TopIntent;
@@ -19,9 +20,11 @@ namespace LuisBot.LuisHelper
 
         public LuisFullResult(string json)
         {
+            //get the intents
             Newtonsoft.Json.Linq.JObject luisOutput = (Newtonsoft.Json.Linq.JObject)JsonConvert.DeserializeObject(json);
 
-            //get the intents
+
+
             Intents = new LuisIntent[luisOutput["intents"].Count()];
             for (int i = 0; i < luisOutput["intents"].Count(); i++)
             {
@@ -40,9 +43,7 @@ namespace LuisBot.LuisHelper
             {
                 LuisEntity luisEntity = LuisEntity.CreateLuisEntityFromJson(luisOutput, i);
                 Entities[i] = luisEntity;
-            }       
-
-
+            }
         }
 
         /// <summary>
@@ -89,6 +90,7 @@ namespace LuisBot.LuisHelper
 
     }
 
+    [Serializable]
     public class LuisIntent
     {
         /// <summary>
@@ -112,6 +114,7 @@ namespace LuisBot.LuisHelper
     /// Represents a LUIS entity
     /// </summary>
     /// <remarks>It's abstract as only fields are relevant to subclasses e.g. date </remarks>
+    [Serializable]
     public abstract class LuisEntity
     {
         /// <summary>
@@ -190,18 +193,18 @@ namespace LuisBot.LuisHelper
 
 
     }
-
+    [Serializable]
     public class LuisStandardEntity:LuisEntity
     {
         public string TrueValue { get; set; }
     }
 
-
+    [Serializable]
     public class LuisNumberEntity : LuisEntity
     {
         public int TrueValue { get; set; }
     }
-
+    [Serializable]
     public class LuisDatetimeEntity : LuisEntity
     {
         public string Timex { get;  }

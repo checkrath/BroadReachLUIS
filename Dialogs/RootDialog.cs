@@ -1,6 +1,4 @@
-﻿//#define UseBotManager
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -19,22 +17,13 @@ using LuisBot.Intents;
 namespace LuisBot.Dialogs
 {
     [Serializable]
-    public class RootDialog : IDialog<object>
+    public class RootDialog : IDialog
     {
 
         DateTime lastHello;
         public string outText;
         public bool isHandled;
-        //public string lastdate = "2017";
-        //public string lastProgramme = "All Programmes";
-        //public string lastCountry = "Worldwide";
-        //public string lastDistrict = "";
-        //public string lastFacility = "";
-        //public string lastIndicator = "All indicators";
         public string lastIntent = "";
-        //public string lastTerm = "Annual";
-        //public string lastNumberEntities = "";
-        //public string lastEntityBeingDiscussed = "";
         public string username;
         public string userId;
         public HappinessTracker happinessTracker;
@@ -68,196 +57,60 @@ namespace LuisBot.Dialogs
             }
 
 
-            //// Do the defaults - hard-code for now
-            //switch (userId)
-            //{
-            //    case "29:1m7tKLruT83A7deu1eAKk3wjXs6DMPS8Ypl61jnFhpZA":
-            //        _botManager.Memory["lastProgramme"] = "RAD";
-            //        break;
-            //    case "29:1DjfA6tW52VZga3DTUNW6HbGNzXnjSlR_pSSzCbdB-tc":
-            //        _botManager.Memory["lastProgramme"] = "Comprehensive";
-            //        _botManager.Memory["lastDistrict"] = "Ugu";
-            //        break;
-            //    default:
-            //        _botManager.Memory["lastProgramme"] = "All Programmes";
-            //        break;
-            //}
-
+            // User Profile Information Management
             UserInfo us = new UserInfo();
             us.DefaultFacility = "";
             us.DefaultProgram = "All Programmes";
             EntitiesDBQuery db = new EntitiesDBQuery();
             UserInfo outInfo = db.GetUserInfo(userId, us);
 
-            // Populate the memory
-            _botManager.Memory.CreateField("lastdate", "2017");
-            _botManager.Memory.CreateField("lastProgramme", outInfo.DefaultProgram);
-            _botManager.Memory.CreateField("lastCountry", "Worldwide");
-            _botManager.Memory.CreateField("lastDistrict", "");
-            _botManager.Memory.CreateField("lastFacility", outInfo.DefaultFacility);
-            _botManager.Memory.CreateField("lastIndicator", "All indicators");
-            _botManager.Memory.CreateField("lastTerm", "Annual");
-            _botManager.Memory.CreateField("lastNumberEntities", "1");
-            _botManager.Memory.CreateField("lastEntityBeingDiscussed", "");
-
         }
 
-        //public async Task FirstReceivedAsync(IDialogContext context, IAwaitable<IMessageActivity> argument)
-        //{
-        //    await context.PostAsync("Welcome to the BroadReach bot.");
-        //    await context.PostAsync($"I can answer questions on your performance or business indicators for specific programmes or districts. Ensure your questions relate to districts, programs and indicators in our database.");
-        //    await context.PostAsync($"I can also answer general questions about Broadreach and our offerings.");
-        //    await context.PostAsync($"Try: \"What is the Ugu district performance for 2017?\"");
-
-        //}
 
         public async Task MessageReceivedAsync(IDialogContext context, IAwaitable<IMessageActivity> argument)
         {
             //Get the user input
             string textIn = (await argument).Text;
 
-#if UseBotManager
-            List<LuisFullResult> results = await _botManager.ExecuteQuery(textIn, context, argument);
+            // Main Execution of query
+            _botManager.ExecuteQuery(textIn, context, argument);
 
-#else
-            //Get the username
-            if (context.Activity.From.Id != null)
-            {
-                userId = context.Activity.From.Id;
-                username= context.Activity.From.Name;
-            }
-            else
-            {
-                userId = "Anonymous";
-                username = "Unknown User";
-            }
+            ////If the user is unhappy and they haven't already asked for help, check on them
+            //if (luisOutput.TopIntent.Name != "Help" && this.happinessTracker.RatingsCount > 3 
+            //    && this.happinessTracker.AverageRating < 0 && this.happinessTracker.LastRating<0)
+            //{
+            //    await context.PostAsync("Seriously, feel free to ask for help");
+            //    this.happinessTracker.ResetRatings();
+            //}
 
-            //await context.PostAsync($"You said:{textIn}");
-            //call LUIS for a reponse
-            string output = await GetJsonFromLUIS(textIn);
-            LuisFullResult luisOutput = new LuisFullResult(output);
-
-            //call get rating if expecting a rating
-            //if (getRating) await GetRating(context, argument);
-
-            //call intent method based on LUIS intent
-            await CallCorrectMethodFromLuisResponse(luisOutput, context, argument);
-
-            //If the user is unhappy and they haven't already asked for help, check on them
-            if (luisOutput.TopIntent.Name != "Help" && this.happinessTracker.RatingsCount > 3 
-                && this.happinessTracker.AverageRating < 0 && this.happinessTracker.LastRating<0)
-            {
-                await context.PostAsync("Seriously, feel free to ask for help");
-                this.happinessTracker.ResetRatings();
-            }
-
-#endif
             try
             {
                 context.Wait(MessageReceivedAsync);
             }
             catch (Exception ex)
             {
-                //TODo: need to handle the above better! Maybe there's a way I can check onth status of the context
+                _botManager.Log($"Exception thrown in MessageReceivedAsync(): {ex.Message}");
+                throw;
             }
             
         }
+        
 
-
-#if UseBotManager
-#else
-        /// <summary>
-        /// Will call the appropriate method based on the LUIS intent. This is the primary flow of the solution
-        /// </summary>
-        /// <param name="luisOutput"></param>
-        /// <returns></returns>
-        private async Task CallCorrectMethodFromLuisResponse(LuisFullResult luisOutput, IDialogContext context, IAwaitable<IMessageActivity> argument)
-        {
-            switch (luisOutput.TopIntent.Name)
-            {
-                case "ChangeParameter":
-                    await ChangeParameter_Intent(context, argument, luisOutput, null);
-                    this.happinessTracker.AddRating(5);
-                    break;
-                case "PerformanceAgainstTarget":
-                    await PerformanceAgainstTarget_Intent(context, argument, luisOutput, null);
-                    this.happinessTracker.AddRating(5);
-                    break;
-                case "ListDistricts":
-                    await ListDistricts_Intent(context, argument, luisOutput, null);
-                    this.happinessTracker.AddRating(0);
-                    break;
-                case "ListIndicators":
-                    await ListIndicators_Intent(context, argument, luisOutput, null);
-                    this.happinessTracker.AddRating(0);
-                    break;
-                case "ListPrograms":
-                    await ListPrograms_Intent(context, argument, luisOutput, null);
-                    this.happinessTracker.AddRating(0);
-                    break;
-                case "Greeting_Hello":
-                    await Greeting_Hello_Intent(context, argument, luisOutput, null);
-                    this.happinessTracker.AddRating(0);
-                    break;
-                case "Greeting_bye":
-                    await Greeting_bye_Intent(context, argument, luisOutput, null);
-                    this.happinessTracker.AddRating(-1);
-                    break;
-                case "Human":
-                    await Human_Intent(context, argument, luisOutput, null);
-                    this.happinessTracker.AddRating(-3);
-                    break;
-                case "Help":
-                    await Help_Intent(context, argument, luisOutput, null);
-                    this.happinessTracker.AddRating(-3);
-                    break;
-                case "Thanks":
-                    await Thanks_Intent(context, argument, luisOutput, null);
-                    this.happinessTracker.AddRating(5);
-                    break;
-                case "None":
-                    await NoneIntent(context,argument, luisOutput);
-                    //happiness tracking in method
-                    break;
-                case "BestXThings":
-                    await BestXThings_Intent(context, argument, luisOutput, null);
-                    this.happinessTracker.AddRating(5);
-                    break;
-                case "WorstXThings":
-                    await WorstXThings_Intent(context, argument, luisOutput, null);
-                    this.happinessTracker.AddRating(5);
-                    break;
-                default:
-                    throw new Exception($"Unconfigured intent of: {luisOutput.TopIntent.Name}");
-
-            }
-
-        }
-#endif
-        #region functionalIntents
+        #region Functional Intents
         [IntentAttribute("BestXThings")]
         public async Task<string> BestXThings_Intent(IDialogContext context, IAwaitable<IMessageActivity> message, LuisFullResult result, LuisIntent intent)
         {
             this.lastIntent = "BestXThings";
             string outputAnswer = TopBottomThings(context, message, result, intent, true);
-#if UseBotManager
             return outputAnswer;
-#else
-            await context.PostAsync(outputAnswer);
-            return "";
-#endif
+
         }
         [IntentAttribute("WorstXThings")]
         public async Task<string> WorstXThings_Intent(IDialogContext context, IAwaitable<IMessageActivity> message, LuisFullResult result, LuisIntent intent)
         {
             this.lastIntent = "WorstXThings";
             string outputAnswer = TopBottomThings(context, message, result, intent, false);
-#if UseBotManager
             return outputAnswer;
-#else
-            await context.PostAsync(outputAnswer);
-            return "";
-#endif
         }
 
         private string TopBottomThings(IDialogContext context, IAwaitable<IMessageActivity> message, LuisFullResult result, LuisIntent intent, bool isTop)
@@ -397,16 +250,9 @@ namespace LuisBot.Dialogs
                     output = await PerformanceAgainstTarget_Intent(context, message, result, intent);
                     break;
             }
-            //if (lastIntent == "PerformanceAgainstTarget")
-            //    await PerformanceAgainstTarget_Intent(context, result);
-            //todo: fix this so it goes to the correct method
-            //string output = await PerformanceAgainstTarget_Intent(context, message, result, intent);
-#if UseBotManager
+
             return output;
-#else
-            //await context.PostAsync(output);
-            return "";
-#endif
+
         }
 
         // To change parameter for the bestx or worstx
@@ -414,24 +260,14 @@ namespace LuisBot.Dialogs
         public async Task<string> ChangeParameterBestX_Conv(IDialogContext context, IAwaitable<IMessageActivity> message, LuisFullResult result, BotManager.Subconvelement convelement, LuisIntent intent)
         {
             string output = TopBottomThings(context, message, result, intent, true);
-#if UseBotManager
             return output;
-#else
-            await context.PostAsync(output);
-            return "";
-#endif
         }
         // To change parameter for the bestx or worstx
         [ConvElement("switchParameterWorstX")]
         public async Task<string> ChangeParameterWortX_Conv(IDialogContext context, IAwaitable<IMessageActivity> message, LuisFullResult result, BotManager.Subconvelement convelement, LuisIntent intent)
         {
             string output = TopBottomThings(context, message, result, intent, false);
-#if UseBotManager
             return output;
-#else
-            await context.PostAsync(output);
-            return "";
-#endif
         }
 
         [IntentAttribute("PerformanceAgainstTarget")]
@@ -440,7 +276,7 @@ namespace LuisBot.Dialogs
             //check if they passed params through
             //this.lastdate = GetEntityValue("builtin.datetimeV2.daterange", this.lastdate, result);
             bool foundInLUIS;
-            string lastTermPerformance = _botManager.Memory.GetFieldValueWithEntityUpdate("lastTerm","Term",result, out foundInLUIS);
+            string lastTermPerformance = _botManager.Memory.GetFieldValueWithEntityUpdate("lastTerm", "Term", result, out foundInLUIS);
             this.lastIntent = "PerformanceAgainstTarget";
             string lastIndicatorPerformance = _botManager.Memory.GetFieldValueWithEntityUpdate("lastIndicator", "Indicator", result, out foundInLUIS);
             string lastDistrictPerformance = _botManager.Memory.GetFieldValueWithEntityUpdate("lastDistrict", "District", result, out foundInLUIS);
@@ -486,7 +322,7 @@ namespace LuisBot.Dialogs
                     performance = query.GetProgramPerformanceAsString(lastProgrammePerformance, (lastTermPerformance == "Annual"), true);
                 else
                     performance = query.GetProgramPerformanceAsString(lastProgrammePerformance, (lastTermPerformance == "Annual"), true, lastIndicatorPerformance);
-                
+
             }
             else
             {
@@ -517,7 +353,7 @@ namespace LuisBot.Dialogs
             if (allIndicators && (ConfigurationManager.AppSettings["DisplayCard"] == "true"))
             {
                 Intents.PerformanceIntentHandler perfHandler = new Intents.PerformanceIntentHandler();
-                Attachment card = await perfHandler.ShowPerformanceCard(context, lastProgrammePerformance, lastDistrictPerformance,lastTermPerformance ,performanceType);
+                Attachment card = await perfHandler.ShowPerformanceCard(context, lastProgrammePerformance, lastDistrictPerformance, lastTermPerformance, performanceType);
                 var reply = context.MakeMessage();
                 reply.Attachments.Add(card);
                 await context.PostAsync(reply);
@@ -526,26 +362,22 @@ namespace LuisBot.Dialogs
             }
             else
             {
-#if UseBotManager
-            return fullOutput;
-#else
-                await context.PostAsync(fullOutput);
-                return "";
-#endif
+
+                return fullOutput;
             }
 
 
-            }
+        }
 
         [IntentAttribute("Listindicators")]
         public async Task<string> ListIndicators_Intent(IDialogContext context, IAwaitable<IMessageActivity> message, LuisFullResult result, LuisIntent intent)
         {
-#if UseBotManager
+
             return $"I can give you the status of the HTS_TST, HTS_TST +, TX_CURR, TX_NEW, Testing Yield % or finance indicator performance. Alternatively, you can request the performance of all indicators.";
-#else
-            await context.PostAsync($"I can give you the status of the HTS_TST, HTS_TST +, TX_CURR, TX_NEW, Testing Yield % or finance indicator performance. Alternatively, you can request the performance of all indicators.");
-            return "";
-#endif
+
+            //await context.PostAsync($"I can give you the status of the HTS_TST, HTS_TST +, TX_CURR, TX_NEW, Testing Yield % or finance indicator performance. Alternatively, you can request the performance of all indicators.");
+            //return "";
+
         }
 
         [IntentAttribute("ListDistricts")]
@@ -554,23 +386,23 @@ namespace LuisBot.Dialogs
             //get a list of districts 
             EntitiesDBQuery query = new EntitiesDBQuery();
             string districts = query.GetListOfDistrictsAsString(_botManager.Memory["lastProgramme"]);
-#if UseBotManager
+
             return $"I can give you the performance of the {districts} districts. Alternatively, you can request the performance of all districts or a specific programme.";
-#else
-            await context.PostAsync($"I can give you the performance of the {districts} districts. Alternatively, you can request the performance of all districts or a specific programme.");
-            return "";
-#endif
+
+            //await context.PostAsync($"I can give you the performance of the {districts} districts. Alternatively, you can request the performance of all districts or a specific programme.");
+            //return "";
+
         }
 
         [IntentAttribute("ListPrograms")]
         public async Task<string> ListPrograms_Intent(IDialogContext context, IAwaitable<IMessageActivity> message,LuisFullResult result, LuisIntent intent)
         {
-#if UseBotManager
+
             return $"I can give you the status of the Comprehensive, RAD or IDeAS programmes. Alternatively, you can request the performance of all programmes.";
-#else
-            await context.PostAsync($"I can give you the status of the Comprehensive, RAD or IDeAS programmes. Alternatively, you can request the performance of all programmes.");
-            return "";
-#endif
+
+            //await context.PostAsync($"I can give you the status of the Comprehensive, RAD or IDeAS programmes. Alternatively, you can request the performance of all programmes.");
+            //return "";
+
         }
         
 
@@ -614,7 +446,7 @@ namespace LuisBot.Dialogs
 
 #endregion
 
-#region NoneIntent
+        #region None Intent
 
         public async Task NoneIntent(IDialogContext context, IAwaitable<IMessageActivity> message, LuisFullResult result)
         {
@@ -644,7 +476,7 @@ namespace LuisBot.Dialogs
 
 #endregion
 
-#region Get rating
+        #region Get Rating
         private async Task GetRating(IDialogContext context, IAwaitable<IMessageActivity> message)
         {
             //set the get rating flag back to false
@@ -679,7 +511,7 @@ namespace LuisBot.Dialogs
 
 #endregion
 
-#region Generic intents
+        #region Generic Intents
 
         [IntentAttribute("Greeting_Hello")]
         public async Task<string> Greeting_Hello_Intent(IDialogContext context, IAwaitable<IMessageActivity> message, LuisFullResult result, LuisIntent intent)
@@ -698,12 +530,8 @@ namespace LuisBot.Dialogs
 
             lastHello = DateTime.Now;
 
-#if UseBotManager
             return output;
-#else
-            await context.PostAsync(output);
-            return "";
-#endif
+
         }
 
         [IntentAttribute("Greeting_bye")]
@@ -715,12 +543,9 @@ namespace LuisBot.Dialogs
             getRating = true;
 
             //PromptDialog.Number(context, AfterNumberDialog, "How did I do on a scale from 1 to 10?", attempts: 3);
-#if UseBotManager
+
             return output;
-#else
-            await context.PostAsync(output);
-            return "";
-#endif
+
         }
 
 
@@ -728,15 +553,7 @@ namespace LuisBot.Dialogs
         public async Task<string> Thanks_Intent(IDialogContext context, IAwaitable<IMessageActivity> message, LuisFullResult result, LuisIntent intent)
         {
             string output = $"Glad to be of service";
-                      
-
-            //PromptDialog.Number(context, AfterNumberDialog, "How did I do on a scale from 1 to 10?", attempts: 3);
-#if UseBotManager
             return output;
-#else
-            await context.PostAsync(output);
-            return "";
-#endif
         }
 
 
@@ -774,12 +591,8 @@ namespace LuisBot.Dialogs
             {
                 output = $"No problem. Will pass your details onto a human";
             }
-#if UseBotManager
+
             return output;
-#else
-            await context.PostAsync(output);
-            return "";
-#endif
         }
 
         [IntentAttribute("Help")]
@@ -789,24 +602,17 @@ namespace LuisBot.Dialogs
             output += $"Can certainly help...\n\n\n\n";
 
 
-#if UseBotManager
+
             output += _botManager.GetCurrentHelpString();
             return output;
-#else
-            output += "Welcome to the BroadReach bot.I can answer questions on your performance or business indicators for specific programmes or districts.Ensure your questions relate to districts, programs and indicators in our database.\n\n I can also answer general questions about Broadreach and our offerings.\n\n Try: 'What is the Ugu district performance for 2017?'\n\n";
-            await context.PostAsync(output);
-            return "";
-#endif
+
+            //output += "Welcome to the BroadReach bot.I can answer questions on your performance or business indicators for specific programmes or districts.Ensure your questions relate to districts, programs and indicators in our database.\n\n I can also answer general questions about Broadreach and our offerings.\n\n Try: 'What is the Ugu district performance for 2017?'\n\n";
+            //await context.PostAsync(output);
+            //return "";
+
         }
 
         #endregion
-
-        //// Test method
-        //[ConvElement("firstHello")]
-        //public async Task<string> DoSomething(IDialogContext context, IAwaitable<IMessageActivity> message,  BotManager.Subconvelement convElement, LuisIntent intent)
-        //{
-        //    return convElement.text;
-        //}
 
 
 

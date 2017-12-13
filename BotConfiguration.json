@@ -3,7 +3,7 @@
     {
       "name": "BroadReachChat",
       "requestURI": "https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/{AppId}?subscription-key={AppKey}&timezoneOffset=0&verbose=true&q={Query}",
-      "AppId": "05d130e4-3419-47de-8a50-f9ee960f02f3",
+      "AppId": "34df51da-ba95-47a6-833e-e42b8d5b4389",
       "AppKey": "e9fb84acf75d4053a9cc1a716c94ca7e",
       "intents": [
         "ChangeParameter",
@@ -27,6 +27,41 @@
       "greeting": "Welcome to the BroadReach bot. I can answer questions on your performance or business indicators for specific programmes or districts. Ensure your questions relate to districts, programs and indicators in our database.\r\n I can also answer general questions about Broadreach and our offerings.\r\n Try: 'What is the Ugu district performance for 2017?'",
       "topLevelHelp": "I can answer questions on your performance or business indicators for specific programmes or districts. \n\nEnsure your questions relate to districts, programs and indicators in our database.\n\nI can also answer general questions about Broadreach and our offerings.\n\nTry: \"What is the Ugu district performance for 2017?\"\"",
       "alwaysThereHelp": "You can ask me about performance, or the best or worst districts or facilities.",
+      "memoryParameters": [
+        {
+          "name": "lastProgramme",
+          "defaultValue": "All Programmes",
+          "minutesToPersist": 2
+        },
+        {
+          "name": "lastCountry",
+          "defaultValue": ""
+        },
+        {
+          "name": "lastDistrict",
+          "defaultValue": ""
+        },
+        {
+          "name": "lastFacility",
+          "defaultValue": ""
+        },
+        {
+          "name": "lastIndicator",
+          "defaultValue": "All Indicators"
+        },
+        {
+          "name": "lastNumberEntities",
+          "defaultValue": "1"
+        },
+        {
+          "name": "lastEntityBeingDiscussed",
+          "defaultValue": ""
+        },
+        {
+          "name": "lastTerm",
+          "defaultValue": ""
+        }
+      ],
       "subConvElements": [
         {
           "convName": "firstPerformance",

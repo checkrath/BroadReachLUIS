@@ -38,8 +38,8 @@ namespace LuisBot
     [Serializable]
     public class BotManager
     {
-        #region JSON Classes
-        
+        #region JSON Classes for Config File
+
         // Define all the classes for the JSON Object
         [Serializable]
         public class BotDescription
@@ -59,6 +59,7 @@ namespace LuisBot
             public string topLevelHelp { get; set; }
             public string alwaysThereHelp { get; set; }
             public Subconvelement[] subConvElements { get; set; }
+            public MemoryParameter[] memoryParameters { get; set; }
         }
         [Serializable]
         public class Subconvelement
@@ -84,6 +85,37 @@ namespace LuisBot
             public string AppKey { get; set; }
             public string[] intents { get; set; }
         }
+
+        [Serializable]
+        public class MemoryParameter
+        {
+            public string name { get; set; }
+            public string defaultValue { get; set; }
+            public int minutesToPersist { get; set; }
+        }
+
+        #endregion
+
+        #region Auditing Conversation
+        [Serializable]
+        public class ConversationAuditElement
+        {
+
+            public string query { get; set; }
+            public string stringResponse { get; set; }
+            public string userName { get; set; }
+            public string userId { get; set; }
+            //public List<LuisBot.LuisHelper.LuisFullResult> luisFullResults;
+            public string luisFullResults;
+            public List<string> progressList;
+            public ConversationAuditElement()
+            {
+                progressList = new List<string>();
+                //luisFullResults = new List<LuisFullResult>();
+                luisFullResults = "";
+            }
+        }
+
         #endregion
 
         private BotMemory _memory;
@@ -96,24 +128,14 @@ namespace LuisBot
         // Use events for this later
         private string _noneEventMethodName;
 
-        /// <summary>
-        ///  Return the conversational flow
-        /// </summary>
-        /// <returns></returns>
-        public string GetConversationFlow()
-        {
-            return _conversationFlow;
-        }
-
         // User details
         private string _userId;
         private string _userName;
 
         public string Username { get { return _userName; } }
-        public string UserID {  get { return _userId; } }
+        public string UserID { get { return _userId; } }
+        private List<ConversationAuditElement> _conversationAudit;
 
-        // Used for later
-        private string _conversationFlow;
 
         public BotManager(string BotConfigFile, object callingObject, string noneEventMethodName)
         {
@@ -133,11 +155,15 @@ namespace LuisBot
 
             // None event
             _noneEventMethodName = noneEventMethodName;
-
-            _conversationFlow = "";
+            _conversationAudit = new List<ConversationAuditElement>();
 
             // Initialize Memory
             _memory = new BotMemory();
+
+            // Load the parameters
+            foreach (MemoryParameter memParam in _bot.conversation.mainTopic.memoryParameters)
+                _memory.CreateField(memParam.name, (memParam.defaultValue == null ? "" : memParam.defaultValue));
+
         }
 
         #region Memory Area
@@ -147,226 +173,209 @@ namespace LuisBot
         }
         #endregion
 
-        public async Task<List<LuisBot.LuisHelper.LuisFullResult>> ExecuteQuery(string query, IDialogContext context, IAwaitable<IMessageActivity> message)
+        public async void ExecuteQuery(string query, IDialogContext context, IAwaitable<IMessageActivity> message)
         {
-            // Get username stuff
-            //Get the username
-            if (context.Activity.From.Id != null)
+            try
             {
-                _userId = context.Activity.From.Id;
-                _userName = context.Activity.From.Name;
-            }
-            else
-            {
-                _userId = "Anonymous";
-                _userName = "Unknown User";
-            }
-            double topIntentScore = 0;
-            LuisHelper.LuisIntent topIntent = null;
-            Subconvelement topConvElement = null;
-            LuisFullResult topLuisResult = null;
 
-            List<LuisBot.LuisHelper.LuisFullResult> returnedLuisResponses = new List<LuisHelper.LuisFullResult>();
-            // Run through each LUIS entity, and execute the query
-            foreach (Luisapplication app in _bot.LUISApplications)
-            {
-                returnedLuisResponses.Add(await GetIndividualQuery(app, query));
-            }
+                // Audit
+                ConversationAuditElement audit = new ConversationAuditElement();
+                // Add to the list in case of failure
+                _conversationAudit.Add(audit);
+                // Add the query
+                audit.query = query;
+                audit.progressList.Add($"Entered Execute method; query is {query}");
 
-            // Now, we have the returned intents. Cycle through them, boost and then find the top intent
-            foreach (LuisBot.LuisHelper.LuisFullResult result in returnedLuisResponses)
-            {
-                // Cycle each intent
-                foreach (LuisHelper.LuisIntent intent in result.Intents)
+                //Get the username
+                if (context.Activity.From.Id != null)
                 {
-                    // Capture if this is the highest intent before adjustment?
-                    
-                    if (intent.Score > topIntentScore)
-                    {
-                        topIntentScore = intent.Score;
-                        topIntent = intent;
-                        topLuisResult = result;
-                    }
+                    _userId = context.Activity.From.Id;
+                    _userName = context.Activity.From.Name;
+                }
+                else
+                {
+                    _userId = "Anonymous";
+                    _userName = "Unknown User";
+                }
+                // Add username and id
+                audit.userName = _userName;
+                audit.userId = _userId;
+                audit.progressList.Add($"Loaded username of {_userName} and ID {_userId}");
 
-                    // For each returned intent, we need to check if it is one of the current returned intents
-                    if ((_currentConvElement == null) || (_currentConvElement.subConvElements == null))
+
+                double topIntentScore = 0;
+                LuisHelper.LuisIntent topIntent = null;
+                Subconvelement topConvElement = null;
+                LuisFullResult topLuisResult = null;
+
+                List<LuisBot.LuisHelper.LuisFullResult> returnedLuisResponses = new List<LuisHelper.LuisFullResult>();
+
+                // Run through each LUIS entity, and execute the query
+                foreach (Luisapplication app in _bot.LUISApplications)
+                    returnedLuisResponses.Add(await GetIndividualQuery(app, query));
+
+                // Audit
+                //audit.luisFullResults = returnedLuisResponses;
+                audit.progressList.Add($"Returned Luis Intents; {returnedLuisResponses.Count} responses. The first one has {returnedLuisResponses[0].Entities} entities and {returnedLuisResponses[0].Intents} intents");
+                // Now, we have the returned intents. Cycle through them, boost and then find the top intent
+                foreach (LuisBot.LuisHelper.LuisFullResult result in returnedLuisResponses)
+                {
+                    // Cycle each intent
+                    foreach (LuisHelper.LuisIntent intent in result.Intents)
                     {
-                        // Work with the main conversation element
-                        foreach (Subconvelement convElement in _bot.conversation.mainTopic.subConvElements)
+                        audit.progressList.Add($"Intent {intent.Name} with pre boosted score {intent.Score}");
+
+                        // Capture if this is the highest intent before adjustment?
+                        if (intent.Score > topIntentScore)
                         {
-                            // Check if this element matches the intent returned, and boost if so
-                            if (convElement.intent == intent.Name)
+                            topIntentScore = intent.Score;
+                            topIntent = intent;
+                            topLuisResult = result;
+                        }
+
+                        // For each returned intent, we need to check if it is one of the current returned intents
+                        if ((_currentConvElement == null) || (_currentConvElement.subConvElements == null))
+                        {
+                            // Work with the main conversation element
+                            foreach (Subconvelement convElement in _bot.conversation.mainTopic.subConvElements)
                             {
-                                // Boost
-                                // This means we had a returned intent that we were expecting
-                                double thisIntentScore = intent.Score * convElement.boost;
-                                if (thisIntentScore >= topIntentScore)
+                                // Check if this element matches the intent returned, and boost if so
+                                if (convElement.intent == intent.Name)
                                 {
-                                    topIntentScore = thisIntentScore;
-                                    topIntent = intent;
-                                    topConvElement = convElement;
-                                    topLuisResult = result;
+                                    // Boost
+                                    // This means we had a returned intent that we were expecting
+                                    double thisIntentScore = intent.Score * convElement.boost;
+                                    if (thisIntentScore >= topIntentScore)
+                                    {
+                                        topIntentScore = thisIntentScore;
+                                        topIntent = intent;
+                                        topConvElement = convElement;
+                                        topLuisResult = result;
+                                    }
                                 }
                             }
                         }
+                        else
+                        {
+                            // Work with the main conversation element
+                            foreach (Subconvelement convElement in _currentConvElement.subConvElements)
+                            {
+                                // Check if this element matches the intent returned, and boost if so
+                                if (convElement.intent == intent.Name)
+                                {
+                                    // Boost
+                                    // This means we had a returned intent that we were expecting
+                                    double thisIntentScore = intent.Score * convElement.boost;
+                                    if (thisIntentScore >= topIntentScore)
+                                    {
+                                        topIntentScore = thisIntentScore;
+                                        topIntent = intent;
+                                        topConvElement = convElement;
+                                        topLuisResult = result;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                int x = 0 / 2;
+                // Here we have the conv element that is highest, and the intent that is highest.
+                if (topConvElement != null)
+                {
+                    audit.progressList.Add($"Conversation Element {topConvElement.convName} found as highest score");
+                    // Pick out the name and look for a method with this name
+                    string attributeName = topConvElement.convName;
+                    // Add to the conversation flow
+                    _currentConvElement = topConvElement;
+                    string result = await TryExecuteMethodWithAttributeName(typeof(ConvElement), attributeName, _callingObject, context, message, topLuisResult, topConvElement, topIntent);
+
+                    // Is it correct?
+                    if (result != null)
+                    {
+                        audit.progressList.Add($"Conversation Element {topConvElement.convName} executed; result is {result}");
+                        await context.PostAsync(result);
+                        return;
+                    }
+                }
+
+                if (topIntent != null)
+                {
+                    // Here, we search for the generic Intent method and do the same thing
+                    // Pick out the name and look for a method with this name
+                    string intentName = topIntent.Name;
+                    // Only populate the intent if we didn't find a conv element
+                    audit.progressList.Add($"Top Intent found with name {intentName}");
+                    string result = await TryExecuteMethodWithAttributeName(typeof(IntentAttribute), intentName, _callingObject, context, message, topLuisResult, null, topIntent);
+                    // Is it correct?
+                    if (result != null)
+                    {
+                        audit.progressList.Add($"Found a method for intent {intentName}");
+                        // Set the conversation element if we can
+                        if (topConvElement == null)
+                        {
+                            var topLevelConvElement = GetConversationElementFromIntent(topIntent);
+                            if (topLevelConvElement != null)
+                                _currentConvElement = topLevelConvElement;
+                        }
+                        await context.PostAsync(result);
+                        return;
                     }
                     else
                     {
-                        // Work with the main conversation element
-                        foreach (Subconvelement convElement in _currentConvElement.subConvElements)
+                        audit.progressList.Add($"No method found for {intentName}");
+                        // Here, we had no attribute or intent method. But we could have found a conv element?
+                        if (topConvElement != null)
                         {
-                            // Check if this element matches the intent returned, and boost if so
-                            if (convElement.intent == intent.Name)
+                            // Return the text and description
+                            if (topConvElement.text != null)
                             {
-                                // Boost
-                                // This means we had a returned intent that we were expecting
-                                double thisIntentScore = intent.Score * convElement.boost;
-                                if (thisIntentScore >= topIntentScore)
-                                {
-                                    topIntentScore = thisIntentScore;
-                                    topIntent = intent;
-                                    topConvElement = convElement;
-                                    topLuisResult = result;
-                                }
+                                await context.PostAsync(topConvElement.text);
+                                return;
                             }
+                            else
+                                throw new Exception($"Found conversation element, but it had no execute or intent method and no text description");
                         }
                     }
                 }
-            }
 
-            // Here we have the conv element that is highest, and the intent that is highest.
-            if (topConvElement != null)
-            {
-                // Pick out the name and look for a method with this name
-                string attributeName = topConvElement.convName;
-                // Add to the conversation flow
-                _conversationFlow += "> [Conv] " + attributeName;
-                _currentConvElement = topConvElement;
-                string result = await TryExecuteMethodWithAttributeName(typeof(ConvElement), attributeName, _callingObject, context, message, topLuisResult, topConvElement, topIntent);
-                // Is it correct?
-                if (result != null)
-                {
-                    await context.PostAsync(result);
-                    return returnedLuisResponses;
-                }
-            }
 
-            if (topIntent != null)
-            {
-                // Here, we search for the generic Intent method and do the same thing
-                // Pick out the name and look for a method with this name
-                string intentName = topIntent.Name;
-                // Only populate the intent if we didn't find a conv element
-                if (topConvElement == null)
-                    _conversationFlow += "> [Intent] " + intentName;
-                string result = await TryExecuteMethodWithAttributeName(typeof(IntentAttribute), intentName, _callingObject, context, message, topLuisResult, null, topIntent);
-                // Is it correct?
-                if (result != null)
+
+
+                // At this point, call the "None" response
+                if (!String.IsNullOrEmpty(_noneEventMethodName))
                 {
-                    // Set the conversation element if we can
-                    if (topConvElement == null)
-                    { 
-                        var topLevelConvElement = GetConversationElementFromIntent(topIntent);
-                        if (topLevelConvElement != null)
-                            _currentConvElement = topLevelConvElement;
-                    }
-                    await context.PostAsync(result);
-                    return returnedLuisResponses;
-                }
-                else
-                {
-                    // Here, we had no attribute or intent method. But we could have found a conv element?
-                    if (topConvElement != null)
+                    // private async Task NoneIntent(IDialogContext context, IAwaitable<IMessageActivity> message, LuisFullResult result)
+                    object[] paramList = new object[] { context, message, topLuisResult };
+                    // Use reflection to find the methods with this attribute?
+                    var methods = _callingObject.GetType().GetMethods();
+                    foreach (var method in methods)
                     {
-                        // Return the text and description
-                        if (topConvElement.text != null)
+                        if (method.Name.ToLower() == _noneEventMethodName.ToLower())
                         {
-                            await context.PostAsync(topConvElement.text);
-                            return returnedLuisResponses;
+                            Task tReturn = (Task)method.Invoke(_callingObject, paramList);
                         }
-                        else
-                            throw new Exception($"Found conversation element, but it had no execute or intent method and no text description");
                     }
-                }
-            }
-            
-
-
-
-            // At this point, call the "None" response
-            if (!String.IsNullOrEmpty(_noneEventMethodName))
-            {
-                // private async Task NoneIntent(IDialogContext context, IAwaitable<IMessageActivity> message, LuisFullResult result)
-                object[] paramList = new object[] { context, message, topLuisResult };
-                // Use reflection to find the methods with this attribute?
-                var methods = _callingObject.GetType().GetMethods();
-                foreach (var method in methods)
-                {
-                    if (method.Name.ToLower() == _noneEventMethodName.ToLower())
-                    {
-                        Task tReturn = (Task)method.Invoke(_callingObject, paramList);
-                        //tReturn.Wait();
-                    }
-                }
-            }
-            else
-            {
-                // Return the generic strings?
-                throw new Exception("No conversation element, intent or none event found to deal with the query");
-            }
-
-
-            return returnedLuisResponses;
-        }
-
-        /// <summary>
-        /// Sets the current conversation element if necessary. Returns null if not found at the top level
-        /// </summary>
-        /// <param name="intent">The intent we are trying to match</param>
-        /// <returns></returns>
-        private Subconvelement GetConversationElementFromIntent(LuisIntent intent)
-        {
-            // Run through each top-level intent and see if it is listed in the conversation
-            foreach (var conv in _bot.conversation.mainTopic.subConvElements)
-            {
-                if ((conv.intent.ToLower() == intent.Name.ToLower()) && (!conv.dontUseAsIntentHome))
-                    return conv;
-            }
-            return null;
-        }
-
-        /// <summary>
-        /// Execute the query and return the result
-        /// </summary>
-        /// <param name="app"></param>
-        /// <param name="userQuery"></param>
-        /// <returns></returns>
-        private async Task<LuisBot.LuisHelper.LuisFullResult> GetIndividualQuery(Luisapplication app, string userQuery)
-        {
-            // Escape the query
-            string query = Uri.EscapeDataString(userQuery);
-
-            using (HttpClient client = new HttpClient())
-            {
-                string RequestURI = app.requestURI.Replace("{AppId}", app.AppId).Replace("{AppKey}", app.AppKey).Replace("{Query}", query);
-#if DEBUG
-                RequestURI += "&staging=true";
-#endif
-                HttpResponseMessage msg = await client.GetAsync(RequestURI);
-                if (msg.IsSuccessStatusCode)
-                {
-                    string JsonDataResponse = await msg.Content.ReadAsStringAsync();
-                    // Serialize
-                    LuisBot.LuisHelper.LuisFullResult returnedResult = new LuisHelper.LuisFullResult(JsonDataResponse);
-                    return returnedResult;
                 }
                 else
                 {
-                    throw new Exception("Invalid respose from LUIS service");
+                    // Return the generic strings?
+                    throw new Exception("No conversation element, intent or none event found to deal with the query");
                 }
+
             }
+            catch (Exception eConvBusted)
+            {
+                string convRecord = "";
+                foreach (string record in _conversationAudit.Last().progressList)
+                    convRecord += record + "\r\n";
+                Exception e = new Exception("Error occurred in ExecuteQuery", eConvBusted);
+
+                throw e;
+            }
+            //return returnedLuisResponses;
         }
 
+        #region Accessors
         /// <summary>
         /// Returns the greeting for the bot
         /// </summary>
@@ -408,7 +417,77 @@ namespace LuisBot
 
         }
 
-        private async Task<string> TryExecuteMethodWithAttributeName(Type type, string attributeName, object callingObject,IDialogContext context, IAwaitable<IMessageActivity> message, LuisFullResult luisResult, Subconvelement convElement, LuisHelper.LuisIntent intent)
+        #endregion
+
+        #region Debugging and Logging
+        /// <summary>
+        /// Generalised log function; calls logging on file system for now, to be moved to DB Later.
+        /// </summary>
+        /// <param name="logString"></param>
+        public async void Log(string logString)
+        {
+            throw new NotImplementedException();
+        }
+        #endregion
+
+        /// <summary>
+        /// Sets the current conversation element if necessary. Returns null if not found at the top level
+        /// </summary>
+        /// <param name="intent">The intent we are trying to match</param>
+        /// <returns></returns>
+        private Subconvelement GetConversationElementFromIntent(LuisIntent intent)
+        {
+            // Run through each top-level intent and see if it is listed in the conversation
+            foreach (var conv in _bot.conversation.mainTopic.subConvElements)
+            {
+                if ((conv.intent.ToLower() == intent.Name.ToLower()) && (!conv.dontUseAsIntentHome))
+                    return conv;
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Execute the query and return the result
+        /// </summary>
+        /// <param name="app"></param>
+        /// <param name="userQuery"></param>
+        /// <returns></returns>
+        private async Task<LuisBot.LuisHelper.LuisFullResult> GetIndividualQuery(Luisapplication app, string userQuery)
+        {
+
+            // Escape the query
+            string query = Uri.EscapeDataString(userQuery);
+
+            using (HttpClient client = new HttpClient())
+            {
+
+                string RequestURI = app.requestURI.Replace("{AppId}", app.AppId).Replace("{AppKey}", app.AppKey).Replace("{Query}", query);
+#if DEBUG
+                RequestURI += "&staging=true";
+#endif
+                //HttpResponseMessage msg = await client.GetAsync(RequestURI);
+                Task<HttpResponseMessage> t = client.GetAsync(RequestURI);
+                t.Wait();
+                HttpResponseMessage msg = t.Result;
+
+                if (msg.IsSuccessStatusCode)
+                {
+
+                    string JsonDataResponse = await msg.Content.ReadAsStringAsync();
+                    // Serialize
+                    LuisBot.LuisHelper.LuisFullResult returnedResult = new LuisHelper.LuisFullResult(JsonDataResponse);
+                    return returnedResult;
+                }
+                else
+                {
+                    throw new Exception("Invalid respose from LUIS service");
+                }
+
+            }
+        }
+
+
+        private async Task<string> TryExecuteMethodWithAttributeName(Type type, string attributeName, object callingObject, IDialogContext context, IAwaitable<IMessageActivity> message, LuisFullResult luisResult, Subconvelement convElement, LuisHelper.LuisIntent intent)
         {
             // Use reflection to find the methods with this attribute?
             var methods = callingObject.GetType().GetMethods();
